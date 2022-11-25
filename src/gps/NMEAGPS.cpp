@@ -1,6 +1,7 @@
 #include "configuration.h"
 #include "NMEAGPS.h"
 #include "RTC.h"
+#include "GPSStatus.h"
 
 #include <TinyGPS++.h>
 
@@ -25,7 +26,7 @@ bool NMEAGPS::factoryReset()
     pinMode(PIN_GPS_REINIT, OUTPUT);
     delay(150); //The L76K datasheet calls for at least 100MS delay
     digitalWrite(PIN_GPS_REINIT, 1);
-#endif  
+#endif
 
     // send the UBLOX Factory Reset Command regardless of detect state, something is very wrong, just assume it's UBLOX.
     // Factory Reset
@@ -40,7 +41,7 @@ bool NMEAGPS::factoryReset()
 bool NMEAGPS::setupGPS()
 {
     GPS::setupGPS();
-    
+
 #ifdef PIN_GPS_PPS
     // pulse per second
     // FIXME - move into shared GPS code
@@ -102,7 +103,7 @@ The Unix epoch (or Unix time or POSIX time or Unix timestamp) is the number of s
  */
 bool NMEAGPS::lookForLocation()
 {
-    // By default, TinyGPS++ does not parse GPGSA lines, which give us 
+    // By default, TinyGPS++ does not parse GPGSA lines, which give us
     //   the 2D/3D fixType (see NMEAGPS.h)
     // At a minimum, use the fixQuality indicator in GPGGA (FIXME?)
     fixQual = reader.fixQuality();
@@ -117,8 +118,8 @@ bool NMEAGPS::lookForLocation()
         return false;
 
 #ifdef GPS_EXTRAVERBOSE
-    DEBUG_MSG("AGE: LOC=%d FIX=%d DATE=%d TIME=%d\n", 
-                reader.location.age(), 
+    DEBUG_MSG("AGE: LOC=%d FIX=%d DATE=%d TIME=%d\n",
+                reader.location.age(),
 #ifndef TINYGPS_OPTION_NO_CUSTOM_FIELDS
                 gsafixtype.age(),
 #else
@@ -130,15 +131,20 @@ bool NMEAGPS::lookForLocation()
     // check if a complete GPS solution set is available for reading
     //   tinyGPSDatum::age() also includes isValid() test
     // FIXME
-    if (! ((reader.location.age() < GPS_SOL_EXPIRY_MS) &&
-#ifndef TINYGPS_OPTION_NO_CUSTOM_FIELDS
-            (gsafixtype.age() < GPS_SOL_EXPIRY_MS) &&
-#endif
-            (reader.time.age() < GPS_SOL_EXPIRY_MS) &&
-            (reader.date.age() < GPS_SOL_EXPIRY_MS)))
+    if (gpsStatus->getNumSatellites())
     {
-        DEBUG_MSG("SOME data is TOO OLD: LOC %u, TIME %u, DATE %u\n", reader.location.age(), reader.time.age(), reader.date.age());
-        return false;
+        if (! ((reader.location.age() < GPS_SOL_EXPIRY_MS) &&
+#ifndef TINYGPS_OPTION_NO_CUSTOM_FIELDS
+                (gsafixtype.age() < GPS_SOL_EXPIRY_MS) &&
+#endif
+                (reader.time.age() < GPS_SOL_EXPIRY_MS) &&
+                (reader.date.age() < GPS_SOL_EXPIRY_MS)))
+        {
+            if (reader.location.isValid() && reader.time.isValid() && reader.date.isValid()) {
+                DEBUG_MSG("SOME data is TOO OLD: LOC %u, TIME %u, DATE %u\n", reader.location.age(), reader.time.age(), reader.date.age());
+            }
+            return false;
+        }
     }
 
     // Is this a new point or are we re-reading the previous one?
@@ -150,13 +156,13 @@ bool NMEAGPS::lookForLocation()
 
     // Bail out EARLY to avoid overwriting previous good data (like #857)
     if (toDegInt(loc.lat) > 900000000) {
-#ifdef GPS_EXTRAVERBOSE        
+#ifdef GPS_EXTRAVERBOSE
         DEBUG_MSG("Bail out EARLY on LAT %i\n",toDegInt(loc.lat));
 #endif
         return false;
     }
     if (toDegInt(loc.lng) > 1800000000) {
-#ifdef GPS_EXTRAVERBOSE        
+#ifdef GPS_EXTRAVERBOSE
         DEBUG_MSG("Bail out EARLY on LNG %i\n",toDegInt(loc.lng));
 #endif
         return false;

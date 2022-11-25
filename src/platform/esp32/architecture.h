@@ -51,6 +51,8 @@
     #define HW_VENDOR HardwareModel_LILYGO_TBEAM_S3_CORE
 #elif defined(DIY_V1)
     #define HW_VENDOR HardwareModel_DIY_V1
+#elif defined(PTD)
+    #define HW_VENDOR HardwareModel_PTD
 #elif defined(RAK_11200)
     #define HW_VENDOR HardwareModel_RAK11200
 #elif defined(ARDUINO_HELTEC_WIFI_LORA_32_V2)

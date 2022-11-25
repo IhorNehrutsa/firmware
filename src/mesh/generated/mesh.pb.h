@@ -19,238 +19,239 @@
  bin/build-all.sh script.
  Because they will be used to find firmware filenames in the android app for OTA updates.
  To match the old style filenames, _ is converted to -, p is converted to . */
-typedef enum _HardwareModel { 
+typedef enum _HardwareModel {
     /* TODO: REPLACE */
-    HardwareModel_UNSET = 0, 
+    HardwareModel_UNSET = 0,
     /* TODO: REPLACE */
-    HardwareModel_TLORA_V2 = 1, 
+    HardwareModel_TLORA_V2 = 1,
     /* TODO: REPLACE */
-    HardwareModel_TLORA_V1 = 2, 
+    HardwareModel_TLORA_V1 = 2,
     /* TODO: REPLACE */
-    HardwareModel_TLORA_V2_1_1P6 = 3, 
+    HardwareModel_TLORA_V2_1_1P6 = 3,
     /* TODO: REPLACE */
-    HardwareModel_TBEAM = 4, 
+    HardwareModel_TBEAM = 4,
     /* The original heltec WiFi_Lora_32_V2, which had battery voltage sensing hooked to GPIO 13
  (see HELTEC_V2 for the new version). */
-    HardwareModel_HELTEC_V2_0 = 5, 
+    HardwareModel_HELTEC_V2_0 = 5,
     /* TODO: REPLACE */
-    HardwareModel_TBEAM_V0P7 = 6, 
+    HardwareModel_TBEAM_V0P7 = 6,
     /* TODO: REPLACE */
-    HardwareModel_T_ECHO = 7, 
+    HardwareModel_T_ECHO = 7,
     /* TODO: REPLACE */
-    HardwareModel_TLORA_V1_1P3 = 8, 
+    HardwareModel_TLORA_V1_1P3 = 8,
     /* TODO: REPLACE */
-    HardwareModel_RAK4631 = 9, 
+    HardwareModel_RAK4631 = 9,
     /* The new version of the heltec WiFi_Lora_32_V2 board that has battery sensing hooked to GPIO 37.
  Sadly they did not update anything on the silkscreen to identify this board */
-    HardwareModel_HELTEC_V2_1 = 10, 
+    HardwareModel_HELTEC_V2_1 = 10,
     /* Ancient heltec WiFi_Lora_32 board */
-    HardwareModel_HELTEC_V1 = 11, 
+    HardwareModel_HELTEC_V1 = 11,
     /* New T-BEAM with ESP32-S3 CPU */
-    HardwareModel_LILYGO_TBEAM_S3_CORE = 12, 
+    HardwareModel_LILYGO_TBEAM_S3_CORE = 12,
     /* RAK WisBlock ESP32 core: https://docs.rakwireless.com/Product-Categories/WisBlock/RAK11200/Overview/ */
-    HardwareModel_RAK11200 = 13, 
+    HardwareModel_RAK11200 = 13,
     /* B&Q Consulting Nano Edition G1: https://uniteng.com/wiki/doku.php?id=meshtastic:nano */
-    HardwareModel_NANO_G1 = 14, 
+    HardwareModel_NANO_G1 = 14,
     /* TODO: REPLACE */
-    HardwareModel_TLORA_V2_1_1P8 = 15, 
+    HardwareModel_TLORA_V2_1_1P8 = 15,
     /* B&Q Consulting Station Edition G1: https://uniteng.com/wiki/doku.php?id=meshtastic:station */
-    HardwareModel_STATION_G1 = 25, 
+    HardwareModel_STATION_G1 = 25,
     /* Less common/prototype boards listed here (needs one more byte over the air) */
-    HardwareModel_LORA_RELAY_V1 = 32, 
+    HardwareModel_LORA_RELAY_V1 = 32,
     /* TODO: REPLACE */
-    HardwareModel_NRF52840DK = 33, 
+    HardwareModel_NRF52840DK = 33,
     /* TODO: REPLACE */
-    HardwareModel_PPR = 34, 
+    HardwareModel_PPR = 34,
     /* TODO: REPLACE */
-    HardwareModel_GENIEBLOCKS = 35, 
+    HardwareModel_GENIEBLOCKS = 35,
     /* TODO: REPLACE */
-    HardwareModel_NRF52_UNKNOWN = 36, 
+    HardwareModel_NRF52_UNKNOWN = 36,
     /* TODO: REPLACE */
-    HardwareModel_PORTDUINO = 37, 
+    HardwareModel_PORTDUINO = 37,
     /* The simulator built into the android app */
-    HardwareModel_ANDROID_SIM = 38, 
+    HardwareModel_ANDROID_SIM = 38,
     /* Custom DIY device based on @NanoVHF schematics: https://github.com/NanoVHF/Meshtastic-DIY/tree/main/Schematics */
-    HardwareModel_DIY_V1 = 39, 
+    HardwareModel_DIY_V1 = 39,
     /* nRF52840 Dongle : https://www.nordicsemi.com/Products/Development-hardware/nrf52840-dongle/ */
-    HardwareModel_NRF52840_PCA10059 = 40, 
+    HardwareModel_NRF52840_PCA10059 = 40,
     /* Custom Disaster Radio esp32 v3 device https://github.com/sudomesh/disaster-radio/tree/master/hardware/board_esp32_v3 */
-    HardwareModel_DR_DEV = 41, 
+    HardwareModel_DR_DEV = 41,
     /* M5 esp32 based MCU modules with enclosure, TFT and LORA Shields. All Variants (Basic, Core, Fire, Core2, Paper) https://m5stack.com/ */
-    HardwareModel_M5STACK = 42, 
+    HardwareModel_M5STACK = 42,
     /* New Heltec LoRA32 with ESP32-S3 CPU */
-    HardwareModel_HELTEC_V3 = 43, 
+    HardwareModel_HELTEC_V3 = 43,
     /* New Heltec Wireless Stick Lite with ESP32-S3 CPU */
-    HardwareModel_HELTEC_WSL_V3 = 44, 
+    HardwareModel_HELTEC_WSL_V3 = 44,
     /* Reserved ID For developing private Ports. These will show up in live traffic sparsely, so we can use a high number. Keep it within 8 bits. */
-    HardwareModel_PRIVATE_HW = 255 
+    HardwareModel_PTD = 45,
+    HardwareModel_PRIVATE_HW = 255
 } HardwareModel;
 
 /* Shared constants between device and phone */
-typedef enum _Constants { 
+typedef enum _Constants {
     /* First enum must be zero, and we are just using this enum to
  pass int constants between two very different environments */
-    Constants_ZERO = 0, 
+    Constants_ZERO = 0,
     /* From mesh.options
  note: this payload length is ONLY the bytes that are sent inside of the Data protobuf (excluding protobuf overhead). The 16 byte header is
  outside of this envelope */
-    Constants_DATA_PAYLOAD_LEN = 237 
+    Constants_DATA_PAYLOAD_LEN = 237
 } Constants;
 
 /* Error codes for critical errors
  The device might report these fault codes on the screen.
  If you encounter a fault code, please post on the meshtastic.discourse.group
  and we'll try to help. */
-typedef enum _CriticalErrorCode { 
+typedef enum _CriticalErrorCode {
     /* TODO: REPLACE */
-    CriticalErrorCode_NONE = 0, 
+    CriticalErrorCode_NONE = 0,
     /* A software bug was detected while trying to send lora */
-    CriticalErrorCode_TX_WATCHDOG = 1, 
+    CriticalErrorCode_TX_WATCHDOG = 1,
     /* A software bug was detected on entry to sleep */
-    CriticalErrorCode_SLEEP_ENTER_WAIT = 2, 
+    CriticalErrorCode_SLEEP_ENTER_WAIT = 2,
     /* No Lora radio hardware could be found */
-    CriticalErrorCode_NO_RADIO = 3, 
+    CriticalErrorCode_NO_RADIO = 3,
     /* Not normally used */
-    CriticalErrorCode_UNSPECIFIED = 4, 
+    CriticalErrorCode_UNSPECIFIED = 4,
     /* We failed while configuring a UBlox GPS */
-    CriticalErrorCode_UBLOX_UNIT_FAILED = 5, 
+    CriticalErrorCode_UBLOX_UNIT_FAILED = 5,
     /* This board was expected to have a power management chip and it is missing or broken */
-    CriticalErrorCode_NO_AXP192 = 6, 
+    CriticalErrorCode_NO_AXP192 = 6,
     /* The channel tried to set a radio setting which is not supported by this chipset,
  radio comms settings are now undefined. */
-    CriticalErrorCode_INVALID_RADIO_SETTING = 7, 
+    CriticalErrorCode_INVALID_RADIO_SETTING = 7,
     /* Radio transmit hardware failure. We sent data to the radio chip, but it didn't
  reply with an interrupt. */
-    CriticalErrorCode_TRANSMIT_FAILED = 8, 
+    CriticalErrorCode_TRANSMIT_FAILED = 8,
     /* We detected that the main CPU voltage dropped below the minumum acceptable value */
-    CriticalErrorCode_BROWNOUT = 9, 
+    CriticalErrorCode_BROWNOUT = 9,
     /* Selftest of SX1262 radio chip failed */
-    CriticalErrorCode_SX1262_FAILURE = 10, 
+    CriticalErrorCode_SX1262_FAILURE = 10,
     /* A (likely software but possibly hardware) failure was detected while trying to send packets.
  If this occurs on your board, please post in the forum so that we can ask you to collect some information to allow fixing this bug */
-    CriticalErrorCode_RADIO_SPI_BUG = 11 
+    CriticalErrorCode_RADIO_SPI_BUG = 11
 } CriticalErrorCode;
 
 /* Note: these enum names must EXACTLY match the string used in the device
  bin/build-all.sh script.
  Because they will be used to find firmware filenames in the android app for OTA updates.
  To match the old style filenames, _ is converted to -, p is converted to . */
-typedef enum _Position_LocSource { 
+typedef enum _Position_LocSource {
     /* TODO: REPLACE */
-    Position_LocSource_LOC_UNSET = 0, 
+    Position_LocSource_LOC_UNSET = 0,
     /* TODO: REPLACE */
-    Position_LocSource_LOC_MANUAL = 1, 
+    Position_LocSource_LOC_MANUAL = 1,
     /* TODO: REPLACE */
-    Position_LocSource_LOC_INTERNAL = 2, 
+    Position_LocSource_LOC_INTERNAL = 2,
     /* TODO: REPLACE */
-    Position_LocSource_LOC_EXTERNAL = 3 
+    Position_LocSource_LOC_EXTERNAL = 3
 } Position_LocSource;
 
 /* Shared constants between device and phone */
-typedef enum _Position_AltSource { 
+typedef enum _Position_AltSource {
     /* First enum must be zero, and we are just using this enum to
  pass int constants between two very different environments */
-    Position_AltSource_ALT_UNSET = 0, 
+    Position_AltSource_ALT_UNSET = 0,
     /* From mesh.options
  note: this payload length is ONLY the bytes that are sent inside of the Data protobuf (excluding protobuf overhead). The 16 byte header is
  outside of this envelope */
-    Position_AltSource_ALT_MANUAL = 1, 
-    Position_AltSource_ALT_INTERNAL = 2, 
-    Position_AltSource_ALT_EXTERNAL = 3, 
-    Position_AltSource_ALT_BAROMETRIC = 4 
+    Position_AltSource_ALT_MANUAL = 1,
+    Position_AltSource_ALT_INTERNAL = 2,
+    Position_AltSource_ALT_EXTERNAL = 3,
+    Position_AltSource_ALT_BAROMETRIC = 4
 } Position_AltSource;
 
 /* Note: these enum names must EXACTLY match the string used in the device
  bin/build-all.sh script.
  Because they will be used to find firmware filenames in the android app for OTA updates.
  To match the old style filenames, _ is converted to -, p is converted to . */
-typedef enum _Routing_Error { 
+typedef enum _Routing_Error {
     /* TODO: REPLACE */
-    Routing_Error_NONE = 0, 
+    Routing_Error_NONE = 0,
     /* TODO: REPLACE */
-    Routing_Error_NO_ROUTE = 1, 
+    Routing_Error_NO_ROUTE = 1,
     /* TODO: REPLACE */
-    Routing_Error_GOT_NAK = 2, 
+    Routing_Error_GOT_NAK = 2,
     /* TODO: REPLACE */
-    Routing_Error_TIMEOUT = 3, 
+    Routing_Error_TIMEOUT = 3,
     /* TODO: REPLACE */
-    Routing_Error_NO_INTERFACE = 4, 
+    Routing_Error_NO_INTERFACE = 4,
     /* The original heltec WiFi_Lora_32_V2, which had battery voltage sensing hooked to GPIO 13
  (see HELTEC_V2 for the new version). */
-    Routing_Error_MAX_RETRANSMIT = 5, 
+    Routing_Error_MAX_RETRANSMIT = 5,
     /* TODO: REPLACE */
-    Routing_Error_NO_CHANNEL = 6, 
+    Routing_Error_NO_CHANNEL = 6,
     /* TODO: REPLACE */
-    Routing_Error_TOO_LARGE = 7, 
+    Routing_Error_TOO_LARGE = 7,
     /* TODO: REPLACE */
-    Routing_Error_NO_RESPONSE = 8, 
+    Routing_Error_NO_RESPONSE = 8,
     /* TODO: REPLACE */
-    Routing_Error_BAD_REQUEST = 32, 
+    Routing_Error_BAD_REQUEST = 32,
     /* The new version of the heltec WiFi_Lora_32_V2 board that has battery sensing hooked to GPIO 37.
  Sadly they did not update anything on the silkscreen to identify this board */
-    Routing_Error_NOT_AUTHORIZED = 33 
+    Routing_Error_NOT_AUTHORIZED = 33
 } Routing_Error;
 
 /* Note: these enum names must EXACTLY match the string used in the device
  bin/build-all.sh script.
  Because they will be used to find firmware filenames in the android app for OTA updates.
  To match the old style filenames, _ is converted to -, p is converted to . */
-typedef enum _MeshPacket_Priority { 
+typedef enum _MeshPacket_Priority {
     /* TODO: REPLACE */
-    MeshPacket_Priority_UNSET = 0, 
+    MeshPacket_Priority_UNSET = 0,
     /* TODO: REPLACE */
-    MeshPacket_Priority_MIN = 1, 
+    MeshPacket_Priority_MIN = 1,
     /* TODO: REPLACE */
-    MeshPacket_Priority_BACKGROUND = 10, 
+    MeshPacket_Priority_BACKGROUND = 10,
     /* TODO: REPLACE */
-    MeshPacket_Priority_DEFAULT = 64, 
+    MeshPacket_Priority_DEFAULT = 64,
     /* TODO: REPLACE */
-    MeshPacket_Priority_RELIABLE = 70, 
+    MeshPacket_Priority_RELIABLE = 70,
     /* The original heltec WiFi_Lora_32_V2, which had battery voltage sensing hooked to GPIO 13
  (see HELTEC_V2 for the new version). */
-    MeshPacket_Priority_ACK = 120, 
+    MeshPacket_Priority_ACK = 120,
     /* TODO: REPLACE */
-    MeshPacket_Priority_MAX = 127 
+    MeshPacket_Priority_MAX = 127
 } MeshPacket_Priority;
 
 /* Shared constants between device and phone */
-typedef enum _MeshPacket_Delayed { 
+typedef enum _MeshPacket_Delayed {
     /* First enum must be zero, and we are just using this enum to
  pass int constants between two very different environments */
-    MeshPacket_Delayed_NO_DELAY = 0, 
+    MeshPacket_Delayed_NO_DELAY = 0,
     /* From mesh.options
  note: this payload length is ONLY the bytes that are sent inside of the Data protobuf (excluding protobuf overhead). The 16 byte header is
  outside of this envelope */
-    MeshPacket_Delayed_DELAYED_BROADCAST = 1, 
-    MeshPacket_Delayed_DELAYED_DIRECT = 2 
+    MeshPacket_Delayed_DELAYED_BROADCAST = 1,
+    MeshPacket_Delayed_DELAYED_DIRECT = 2
 } MeshPacket_Delayed;
 
 /* Note: these enum names must EXACTLY match the string used in the device
  bin/build-all.sh script.
  Because they will be used to find firmware filenames in the android app for OTA updates.
  To match the old style filenames, _ is converted to -, p is converted to . */
-typedef enum _LogRecord_Level { 
+typedef enum _LogRecord_Level {
     /* TODO: REPLACE */
-    LogRecord_Level_UNSET = 0, 
+    LogRecord_Level_UNSET = 0,
     /* TODO: REPLACE */
-    LogRecord_Level_CRITICAL = 50, 
+    LogRecord_Level_CRITICAL = 50,
     /* TODO: REPLACE */
-    LogRecord_Level_ERROR = 40, 
+    LogRecord_Level_ERROR = 40,
     /* TODO: REPLACE */
-    LogRecord_Level_WARNING = 30, 
+    LogRecord_Level_WARNING = 30,
     /* TODO: REPLACE */
-    LogRecord_Level_INFO = 20, 
+    LogRecord_Level_INFO = 20,
     /* The original heltec WiFi_Lora_32_V2, which had battery voltage sensing hooked to GPIO 13
  (see HELTEC_V2 for the new version). */
-    LogRecord_Level_DEBUG = 10, 
+    LogRecord_Level_DEBUG = 10,
     /* TODO: REPLACE */
-    LogRecord_Level_TRACE = 5 
+    LogRecord_Level_TRACE = 5
 } LogRecord_Level;
 
 /* Struct definitions */
 typedef PB_BYTES_ARRAY_T(237) Compressed_data_t;
 /* Compressed message payload */
-typedef struct _Compressed { 
+typedef struct _Compressed {
     /* PortNum to determine the how to handle the compressed payload. */
     PortNum portnum;
     /* Compressed data. */
@@ -261,7 +262,7 @@ typedef PB_BYTES_ARRAY_T(237) Data_payload_t;
 /* (Formerly called SubPacket)
  The payload portion fo a packet, this is the actual bytes that are sent
  inside a radio packet (because from/to are broken out by the comms library) */
-typedef struct _Data { 
+typedef struct _Data {
     /* Formerly named typ and of type Type */
     PortNum portnum;
     /* TODO: REPLACE */
@@ -295,7 +296,7 @@ typedef struct _Data {
  on the message it is assumed to be a continuation of the previously sent message.
  This allows the device code to use fixed maxlen 64 byte strings for messages,
  and then extend as needed by emitting multiple records. */
-typedef struct _LogRecord { 
+typedef struct _LogRecord {
     /* Log levels, chosen to match python logging conventions. */
     char message[64];
     /* Seconds since 1970 - or 0 for unknown/unset */
@@ -309,7 +310,7 @@ typedef struct _LogRecord {
 /* Unique local debugging info for this node
  Note: we don't include position or the user info, because that will come in the
  Sent to the phone in response to WantNodes. */
-typedef struct _MyNodeInfo { 
+typedef struct _MyNodeInfo {
     /* Tells the phone what our node number is, default starting value is
  lowbyte of macaddr, but it will be fixed if that is already in use */
     uint32_t my_node_num;
@@ -360,7 +361,7 @@ typedef struct _MyNodeInfo {
 } MyNodeInfo;
 
 /* a gps position */
-typedef struct _Position { 
+typedef struct _Position {
     /* The new preferred location encoding, multiply by 1e-7 to get degrees
  in floating point */
     int32_t latitude_i;
@@ -428,7 +429,7 @@ typedef struct _Position {
 } Position;
 
 /* A message used in our Dynamic Source Routing protocol (RFC 4728 based) */
-typedef struct _RouteDiscovery { 
+typedef struct _RouteDiscovery {
     /* The list of nodenums this packet has visited so far */
     pb_size_t route_count;
     uint32_t route[8];
@@ -454,7 +455,7 @@ typedef struct _RouteDiscovery {
  A few nodenums are reserved and will never be requested:
  0xff - broadcast
  0 through 3 - for future use */
-typedef struct _User { 
+typedef struct _User {
     /* A globally unique ID string for this user.
  In the case of Signal that would mean +16504442323, for the default macaddr derived id it would be !<8 hexidecimal bytes>.
  Note: app developers are encouraged to also use the following standard
@@ -480,7 +481,7 @@ typedef struct _User {
 } User;
 
 /* Waypoint message, used to share arbitrary locations across the mesh */
-typedef struct _Waypoint { 
+typedef struct _Waypoint {
     /* Id of the waypoint */
     uint32_t id;
     /* latitude_i */
@@ -502,7 +503,7 @@ typedef PB_BYTES_ARRAY_T(256) MeshPacket_encrypted_t;
 /* A packet envelope sent/received over the mesh
  only payload_variant is sent in the payload portion of the LORA packet.
  The other fields are either not sent at all, or sent in the special 16 byte LORA header. */
-typedef struct _MeshPacket { 
+typedef struct _MeshPacket {
     /* The sending node number.
  Note: Our crypto implementation uses this field as well.
  See [crypto](/docs/overview/encryption) for details.
@@ -586,7 +587,7 @@ typedef struct _MeshPacket {
  level etc) SET_CONFIG (switches device to a new set of radio params and
  preshared key, drops all existing nodes, force our node to rejoin this new group)
  Full information about a node on the mesh */
-typedef struct _NodeInfo { 
+typedef struct _NodeInfo {
     /* The node number */
     uint32_t num;
     /* The user info for this node */
@@ -607,7 +608,7 @@ typedef struct _NodeInfo {
 } NodeInfo;
 
 /* A Routing control Data packet handled by the routing module */
-typedef struct _Routing { 
+typedef struct _Routing {
     pb_size_t which_variant;
     union {
         /* A route request going from the requester */
@@ -624,7 +625,7 @@ typedef struct _Routing {
  It will support READ and NOTIFY. When a new packet arrives the device will BLE notify?
  It will sit in that descriptor until consumed by the phone,
  at which point the next item in the FIFO will be populated. */
-typedef struct _FromRadio { 
+typedef struct _FromRadio {
     /* The packet id, used to allow the phone to request missing read packets from the FIFO,
  see our bluetooth docs */
     uint32_t id;
@@ -661,7 +662,7 @@ typedef struct _FromRadio {
 
 /* Packets/commands to the radio will be written (reliably) to the toRadio characteristic.
  Once the write completes the phone can assume it is handled. */
-typedef struct _ToRadio { 
+typedef struct _ToRadio {
     pb_size_t which_payload_variant;
     union {
         /* Send this packet on the mesh */
