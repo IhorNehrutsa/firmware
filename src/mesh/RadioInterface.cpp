@@ -363,38 +363,38 @@ void RadioInterface::applyModemConfig()
     Config_LoRaConfig &loraConfig = config.lora;
     if (loraConfig.use_preset) {
 
-        switch (loraConfig.modem_preset) {
-        case Config_LoRaConfig_ModemPreset_SHORT_FAST:
+        switch (loraConfig.modem_preset) {             //  1)
+        case Config_LoRaConfig_ModemPreset_SHORT_FAST: // 6.84 kbps
             bw = (myRegion->wideLora) ? 812.5 : 250;
             cr = 8;
             sf = 7;
             break;
-        case Config_LoRaConfig_ModemPreset_SHORT_SLOW:
+        case Config_LoRaConfig_ModemPreset_SHORT_SLOW: // 3.91 kbps
             bw = (myRegion->wideLora) ? 812.5 : 250;
             cr = 8;
             sf = 8;
             break;
-        case Config_LoRaConfig_ModemPreset_MEDIUM_FAST:
+        case Config_LoRaConfig_ModemPreset_MEDIUM_FAST: // 2.20 kbps
             bw = (myRegion->wideLora) ? 812.5 : 250;
             cr = 8;
             sf = 9;
             break;
-        case Config_LoRaConfig_ModemPreset_MEDIUM_SLOW:
+        case Config_LoRaConfig_ModemPreset_MEDIUM_SLOW: // 1.22 kbps
             bw = (myRegion->wideLora) ? 812.5 : 250;
             cr = 8;
             sf = 10;
             break;
-        case Config_LoRaConfig_ModemPreset_LONG_FAST:
+        case Config_LoRaConfig_ModemPreset_LONG_FAST: // 671 bps
             bw = (myRegion->wideLora) ? 812.5 : 250;
             cr = 8;
             sf = 11;
             break;
-        case Config_LoRaConfig_ModemPreset_LONG_SLOW:
+        case Config_LoRaConfig_ModemPreset_LONG_SLOW: // 183 bps
             bw = (myRegion->wideLora) ? 406.25 : 125;
             cr = 8;
             sf = 12;
             break;
-        case Config_LoRaConfig_ModemPreset_VERY_LONG_SLOW:
+        case Config_LoRaConfig_ModemPreset_VERY_LONG_SLOW: // 46 bps
             bw = (myRegion->wideLora) ? 203.125 : 31.25;
             cr = 8;
             sf = 12;
