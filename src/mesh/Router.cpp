@@ -404,6 +404,8 @@ Routing_Error perhapsEncode(MeshPacket *p)
         memcpy(p->encrypted.bytes, bytes, numbytes);
         p->encrypted.size = numbytes;
         p->which_payload_variant = MeshPacket_encrypted_tag;
+        DEBUG_MSG("Encrypted length - %d \n", p->encrypted.size);
+        // DEBUG_MSG("Encrypted message - %s \n", p->encrypted.bytes);
     }
 
     return Routing_Error_NONE;
