@@ -143,8 +143,9 @@ int32_t PositionModule::runOnce()
     uint32_t intervalMs = config.position.position_broadcast_secs > 0 ? config.position.position_broadcast_secs * 1000 : default_broadcast_interval_secs * 1000;
     if (lastGpsSend == 0 || (now - lastGpsSend) >= intervalMs) {
 
+        float now_channel_util_percent = airTime->channelUtilizationPercent();
         // Only send packets if the channel is less than 40% utilized.
-        if (airTime->channelUtilizationPercent() < max_channel_util_percent) {
+        if (now_channel_util_percent < max_channel_util_percent) {
             if (node->has_position && (node->position.latitude_i != 0 || node->position.longitude_i != 0)) {
                 lastGpsSend = now;
 
@@ -159,13 +160,14 @@ int32_t PositionModule::runOnce()
                 sendOurPosition(NODENUM_BROADCAST, requestReplies);
             }
         } else {
-            DEBUG_MSG("Channel utilization is >40 percent. Skipping this opportunity to send.\n");
+            DEBUG_MSG("Channel utilization is %.1f>%d percent. Skip sending a position.\n", now_channel_util_percent, max_channel_util_percent);
         }
 
     } else if (config.position.position_broadcast_smart_enabled) {
 
+        float now_channel_util_percent = airTime->channelUtilizationPercent();
         // Only send packets if the channel is less than 25% utilized.
-        if (airTime->channelUtilizationPercent() < polite_channel_util_percent) {
+        if (now_channel_util_percent < polite_channel_util_percent) {
 
             NodeInfo *node2 = service.refreshMyNodeInfo(); // should guarantee there is now a position
 
@@ -209,7 +211,7 @@ int32_t PositionModule::runOnce()
                 }
             }
         } else {
-            DEBUG_MSG("Channel utilization is >25 percent. Skipping this opportunity to send.\n");
+            DEBUG_MSG("Channel utilization is %.1f>%d percent. Skip sending smart position.\n", now_channel_util_percent, polite_channel_util_percent);
         }
     }
 
