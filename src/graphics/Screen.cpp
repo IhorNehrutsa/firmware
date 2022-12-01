@@ -67,7 +67,7 @@ static uint32_t targetFramerate = IDLE_FRAMERATE;
 static char btPIN[16] = "888888";
 
 uint32_t logo_timeout = 5000; // 4 seconds for EACH logo
-    
+
 // This image definition is here instead of images.h because it's modified dynamically by the drawBattery function
 uint8_t imgBattery[16] = {0xFF, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0xE7, 0x3C};
 
@@ -234,7 +234,7 @@ static void drawWelcomeScreen(OLEDDisplay *display, OLEDDisplayUiState *state, i
     display->drawString(64 + x, y, "//\\ E S H T /\\ S T / C");
     display->drawString(64 + x, y + FONT_HEIGHT_SMALL, getDeviceName());
     display->setTextAlignment(TEXT_ALIGN_LEFT);
-    
+
     if ((millis() / 10000) % 2) {
         display->drawString(x, y + FONT_HEIGHT_SMALL * 2 - 3, "Set the region using the");
         display->drawString(x, y + FONT_HEIGHT_SMALL * 3 - 3, "Meshtastic Android, iOS,");
@@ -681,7 +681,7 @@ static uint16_t getCompassDiam(OLEDDisplay *display)
             diam = display->getHeight() * 2 / 3;
         }
     }
-    
+
     return diam - 20;
 };
 
@@ -715,7 +715,7 @@ static void drawCompassNorth(OLEDDisplay *display, int16_t compassX, int16_t com
     //If north is supposed to be at the top of the compass we want rotation to be +0
     if(config.display.compass_north_top)
         myHeading = -0;
-    
+
     Point N1(-0.04f, 0.65f), N2(0.04f, 0.65f);
     Point N3(-0.04f, 0.55f), N4(0.04f, 0.55f);
     Point *rosePoints[] = {&N1, &N2, &N3, &N4};
@@ -1035,7 +1035,7 @@ int32_t Screen::runOnce()
             static const int bootOEMFrameCount = sizeof(bootOEMFrames) / sizeof(bootOEMFrames[0]);
             ui.setFrames(bootOEMFrames, bootOEMFrameCount);
             ui.update();
-#ifndef USE_EINK            
+#ifndef USE_EINK
             ui.update();
 #endif
             showingOEMBootScreen = false;
@@ -1559,6 +1559,30 @@ void DebugInfo::drawFrameSettings(OLEDDisplay *display, OLEDDisplayUiState *stat
         break;
     case Config_LoRaConfig_ModemPreset_VERY_LONG_SLOW:
         mode = "VeryL";
+        break;
+    case Config_LoRaConfig_ModemPreset_300:
+        mode = "0.3Kbps";
+        break;
+    case Config_LoRaConfig_ModemPreset_1200:
+        mode = "1.2Kbps";
+        break;
+    case Config_LoRaConfig_ModemPreset_2400:
+        mode = "2.4Kbps";
+        break;
+    case Config_LoRaConfig_ModemPreset_4800:
+        mode = "4.8Kbps";
+        break;
+    case Config_LoRaConfig_ModemPreset_9600:
+        mode = "9.6Kbps";
+        break;
+    case Config_LoRaConfig_ModemPreset_19200:
+        mode = "19.2Kbps";
+        break;
+    case Config_LoRaConfig_ModemPreset_38400:
+        mode = "38.4Kbps";
+        break;
+    case Config_LoRaConfig_ModemPreset_62500:
+        mode = "62.5Kbps";
         break;
     default:
         mode = "Custom";

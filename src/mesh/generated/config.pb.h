@@ -10,93 +10,101 @@
 #endif
 
 /* Enum definitions */
-typedef enum _Config_DeviceConfig_Role { 
-    Config_DeviceConfig_Role_CLIENT = 0, 
-    Config_DeviceConfig_Role_CLIENT_MUTE = 1, 
-    Config_DeviceConfig_Role_ROUTER = 2, 
-    Config_DeviceConfig_Role_ROUTER_CLIENT = 3 
+typedef enum _Config_DeviceConfig_Role {
+    Config_DeviceConfig_Role_CLIENT = 0,
+    Config_DeviceConfig_Role_CLIENT_MUTE = 1,
+    Config_DeviceConfig_Role_ROUTER = 2,
+    Config_DeviceConfig_Role_ROUTER_CLIENT = 3
 } Config_DeviceConfig_Role;
 
-typedef enum _Config_PositionConfig_PositionFlags { 
-    Config_PositionConfig_PositionFlags_UNSET = 0, 
-    Config_PositionConfig_PositionFlags_ALTITUDE = 1, 
-    Config_PositionConfig_PositionFlags_ALTITUDE_MSL = 2, 
-    Config_PositionConfig_PositionFlags_GEOIDAL_SEPARATION = 4, 
-    Config_PositionConfig_PositionFlags_DOP = 8, 
-    Config_PositionConfig_PositionFlags_HVDOP = 16, 
-    Config_PositionConfig_PositionFlags_SATINVIEW = 32, 
-    Config_PositionConfig_PositionFlags_SEQ_NO = 64, 
-    Config_PositionConfig_PositionFlags_TIMESTAMP = 128, 
-    Config_PositionConfig_PositionFlags_HEADING = 256, 
-    Config_PositionConfig_PositionFlags_SPEED = 512 
+typedef enum _Config_PositionConfig_PositionFlags {
+    Config_PositionConfig_PositionFlags_UNSET = 0,
+    Config_PositionConfig_PositionFlags_ALTITUDE = 1,
+    Config_PositionConfig_PositionFlags_ALTITUDE_MSL = 2,
+    Config_PositionConfig_PositionFlags_GEOIDAL_SEPARATION = 4,
+    Config_PositionConfig_PositionFlags_DOP = 8,
+    Config_PositionConfig_PositionFlags_HVDOP = 16,
+    Config_PositionConfig_PositionFlags_SATINVIEW = 32,
+    Config_PositionConfig_PositionFlags_SEQ_NO = 64,
+    Config_PositionConfig_PositionFlags_TIMESTAMP = 128,
+    Config_PositionConfig_PositionFlags_HEADING = 256,
+    Config_PositionConfig_PositionFlags_SPEED = 512
 } Config_PositionConfig_PositionFlags;
 
-typedef enum _Config_NetworkConfig_EthMode { 
-    Config_NetworkConfig_EthMode_DHCP = 0, 
-    Config_NetworkConfig_EthMode_STATIC = 1 
+typedef enum _Config_NetworkConfig_EthMode {
+    Config_NetworkConfig_EthMode_DHCP = 0,
+    Config_NetworkConfig_EthMode_STATIC = 1
 } Config_NetworkConfig_EthMode;
 
-typedef enum _Config_DisplayConfig_GpsCoordinateFormat { 
-    Config_DisplayConfig_GpsCoordinateFormat_DEC = 0, 
-    Config_DisplayConfig_GpsCoordinateFormat_DMS = 1, 
-    Config_DisplayConfig_GpsCoordinateFormat_UTM = 2, 
-    Config_DisplayConfig_GpsCoordinateFormat_MGRS = 3, 
-    Config_DisplayConfig_GpsCoordinateFormat_OLC = 4, 
-    Config_DisplayConfig_GpsCoordinateFormat_OSGR = 5 
+typedef enum _Config_DisplayConfig_GpsCoordinateFormat {
+    Config_DisplayConfig_GpsCoordinateFormat_DEC = 0,
+    Config_DisplayConfig_GpsCoordinateFormat_DMS = 1,
+    Config_DisplayConfig_GpsCoordinateFormat_UTM = 2,
+    Config_DisplayConfig_GpsCoordinateFormat_MGRS = 3,
+    Config_DisplayConfig_GpsCoordinateFormat_OLC = 4,
+    Config_DisplayConfig_GpsCoordinateFormat_OSGR = 5
 } Config_DisplayConfig_GpsCoordinateFormat;
 
-typedef enum _Config_DisplayConfig_DisplayUnits { 
-    Config_DisplayConfig_DisplayUnits_METRIC = 0, 
-    Config_DisplayConfig_DisplayUnits_IMPERIAL = 1 
+typedef enum _Config_DisplayConfig_DisplayUnits {
+    Config_DisplayConfig_DisplayUnits_METRIC = 0,
+    Config_DisplayConfig_DisplayUnits_IMPERIAL = 1
 } Config_DisplayConfig_DisplayUnits;
 
-typedef enum _Config_DisplayConfig_OledType { 
-    Config_DisplayConfig_OledType_OLED_AUTO = 0, 
-    Config_DisplayConfig_OledType_OLED_SSD1306 = 1, 
-    Config_DisplayConfig_OledType_OLED_SH1106 = 2 
+typedef enum _Config_DisplayConfig_OledType {
+    Config_DisplayConfig_OledType_OLED_AUTO = 0,
+    Config_DisplayConfig_OledType_OLED_SSD1306 = 1,
+    Config_DisplayConfig_OledType_OLED_SH1106 = 2
 } Config_DisplayConfig_OledType;
 
-typedef enum _Config_LoRaConfig_RegionCode { 
-    Config_LoRaConfig_RegionCode_UNSET = 0, 
-    Config_LoRaConfig_RegionCode_US = 1, 
-    Config_LoRaConfig_RegionCode_EU_433 = 2, 
-    Config_LoRaConfig_RegionCode_EU_868 = 3, 
-    Config_LoRaConfig_RegionCode_CN = 4, 
-    Config_LoRaConfig_RegionCode_JP = 5, 
-    Config_LoRaConfig_RegionCode_ANZ = 6, 
-    Config_LoRaConfig_RegionCode_KR = 7, 
-    Config_LoRaConfig_RegionCode_TW = 8, 
-    Config_LoRaConfig_RegionCode_RU = 9, 
-    Config_LoRaConfig_RegionCode_IN = 10, 
-    Config_LoRaConfig_RegionCode_NZ_865 = 11, 
-    Config_LoRaConfig_RegionCode_TH = 12, 
-    Config_LoRaConfig_RegionCode_LORA_24 = 13 
+typedef enum _Config_LoRaConfig_RegionCode {
+    Config_LoRaConfig_RegionCode_UNSET = 0,
+    // Config_LoRaConfig_RegionCode_US = 1,
+    Config_LoRaConfig_RegionCode_EU_433 = 2,
+    // Config_LoRaConfig_RegionCode_EU_868 = 3,
+    // Config_LoRaConfig_RegionCode_CN = 4,
+    // Config_LoRaConfig_RegionCode_JP = 5,
+    // Config_LoRaConfig_RegionCode_ANZ = 6,
+    // Config_LoRaConfig_RegionCode_KR = 7,
+    // Config_LoRaConfig_RegionCode_TW = 8,
+    // Config_LoRaConfig_RegionCode_RU = 9,
+    // Config_LoRaConfig_RegionCode_IN = 10,
+    // Config_LoRaConfig_RegionCode_NZ_865 = 11,
+    // Config_LoRaConfig_RegionCode_TH = 12,
+    // Config_LoRaConfig_RegionCode_LORA_24 = 13
 } Config_LoRaConfig_RegionCode;
 
-typedef enum _Config_LoRaConfig_ModemPreset { 
-    Config_LoRaConfig_ModemPreset_LONG_FAST = 0, 
-    Config_LoRaConfig_ModemPreset_LONG_SLOW = 1, 
-    Config_LoRaConfig_ModemPreset_VERY_LONG_SLOW = 2, 
-    Config_LoRaConfig_ModemPreset_MEDIUM_SLOW = 3, 
-    Config_LoRaConfig_ModemPreset_MEDIUM_FAST = 4, 
-    Config_LoRaConfig_ModemPreset_SHORT_SLOW = 5, 
-    Config_LoRaConfig_ModemPreset_SHORT_FAST = 6 
+typedef enum _Config_LoRaConfig_ModemPreset {
+    Config_LoRaConfig_ModemPreset_LONG_FAST = 0,
+    Config_LoRaConfig_ModemPreset_LONG_SLOW = 1,
+    Config_LoRaConfig_ModemPreset_VERY_LONG_SLOW = 2,
+    Config_LoRaConfig_ModemPreset_MEDIUM_SLOW = 3,
+    Config_LoRaConfig_ModemPreset_MEDIUM_FAST = 4,
+    Config_LoRaConfig_ModemPreset_SHORT_SLOW = 5,
+    Config_LoRaConfig_ModemPreset_SHORT_FAST = 6,
+    Config_LoRaConfig_ModemPreset_300,
+    Config_LoRaConfig_ModemPreset_1200,
+    Config_LoRaConfig_ModemPreset_2400,
+    Config_LoRaConfig_ModemPreset_4800,
+    Config_LoRaConfig_ModemPreset_9600,
+    Config_LoRaConfig_ModemPreset_19200,
+    Config_LoRaConfig_ModemPreset_38400,
+    Config_LoRaConfig_ModemPreset_62500,
 } Config_LoRaConfig_ModemPreset;
 
-typedef enum _Config_BluetoothConfig_PairingMode { 
-    Config_BluetoothConfig_PairingMode_RANDOM_PIN = 0, 
-    Config_BluetoothConfig_PairingMode_FIXED_PIN = 1, 
-    Config_BluetoothConfig_PairingMode_NO_PIN = 2 
+typedef enum _Config_BluetoothConfig_PairingMode {
+    Config_BluetoothConfig_PairingMode_RANDOM_PIN = 0,
+    Config_BluetoothConfig_PairingMode_FIXED_PIN = 1,
+    Config_BluetoothConfig_PairingMode_NO_PIN = 2
 } Config_BluetoothConfig_PairingMode;
 
 /* Struct definitions */
-typedef struct _Config_BluetoothConfig { 
+typedef struct _Config_BluetoothConfig {
     bool enabled;
     Config_BluetoothConfig_PairingMode mode;
     uint32_t fixed_pin;
 } Config_BluetoothConfig;
 
-typedef struct _Config_DeviceConfig { 
+typedef struct _Config_DeviceConfig {
     Config_DeviceConfig_Role role;
     bool serial_enabled;
     bool debug_log_enabled;
@@ -104,7 +112,7 @@ typedef struct _Config_DeviceConfig {
     uint32_t buzzer_gpio;
 } Config_DeviceConfig;
 
-typedef struct _Config_DisplayConfig { 
+typedef struct _Config_DisplayConfig {
     uint32_t screen_on_secs;
     Config_DisplayConfig_GpsCoordinateFormat gps_format;
     uint32_t auto_screen_carousel_secs;
@@ -114,7 +122,7 @@ typedef struct _Config_DisplayConfig {
     Config_DisplayConfig_OledType oled;
 } Config_DisplayConfig;
 
-typedef struct _Config_LoRaConfig { 
+typedef struct _Config_LoRaConfig {
     bool use_preset;
     Config_LoRaConfig_ModemPreset modem_preset;
     uint16_t bandwidth;
@@ -130,14 +138,14 @@ typedef struct _Config_LoRaConfig {
     uint32_t ignore_incoming[3];
 } Config_LoRaConfig;
 
-typedef struct _Config_NetworkConfig_IpV4Config { 
+typedef struct _Config_NetworkConfig_IpV4Config {
     uint32_t ip;
     uint32_t gateway;
     uint32_t subnet;
     uint32_t dns;
 } Config_NetworkConfig_IpV4Config;
 
-typedef struct _Config_PositionConfig { 
+typedef struct _Config_PositionConfig {
     uint32_t position_broadcast_secs;
     bool position_broadcast_smart_enabled;
     bool fixed_position;
@@ -149,7 +157,7 @@ typedef struct _Config_PositionConfig {
     uint32_t tx_gpio;
 } Config_PositionConfig;
 
-typedef struct _Config_PowerConfig { 
+typedef struct _Config_PowerConfig {
     bool is_power_saving;
     uint32_t on_battery_shutdown_after_secs;
     float adc_multiplier_override;
@@ -160,7 +168,7 @@ typedef struct _Config_PowerConfig {
     uint32_t min_wake_secs;
 } Config_PowerConfig;
 
-typedef struct _Config_NetworkConfig { 
+typedef struct _Config_NetworkConfig {
     bool wifi_enabled;
     char wifi_ssid[33];
     char wifi_psk[64];
@@ -171,7 +179,7 @@ typedef struct _Config_NetworkConfig {
     Config_NetworkConfig_IpV4Config ipv4_config;
 } Config_NetworkConfig;
 
-typedef struct _Config { 
+typedef struct _Config {
     pb_size_t which_payload_variant;
     union {
         Config_DeviceConfig device;
@@ -211,12 +219,16 @@ typedef struct _Config {
 #define _Config_DisplayConfig_OledType_ARRAYSIZE ((Config_DisplayConfig_OledType)(Config_DisplayConfig_OledType_OLED_SH1106+1))
 
 #define _Config_LoRaConfig_RegionCode_MIN Config_LoRaConfig_RegionCode_UNSET
-#define _Config_LoRaConfig_RegionCode_MAX Config_LoRaConfig_RegionCode_LORA_24
-#define _Config_LoRaConfig_RegionCode_ARRAYSIZE ((Config_LoRaConfig_RegionCode)(Config_LoRaConfig_RegionCode_LORA_24+1))
+// #define _Config_LoRaConfig_RegionCode_MAX Config_LoRaConfig_RegionCode_LORA_24
+// #define _Config_LoRaConfig_RegionCode_ARRAYSIZE ((Config_LoRaConfig_RegionCode)(Config_LoRaConfig_RegionCode_LORA_24+1))
+#define _Config_LoRaConfig_RegionCode_MAX Config_LoRaConfig_RegionCode_EU_433
+#define _Config_LoRaConfig_RegionCode_ARRAYSIZE ((Config_LoRaConfig_RegionCode)(Config_LoRaConfig_RegionCode_EU_433+1))
 
 #define _Config_LoRaConfig_ModemPreset_MIN Config_LoRaConfig_ModemPreset_LONG_FAST
-#define _Config_LoRaConfig_ModemPreset_MAX Config_LoRaConfig_ModemPreset_SHORT_FAST
-#define _Config_LoRaConfig_ModemPreset_ARRAYSIZE ((Config_LoRaConfig_ModemPreset)(Config_LoRaConfig_ModemPreset_SHORT_FAST+1))
+// #define _Config_LoRaConfig_ModemPreset_MAX Config_LoRaConfig_ModemPreset_SHORT_FAST
+// #define _Config_LoRaConfig_ModemPreset_ARRAYSIZE ((Config_LoRaConfig_ModemPreset)(Config_LoRaConfig_ModemPreset_SHORT_FAST+1))
+#define _Config_LoRaConfig_ModemPreset_MAX Config_LoRaConfig_ModemPreset_62500
+#define _Config_LoRaConfig_ModemPreset_ARRAYSIZE ((Config_LoRaConfig_ModemPreset)(Config_LoRaConfig_ModemPreset_62500+1))
 
 #define _Config_BluetoothConfig_PairingMode_MIN Config_BluetoothConfig_PairingMode_RANDOM_PIN
 #define _Config_BluetoothConfig_PairingMode_MAX Config_BluetoothConfig_PairingMode_NO_PIN

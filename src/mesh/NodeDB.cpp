@@ -103,7 +103,8 @@ bool NodeDB::resetRadioConfig(bool factory_reset)
         config.power.wait_bluetooth_secs = 10;
         config.position.position_broadcast_secs = 6 * 60;
         config.power.ls_secs = 60;
-        config.lora.region = Config_LoRaConfig_RegionCode_TW;
+        // config.lora.region = Config_LoRaConfig_RegionCode_TW;
+        config.lora.region = Config_LoRaConfig_RegionCode_EU_433;
 
         // Enter super deep sleep soon and stay there not very long
         // radioConfig.preferences.mesh_sds_timeout_secs = 10;
@@ -122,7 +123,7 @@ bool NodeDB::resetRadioConfig(bool factory_reset)
     return didFactoryReset;
 }
 
-bool NodeDB::factoryReset() 
+bool NodeDB::factoryReset()
 {
     DEBUG_MSG("Performing factory reset!\n");
     // first, remove the "/prefs" (this removes most prefs)
@@ -181,11 +182,11 @@ void NodeDB::installDefaultConfig()
     config.bluetooth.mode = hasScreen ? Config_BluetoothConfig_PairingMode_RANDOM_PIN : Config_BluetoothConfig_PairingMode_FIXED_PIN;
     // for backward compat, default position flags are ALT+MSL
     config.position.position_flags = (Config_PositionConfig_PositionFlags_ALTITUDE | Config_PositionConfig_PositionFlags_ALTITUDE_MSL);
-    
+
     initConfigIntervals();
 }
 
-void NodeDB::initConfigIntervals() 
+void NodeDB::initConfigIntervals()
 {
     config.position.gps_update_interval = default_gps_update_interval;
     config.position.gps_attempt_time = default_gps_attempt_time;
@@ -196,7 +197,7 @@ void NodeDB::initConfigIntervals()
     config.power.min_wake_secs = default_min_wake_secs;
     config.power.sds_secs = default_sds_secs;
     config.power.wait_bluetooth_secs = default_wait_bluetooth_secs;
-    
+
     config.display.screen_on_secs = default_screen_on_secs;
 }
 
@@ -204,7 +205,7 @@ void NodeDB::installDefaultModuleConfig()
 {
     DEBUG_MSG("Installing default ModuleConfig\n");
     memset(&moduleConfig, 0, sizeof(ModuleConfig));
-    
+
     moduleConfig.version = DEVICESTATE_CUR_VER;
     moduleConfig.has_mqtt = true;
     moduleConfig.has_range_test = true;
@@ -221,7 +222,7 @@ void NodeDB::installDefaultModuleConfig()
     initModuleConfigIntervals();
 }
 
-void NodeDB::initModuleConfigIntervals() 
+void NodeDB::initModuleConfigIntervals()
 {
     moduleConfig.telemetry.device_update_interval = default_broadcast_interval_secs;
     moduleConfig.telemetry.environment_update_interval = default_broadcast_interval_secs;
@@ -247,7 +248,7 @@ void NodeDB::installDefaultDeviceState()
     memset(&devicestate, 0, sizeof(DeviceState));
 
     *numNodes = 0;
-    
+
     // init our devicestate with valid flags so protobuf writing/reading will work
     devicestate.has_my_node = true;
     devicestate.has_owner = true;
@@ -501,7 +502,7 @@ void NodeDB::saveChannelsToDisk()
     }
 }
 
-void NodeDB::saveDeviceStateToDisk() 
+void NodeDB::saveDeviceStateToDisk()
 {
     if (!devicestate.no_save) {
 #ifdef FSCom

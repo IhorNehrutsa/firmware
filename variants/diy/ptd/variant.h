@@ -15,7 +15,7 @@
 #define LORA_DIO0 -1  // a No connect on the SX1262/SX1268 module
 #define LORA_RESET 5  // RST for SX1276, and for SX1262/SX1268
 #define LORA_DIO1 19  // IRQ for SX1262/SX1268
-#define LORA_DIO2 16  // BUSY for SX1262/SX1268, BUT NOT for SX126X_E22 module
+#define LORA_DIO2 -1  // 16 // BUSY for SX1262/SX1268, BUT NOT for SX126X_E22 module
 #define LORA_DIO3 -1  // Not connected on PCB, but internally on the TTGO SX1262/SX1268, if DIO3 is high the TXCO is enabled
 #define LORA_RXEN 26
 #define LORA_TXEN 27
