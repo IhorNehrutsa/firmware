@@ -61,7 +61,27 @@ void MQTT::onPublish(char *topic, byte *payload, unsigned int length)
                 } else {
                     DEBUG_MSG("JSON Ignoring downlink message we originally sent.\n");
                 }
-            } else {
+            } else if ((json.find("sender") != json.end()) && (json.find("payload") != json.end()) && (json.find("type") != json.end()) && json["type"]->IsString() && (json["type"]->AsString().compare("sendposition") == 0)) {
+                //invent the "sendposition" type for a valid envelope
+                if (json["payload"]->IsObject() && json["type"]->IsString() && (json["sender"]->AsString().compare(owner.id) != 0)) {
+                    JSONObject posit;
+                    posit=json["payload"]->AsObject(); //get nested JSON Position
+                    Position pos =Position_init_default;
+                    pos.latitude_i=posit["latitude_i"]->AsNumber();
+                    pos.longitude_i=posit["longitude_i"]->AsNumber();
+                    pos.altitude=posit["altitude"]->AsNumber();
+                    pos.time=posit["time"]->AsNumber();
+
+                    // construct protobuf data packet using POSITION, send it to the mesh
+                    MeshPacket *p = router->allocForSending();
+                    p->decoded.portnum = PortNum_POSITION_APP;
+                    p->decoded.payload.size=pb_encode_to_bytes(p->decoded.payload.bytes,sizeof(p->decoded.payload.bytes),Position_fields, &pos); //make the Data protobuf from position
+                    service.sendToMesh(p, RX_SRC_LOCAL);
+
+                } else {
+                    DEBUG_MSG("JSON Ignoring downlink message we originally sent.\n");
+                }
+            } else{
                 DEBUG_MSG("JSON Received payload on MQTT but not a valid envelope\n");
             }
         } else {
@@ -346,11 +366,11 @@ std::string MQTT::downstreamPacketToJson(MeshPacket *mp)
             memset(&scratch, 0, sizeof(scratch));
             if (pb_decode_from_bytes(mp->decoded.payload.bytes, mp->decoded.payload.size, &Position_msg, &scratch)) {
                 decoded = &scratch;
-                msgPayload["time"] = new JSONValue((int)decoded->time);
-                msgPayload["timestamp"] = new JSONValue((int)decoded->timestamp);
+                if((int)decoded->time){msgPayload["time"] = new JSONValue((int)decoded->time);}
+                if ((int)decoded->timestamp){msgPayload["timestamp"] = new JSONValue((int)decoded->timestamp);}
                 msgPayload["latitude_i"] = new JSONValue((int)decoded->latitude_i);
                 msgPayload["longitude_i"] = new JSONValue((int)decoded->longitude_i);
-                msgPayload["altitude"] = new JSONValue((int)decoded->altitude);
+                if((int)decoded->altitude){msgPayload["altitude"] = new JSONValue((int)decoded->altitude);}
                 jsonObj["payload"] = new JSONValue(msgPayload);
             } else {
                 DEBUG_MSG("Error decoding protobuf for position message!\n");
