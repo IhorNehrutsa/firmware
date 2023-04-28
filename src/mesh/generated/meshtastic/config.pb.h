@@ -148,36 +148,8 @@ typedef enum _meshtastic_Config_DisplayConfig_DisplayMode {
 typedef enum _meshtastic_Config_LoRaConfig_RegionCode {
     /* Region is not set */
     meshtastic_Config_LoRaConfig_RegionCode_UNSET = 0,
-    /* United States */
-    meshtastic_Config_LoRaConfig_RegionCode_US = 1,
-    /* European Union 433mhz */
-    meshtastic_Config_LoRaConfig_RegionCode_EU_433 = 2,
-    /* European Union 868mhz */
-    meshtastic_Config_LoRaConfig_RegionCode_EU_868 = 3,
-    /* China */
-    meshtastic_Config_LoRaConfig_RegionCode_CN = 4,
-    /* Japan */
-    meshtastic_Config_LoRaConfig_RegionCode_JP = 5,
-    /* Australia / New Zealand */
-    meshtastic_Config_LoRaConfig_RegionCode_ANZ = 6,
-    /* Korea */
-    meshtastic_Config_LoRaConfig_RegionCode_KR = 7,
-    /* Taiwan */
-    meshtastic_Config_LoRaConfig_RegionCode_TW = 8,
-    /* Russia */
-    meshtastic_Config_LoRaConfig_RegionCode_RU = 9,
-    /* India */
-    meshtastic_Config_LoRaConfig_RegionCode_IN = 10,
-    /* New Zealand 865mhz */
-    meshtastic_Config_LoRaConfig_RegionCode_NZ_865 = 11,
-    /* Thailand */
-    meshtastic_Config_LoRaConfig_RegionCode_TH = 12,
-    /* WLAN Band */
-    meshtastic_Config_LoRaConfig_RegionCode_LORA_24 = 13,
     /* Ukraine 433mhz */
-    meshtastic_Config_LoRaConfig_RegionCode_UA_433 = 14,
-    /* Ukraine 868mhz */
-    meshtastic_Config_LoRaConfig_RegionCode_UA_868 = 15
+    meshtastic_Config_LoRaConfig_RegionCode_UA_433 = 14
 } meshtastic_Config_LoRaConfig_RegionCode;
 
 /* Standard predefined channel settings
@@ -198,7 +170,16 @@ typedef enum _meshtastic_Config_LoRaConfig_ModemPreset {
     /* Short Range - Fast */
     meshtastic_Config_LoRaConfig_ModemPreset_SHORT_FAST = 6,
     /* Long Range - Moderately Fast */
-    meshtastic_Config_LoRaConfig_ModemPreset_LONG_MODERATE = 7
+    meshtastic_Config_LoRaConfig_ModemPreset_LONG_MODERATE = 7,
+    meshtastic_Config_LoRaConfig_ModemPreset_AIR_RATE_300 = 8,
+    meshtastic_Config_LoRaConfig_ModemPreset_AIR_RATE_1200 = 9,
+    meshtastic_Config_LoRaConfig_ModemPreset_AIR_RATE_2400 = 10,
+    meshtastic_Config_LoRaConfig_ModemPreset_AIR_RATE_4800 = 11,
+    meshtastic_Config_LoRaConfig_ModemPreset_AIR_RATE_9600 = 12,
+    meshtastic_Config_LoRaConfig_ModemPreset_AIR_RATE_19200 = 13,
+    meshtastic_Config_LoRaConfig_ModemPreset_AIR_RATE_37500 = 14,
+    meshtastic_Config_LoRaConfig_ModemPreset_AIR_RATE_38400 = 15,
+    meshtastic_Config_LoRaConfig_ModemPreset_AIR_RATE_62500 = 16
 } meshtastic_Config_LoRaConfig_ModemPreset;
 
 typedef enum _meshtastic_Config_BluetoothConfig_PairingMode {
@@ -496,12 +477,12 @@ extern "C" {
 #define _meshtastic_Config_DisplayConfig_DisplayMode_ARRAYSIZE ((meshtastic_Config_DisplayConfig_DisplayMode)(meshtastic_Config_DisplayConfig_DisplayMode_COLOR+1))
 
 #define _meshtastic_Config_LoRaConfig_RegionCode_MIN meshtastic_Config_LoRaConfig_RegionCode_UNSET
-#define _meshtastic_Config_LoRaConfig_RegionCode_MAX meshtastic_Config_LoRaConfig_RegionCode_UA_868
-#define _meshtastic_Config_LoRaConfig_RegionCode_ARRAYSIZE ((meshtastic_Config_LoRaConfig_RegionCode)(meshtastic_Config_LoRaConfig_RegionCode_UA_868+1))
+#define _meshtastic_Config_LoRaConfig_RegionCode_MAX meshtastic_Config_LoRaConfig_RegionCode_UA_433
+#define _meshtastic_Config_LoRaConfig_RegionCode_ARRAYSIZE ((meshtastic_Config_LoRaConfig_RegionCode)(meshtastic_Config_LoRaConfig_RegionCode_UA_433+1))
 
 #define _meshtastic_Config_LoRaConfig_ModemPreset_MIN meshtastic_Config_LoRaConfig_ModemPreset_LONG_FAST
-#define _meshtastic_Config_LoRaConfig_ModemPreset_MAX meshtastic_Config_LoRaConfig_ModemPreset_LONG_MODERATE
-#define _meshtastic_Config_LoRaConfig_ModemPreset_ARRAYSIZE ((meshtastic_Config_LoRaConfig_ModemPreset)(meshtastic_Config_LoRaConfig_ModemPreset_LONG_MODERATE+1))
+#define _meshtastic_Config_LoRaConfig_ModemPreset_MAX meshtastic_Config_LoRaConfig_ModemPreset_AIR_RATE_62500
+#define _meshtastic_Config_LoRaConfig_ModemPreset_ARRAYSIZE ((meshtastic_Config_LoRaConfig_ModemPreset)(meshtastic_Config_LoRaConfig_ModemPreset_AIR_RATE_62500+1))
 
 #define _meshtastic_Config_BluetoothConfig_PairingMode_MIN meshtastic_Config_BluetoothConfig_PairingMode_RANDOM_PIN
 #define _meshtastic_Config_BluetoothConfig_PairingMode_MAX meshtastic_Config_BluetoothConfig_PairingMode_NO_PIN
