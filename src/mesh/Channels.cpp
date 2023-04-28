@@ -259,6 +259,9 @@ const char *Channels::getName(size_t chIndex)
             case Config_LoRaConfig_ModemPreset_19200:
                 channelName = "19.2Kbps";
                 break;
+            case Config_LoRaConfig_ModemPreset_37500:
+                channelName = "37.5Kbps";
+                break;
             case Config_LoRaConfig_ModemPreset_38400:
                 channelName = "38.4Kbps";
                 break;

@@ -87,6 +87,7 @@ typedef enum _Config_LoRaConfig_ModemPreset {
     Config_LoRaConfig_ModemPreset_4800,
     Config_LoRaConfig_ModemPreset_9600,
     Config_LoRaConfig_ModemPreset_19200,
+    Config_LoRaConfig_ModemPreset_37500,
     Config_LoRaConfig_ModemPreset_38400,
     Config_LoRaConfig_ModemPreset_62500,
 } Config_LoRaConfig_ModemPreset;

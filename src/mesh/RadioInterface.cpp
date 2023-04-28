@@ -166,7 +166,7 @@ uint32_t RadioInterface::getPacketTime(MeshPacket *p)
 {
     assert(p->which_payload_variant == MeshPacket_encrypted_tag); // It should have already been encoded by now
     uint32_t pl = p->encrypted.size + sizeof(PacketHeader);
-
+    DEBUG_MSG("pl=%d, p->encrypted.size=%d, sizeof(PacketHeader)=%d", pl, p->encrypted.size, sizeof(PacketHeader));
     return getPacketTime(pl);
 }
 
@@ -415,6 +415,7 @@ static  const  int8e_t E22x_LoraBpsTable[ 8 ][ 3 ] =
 {LORA_BW_500 , LORA_SF8 , LORA_CR_4_6}, // Lora 9,6 Кбіт /с   10.42 kbps    10416.666666666666
 {LORA_BW_500 , LORA_SF7 , LORA_CR_4_6}, // Lora 19,2 кбіт /с  18.23 kbps    18229.166666666664
 {LORA_BW_500 , LORA_SF5 , LORA_CR_4_8}, // Lora 38,4 Кбіт /с                39062.5
+         500          6             5                                       37500
 {LORA_BW_500 , LORA_SF5 , LORA_CR_4_5}, // Lora 62,5 кбіт /с                62500.0
 };
 */
@@ -447,6 +448,11 @@ static  const  int8e_t E22x_LoraBpsTable[ 8 ][ 3 ] =
             bw = 500.0;
             cr = 6;
             sf = 7;
+            break;
+        case Config_LoRaConfig_ModemPreset_37500:
+            bw = 500.0;
+            cr = 5;
+            sf = 6;
             break;
         case Config_LoRaConfig_ModemPreset_38400:
             bw = 500.0;

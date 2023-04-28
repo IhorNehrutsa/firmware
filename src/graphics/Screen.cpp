@@ -1578,6 +1578,9 @@ void DebugInfo::drawFrameSettings(OLEDDisplay *display, OLEDDisplayUiState *stat
     case Config_LoRaConfig_ModemPreset_19200:
         mode = "19.2Kbps";
         break;
+    case Config_LoRaConfig_ModemPreset_37500:
+        mode = "37.5Kbps";
+        break;
     case Config_LoRaConfig_ModemPreset_38400:
         mode = "38.4Kbps";
         break;
