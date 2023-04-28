@@ -2,7 +2,7 @@
 #define HAS_GPS 0
 #define HAS_BUTTON 0
 #define HAS_WIRE 0
-#define HAS_TELEMETRY 0
+//#define HAS_TELEMETRY 0
 //#define HAS_BLUETOOTH 0
 //#define HAS_WIFI 0
 
