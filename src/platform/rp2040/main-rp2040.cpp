@@ -1,13 +1,13 @@
 #include "configuration.h"
-#include <stdio.h>
 #include <pico/unique_id.h>
+#include <stdio.h>
 
 void setBluetoothEnable(bool on)
 {
     // not needed
 }
 
-void cpuDeepSleep(uint64_t msecs)
+void cpuDeepSleep(uint32_t msecs)
 {
     // not needed
 }

@@ -1,21 +1,31 @@
 #pragma once
 
-#include <map>
 #include "GPSStatus.h"
 #include "NodeStatus.h"
 #include "PowerStatus.h"
+#include "detect/ScanI2C.h"
 #include "graphics/Screen.h"
-#include "mesh/generated/telemetry.pb.h"
+#include "memGet.h"
+#include "mesh/generated/meshtastic/config.pb.h"
+#include "mesh/generated/meshtastic/telemetry.pb.h"
+#include <map>
 #if !defined(ARCH_PORTDUINO) && !defined(ARCH_STM32WL)
 #include <SparkFun_ATECCX08a_Arduino_Library.h>
 #endif
+#if defined(ARCH_ESP32) && !defined(CONFIG_IDF_TARGET_ESP32S2)
+#include "nimble/NimbleBluetooth.h"
+extern NimbleBluetooth *nimbleBluetooth;
+#endif
+#ifdef ARCH_NRF52
+#include "NRF52Bluetooth.h"
+extern NRF52Bluetooth *nrf52Bluetooth;
+#endif
 
-extern uint8_t screen_found;
-extern uint8_t screen_model;
-extern uint8_t cardkb_found;
+extern ScanI2C::DeviceAddress screen_found;
+extern ScanI2C::DeviceAddress cardkb_found;
 extern uint8_t kb_model;
-extern uint8_t rtc_found;
-extern uint8_t keystore_found;
+extern ScanI2C::DeviceAddress rtc_found;
+extern ScanI2C::DeviceAddress accelerometer_found;
 
 extern bool eink_found;
 extern bool pmu_found;
@@ -26,7 +36,7 @@ extern bool isUSBPowered;
 extern ATECCX08A atecc;
 #endif
 
-extern uint8_t nodeTelemetrySensorsMap[_TelemetrySensorType_MAX + 1];
+extern uint8_t nodeTelemetrySensorsMap[_meshtastic_TelemetrySensorType_MAX + 1];
 
 extern int TCPPort; // set by Portduino
 
@@ -53,3 +63,5 @@ extern uint32_t serialSinceMsec;
 extern bool runASAP;
 
 void nrf52Setup(), esp32Setup(), nrf52Loop(), esp32Loop(), clearBonds();
+
+meshtastic_DeviceMetadata getDeviceMetadata();

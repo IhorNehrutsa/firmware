@@ -19,6 +19,10 @@
 esp_sleep_source_t wakeCause; // the reason we booted this time
 #endif
 
+#ifndef INCLUDE_vTaskSuspend
+#define INCLUDE_vTaskSuspend 0
+#endif
+
 #ifdef HAS_PMU
 #include "XPowersLibInterface.hpp"
 extern XPowersLibInterface *PMU;
@@ -29,7 +33,10 @@ Observable<void *> preflightSleep;
 
 /// Called to tell observers we are now entering sleep and you should prepare.  Must return 0
 /// notifySleep will be called for light or deep sleep, notifyDeepSleep is only called for deep sleep
+/// notifyGPSSleep will be called when config.position.gps_enabled is set to 0 or from buttonthread when GPS_POWER_TOGGLE is
+/// enabled.
 Observable<void *> notifySleep, notifyDeepSleep;
+Observable<void *> notifyGPSSleep;
 
 // deep sleep support
 RTC_DATA_ATTR int bootCount = 0;
@@ -58,13 +65,15 @@ void setCPUFast(bool on)
          *     all WiFi use cases.
          * (Added: Dec 23, 2021 by Jm Casler)
          */
-        DEBUG_MSG("Setting CPU to 240mhz because WiFi is in use.\n");
+#ifndef CONFIG_IDF_TARGET_ESP32C3
+        LOG_DEBUG("Setting CPU to 240mhz because WiFi is in use.\n");
         setCpuFrequencyMhz(240);
+#endif
         return;
     }
 
 // The Heltec LORA32 V1 runs at 26 MHz base frequency and doesn't react well to switching to 80 MHz...
-#ifndef ARDUINO_HELTEC_WIFI_LORA_32
+#if !defined(ARDUINO_HELTEC_WIFI_LORA_32) && !defined(CONFIG_IDF_TARGET_ESP32C3)
     setCpuFrequencyMhz(on ? 240 : 80);
 #endif
 
@@ -88,17 +97,22 @@ void setLed(bool ledOn)
 
 void setGPSPower(bool on)
 {
-    DEBUG_MSG("Setting GPS power=%d\n", on);
+    LOG_INFO("Setting GPS power=%d\n", on);
 
 #ifdef HAS_PMU
-    if (pmu_found && PMU){
+    if (pmu_found && PMU) {
         uint8_t model = PMU->getChipModel();
-        if(model == XPOWERS_AXP2101){
+        if (model == XPOWERS_AXP2101) {
+#if (HW_VENDOR == meshtastic_HardwareModel_TBEAM)
+            // t-beam v1.2 GNSS power channel
+            on ? PMU->enablePowerOutput(XPOWERS_ALDO3) : PMU->disablePowerOutput(XPOWERS_ALDO3);
+#elif (HW_VENDOR == meshtastic_HardwareModel_LILYGO_TBEAM_S3_CORE)
             // t-beam-s3-core GNSS  power channel
             on ? PMU->enablePowerOutput(XPOWERS_ALDO4) : PMU->disablePowerOutput(XPOWERS_ALDO4);
-        }else if(model == XPOWERS_AXP192){
-            // t-beam GNSS  power channel
-            on ? PMU->enablePowerOutput(XPOWERS_LDO3)  : PMU->disablePowerOutput(XPOWERS_LDO3);         
+#endif
+        } else if (model == XPOWERS_AXP192) {
+            // t-beam v1.1 GNSS  power channel
+            on ? PMU->enablePowerOutput(XPOWERS_LDO3) : PMU->disablePowerOutput(XPOWERS_LDO3);
         }
     }
 #endif
@@ -134,7 +148,7 @@ void initDeepSleep()
     if (wakeCause == ESP_SLEEP_WAKEUP_TIMER)
         reason = "timeout";
 
-    DEBUG_MSG("booted, wake cause %d (boot count %d), reset_reason=%s\n", wakeCause, bootCount, reason);
+    LOG_INFO("Booted, wake cause %d (boot count %d), reset_reason=%s\n", wakeCause, bootCount, reason);
 #endif
 }
 
@@ -154,22 +168,50 @@ static void waitEnterSleep()
         delay(100); // Kinda yucky - wait until radio says say we can shutdown (finished in process sends/receives)
 
         if (millis() - now > 30 * 1000) { // If we wait too long just report an error and go to sleep
-            RECORD_CRITICALERROR(CriticalErrorCode_SLEEP_ENTER_WAIT);
+            RECORD_CRITICALERROR(meshtastic_CriticalErrorCode_SLEEP_ENTER_WAIT);
             assert(0); // FIXME - for now we just restart, need to fix bug #167
             break;
         }
     }
 
     // Code that still needs to be moved into notifyObservers
-    Serial.flush();            // send all our characters before we stop cpu clock
+    console->flush();          // send all our characters before we stop cpu clock
     setBluetoothEnable(false); // has to be off before calling light sleep
 
     notifySleep.notifyObservers(NULL);
 }
 
-void doDeepSleep(uint64_t msecToWake)
+void doGPSpowersave(bool on)
 {
-    DEBUG_MSG("Entering deep sleep for %lu seconds\n", msecToWake / 1000);
+#ifdef HAS_PMU
+    if (on) {
+        LOG_INFO("Turning GPS back on\n");
+        gps->forceWake(1);
+        setGPSPower(1);
+    } else {
+        LOG_INFO("Turning off GPS chip\n");
+        notifyGPSSleep.notifyObservers(NULL);
+        setGPSPower(0);
+    }
+#endif
+#ifdef PIN_GPS_WAKE
+    if (on) {
+        LOG_INFO("Waking GPS");
+        gps->forceWake(1);
+    } else {
+        LOG_INFO("GPS entering sleep");
+        notifyGPSSleep.notifyObservers(NULL);
+    }
+#endif
+}
+
+void doDeepSleep(uint32_t msecToWake)
+{
+    if (INCLUDE_vTaskSuspend && (msecToWake == portMAX_DELAY)) {
+        LOG_INFO("Entering deep sleep forever\n");
+    } else {
+        LOG_INFO("Entering deep sleep for %u seconds\n", msecToWake / 1000);
+    }
 
     // not using wifi yet, but once we are this is needed to shutoff the radio hw
     // esp_wifi_stop();
@@ -207,10 +249,16 @@ void doDeepSleep(uint64_t msecToWake)
         // all the time.
 
         uint8_t model = PMU->getChipModel();
-        if(model == XPOWERS_AXP2101){
+        if (model == XPOWERS_AXP2101) {
+#if (HW_VENDOR == meshtastic_HardwareModel_TBEAM)
+            // t-beam v1.2 radio power channel
+            PMU->disablePowerOutput(XPOWERS_ALDO2); // lora radio power channel
+#elif (HW_VENDOR == meshtastic_HardwareModel_LILYGO_TBEAM_S3_CORE)
             PMU->disablePowerOutput(XPOWERS_ALDO3); // lora radio power channel
-        }else if(model == XPOWERS_AXP192){
-            PMU->disablePowerOutput(XPOWERS_LDO2);  // lora radio power channel
+#endif
+        } else if (model == XPOWERS_AXP192) {
+            // t-beam v1.1 radio power channel
+            PMU->disablePowerOutput(XPOWERS_LDO2); // lora radio power channel
         }
     }
 #endif
@@ -226,7 +274,7 @@ void doDeepSleep(uint64_t msecToWake)
  */
 esp_sleep_wakeup_cause_t doLightSleep(uint64_t sleepMsec) // FIXME, use a more reasonable default
 {
-    // DEBUG_MSG("Enter light sleep\n");
+    // LOG_DEBUG("Enter light sleep\n");
 
     waitEnterSleep();
 
@@ -237,7 +285,7 @@ esp_sleep_wakeup_cause_t doLightSleep(uint64_t sleepMsec) // FIXME, use a more r
     // We want RTC peripherals to stay on
     esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_ON);
 
-#ifdef BUTTON_NEED_PULLUP
+#if defined(BUTTON_PIN) && defined(BUTTON_NEED_PULLUP)
     gpio_pullup_en((gpio_num_t)BUTTON_PIN);
 #endif
 
@@ -261,7 +309,11 @@ esp_sleep_wakeup_cause_t doLightSleep(uint64_t sleepMsec) // FIXME, use a more r
     // assert(esp_sleep_enable_uart_wakeup(0) == ESP_OK);
 #endif
 #ifdef BUTTON_PIN
-    gpio_wakeup_enable((gpio_num_t)BUTTON_PIN, GPIO_INTR_LOW_LEVEL); // when user presses, this button goes low
+    esp_sleep_enable_ext0_wakeup((gpio_num_t)(config.device.button_gpio ? config.device.button_gpio : BUTTON_PIN),
+                                 LOW); // when user presses, this button goes low
+#endif
+#if defined(LORA_DIO1) && (LORA_DIO1 != RADIOLIB_NC)
+    gpio_wakeup_enable((gpio_num_t)LORA_DIO1, GPIO_INTR_HIGH_LEVEL); // SX126x/SX128x interrupt, active high
 #endif
 #ifdef RF95_IRQ
     gpio_wakeup_enable((gpio_num_t)RF95_IRQ, GPIO_INTR_HIGH_LEVEL); // RF95 interrupt, active high
@@ -271,14 +323,24 @@ esp_sleep_wakeup_cause_t doLightSleep(uint64_t sleepMsec) // FIXME, use a more r
     if (pmu_found)
         gpio_wakeup_enable((gpio_num_t)PMU_IRQ, GPIO_INTR_LOW_LEVEL); // pmu irq
 #endif
-    assert(esp_sleep_enable_gpio_wakeup() == ESP_OK);
-    assert(esp_sleep_enable_timer_wakeup(sleepUsec) == ESP_OK);
-    assert(esp_light_sleep_start() == ESP_OK);
+    auto res = esp_sleep_enable_gpio_wakeup();
+    if (res != ESP_OK)
+        LOG_DEBUG("esp_sleep_enable_gpio_wakeup result %d\n", res);
+    assert(res == ESP_OK);
+    res = esp_sleep_enable_timer_wakeup(sleepUsec);
+    if (res != ESP_OK)
+        LOG_DEBUG("esp_sleep_enable_timer_wakeup result %d\n", res);
+    assert(res == ESP_OK);
+    res = esp_light_sleep_start();
+    if (res != ESP_OK)
+        LOG_DEBUG("esp_light_sleep_start result %d\n", res);
+    assert(res == ESP_OK);
 
     esp_sleep_wakeup_cause_t cause = esp_sleep_get_wakeup_cause();
 #ifdef BUTTON_PIN
     if (cause == ESP_SLEEP_WAKEUP_GPIO)
-        DEBUG_MSG("Exit light sleep gpio: btn=%d\n", !digitalRead(BUTTON_PIN));
+        LOG_INFO("Exit light sleep gpio: btn=%d\n",
+                 !digitalRead(config.device.button_gpio ? config.device.button_gpio : BUTTON_PIN));
 #endif
 
     return cause;
@@ -297,15 +359,18 @@ void enableModemSleep()
 {
     static esp_pm_config_esp32_t esp32_config; // filled with zeros because bss
 
-
 #if CONFIG_IDF_TARGET_ESP32S3
     esp32_config.max_freq_mhz = CONFIG_ESP32S3_DEFAULT_CPU_FREQ_MHZ;
+#elif CONFIG_IDF_TARGET_ESP32S2
+    esp32_config.max_freq_mhz = CONFIG_ESP32S2_DEFAULT_CPU_FREQ_MHZ;
+#elif CONFIG_IDF_TARGET_ESP32C3
+    esp32_config.max_freq_mhz = CONFIG_ESP32C3_DEFAULT_CPU_FREQ_MHZ;
 #else
     esp32_config.max_freq_mhz = CONFIG_ESP32_DEFAULT_CPU_FREQ_MHZ;
 #endif
     esp32_config.min_freq_mhz = 20; // 10Mhz is minimum recommended
     esp32_config.light_sleep_enable = false;
     int rv = esp_pm_configure(&esp32_config);
-    DEBUG_MSG("Sleep request result %x\n", rv);
+    LOG_DEBUG("Sleep request result %x\n", rv);
 }
 #endif

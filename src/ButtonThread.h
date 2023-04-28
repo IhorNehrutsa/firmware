@@ -45,18 +45,19 @@ class ButtonThread : public concurrency::OSThread
     ButtonThread() : OSThread("Button")
     {
 #ifdef BUTTON_PIN
-        userButton = OneButton(BUTTON_PIN, true, true);
+        userButton = OneButton(config.device.button_gpio ? config.device.button_gpio : BUTTON_PIN, true, true);
 #ifdef INPUT_PULLUP_SENSE
         // Some platforms (nrf52) have a SENSE variant which allows wake from sleep - override what OneButton did
-        pinMode(BUTTON_PIN, INPUT_PULLUP_SENSE);
+        pinMode(config.device.button_gpio ? config.device.button_gpio : BUTTON_PIN, INPUT_PULLUP_SENSE);
 #endif
         userButton.attachClick(userButtonPressed);
+        userButton.setClickTicks(300);
         userButton.attachDuringLongPress(userButtonPressedLong);
         userButton.attachDoubleClick(userButtonDoublePressed);
         userButton.attachMultiClick(userButtonMultiPressed);
         userButton.attachLongPressStart(userButtonPressedLongStart);
         userButton.attachLongPressStop(userButtonPressedLongStop);
-        wakeOnIrq(BUTTON_PIN, FALLING);
+        wakeOnIrq(config.device.button_gpio ? config.device.button_gpio : BUTTON_PIN, FALLING);
 #endif
 #ifdef BUTTON_PIN_ALT
         userButtonAlt = OneButton(BUTTON_PIN_ALT, true, true);
@@ -97,8 +98,8 @@ class ButtonThread : public concurrency::OSThread
         userButtonTouch.tick();
         canSleep &= userButtonTouch.isIdle();
 #endif
-        // if (!canSleep) DEBUG_MSG("Supressing sleep!\n");
-        // else DEBUG_MSG("sleep ok\n");
+        // if (!canSleep) LOG_DEBUG("Supressing sleep!\n");
+        // else LOG_DEBUG("sleep ok\n");
 
         return 5;
     }
@@ -107,14 +108,15 @@ class ButtonThread : public concurrency::OSThread
     static void touchPressed()
     {
         screen->forceDisplay();
-        DEBUG_MSG("touch press!\n");
+        LOG_DEBUG("touch press!\n");
     }
 
     static void userButtonPressed()
     {
-        // DEBUG_MSG("press!\n");
+        // LOG_DEBUG("press!\n");
 #ifdef BUTTON_PIN
-        if ((BUTTON_PIN != moduleConfig.canned_message.inputbroker_pin_press) ||
+        if (((config.device.button_gpio ? config.device.button_gpio : BUTTON_PIN) !=
+             moduleConfig.canned_message.inputbroker_pin_press) ||
             !moduleConfig.canned_message.enabled) {
             powerFSM.trigger(EVENT_PRESS);
         }
@@ -122,38 +124,30 @@ class ButtonThread : public concurrency::OSThread
     }
     static void userButtonPressedLong()
     {
-        // DEBUG_MSG("Long press!\n");
-#ifdef ARCH_ESP32
-        screen->adjustBrightness();
-#endif
+        // LOG_DEBUG("Long press!\n");
         // If user button is held down for 5 seconds, shutdown the device.
-        if ((millis() - longPressTime > 5 * 1000) && (longPressTime > 0)) {
-#ifdef HAS_PMU
-            if (pmu_found == true) {
-                setLed(false);
-                power->shutdown();
-            }
-#elif defined(ARCH_NRF52)
+        if ((millis() - longPressTime > 5000) && (longPressTime > 0)) {
+#if defined(ARCH_NRF52) || defined(ARCH_ESP32)
             // Do actual shutdown when button released, otherwise the button release
             // may wake the board immediatedly.
             if ((!shutdown_on_long_stop) && (millis() > 30 * 1000)) {
                 screen->startShutdownScreen();
-                DEBUG_MSG("Shutdown from long press");
+                LOG_INFO("Shutdown from long press");
                 playBeep();
 #ifdef PIN_LED1
                 ledOff(PIN_LED1);
 #endif
-#ifdef PIN_LED2        
+#ifdef PIN_LED2
                 ledOff(PIN_LED2);
 #endif
-#ifdef PIN_LED3        
+#ifdef PIN_LED3
                 ledOff(PIN_LED3);
 #endif
                 shutdown_on_long_stop = true;
             }
 #endif
         } else {
-            // DEBUG_MSG("Long press %u\n", (millis() - longPressTime));
+            // LOG_DEBUG("Long press %u\n", (millis() - longPressTime));
         }
     }
 
@@ -162,19 +156,28 @@ class ButtonThread : public concurrency::OSThread
 #if defined(USE_EINK) && defined(PIN_EINK_EN)
         digitalWrite(PIN_EINK_EN, digitalRead(PIN_EINK_EN) == LOW);
 #endif
-    }
-
-    static void userButtonMultiPressed()
-    {
         screen->print("Sent ad-hoc ping\n");
         service.refreshMyNodeInfo();
         service.sendNetworkPing(NODENUM_BROADCAST, true);
     }
 
+    static void userButtonMultiPressed()
+    {
+#if defined(GPS_POWER_TOGGLE)
+        if (config.position.gps_enabled) {
+            LOG_DEBUG("Flag set to false for gps power\n");
+        } else {
+            LOG_DEBUG("Flag set to true to restore power\n");
+        }
+        config.position.gps_enabled = !(config.position.gps_enabled);
+        doGPSpowersave(config.position.gps_enabled);
+#endif
+    }
+
     static void userButtonPressedLongStart()
     {
         if (millis() > 30 * 1000) {
-            DEBUG_MSG("Long press start!\n");
+            LOG_DEBUG("Long press start!\n");
             longPressTime = millis();
         }
     }
@@ -182,7 +185,7 @@ class ButtonThread : public concurrency::OSThread
     static void userButtonPressedLongStop()
     {
         if (millis() > 30 * 1000) {
-            DEBUG_MSG("Long press stop!\n");
+            LOG_DEBUG("Long press stop!\n");
             longPressTime = 0;
             if (shutdown_on_long_stop) {
                 playShutdownMelody();

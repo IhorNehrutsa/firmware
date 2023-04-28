@@ -11,21 +11,23 @@
 #include "modules/ReplyModule.h"
 #include "modules/RoutingModule.h"
 #include "modules/TextMessageModule.h"
+#include "modules/TraceRouteModule.h"
 #include "modules/WaypointModule.h"
 #if HAS_TELEMETRY
 #include "modules/Telemetry/DeviceTelemetry.h"
+#endif
+#if HAS_SENSOR
+#include "modules/Telemetry/AirQualityTelemetry.h"
 #include "modules/Telemetry/EnvironmentTelemetry.h"
 #endif
 #ifdef ARCH_ESP32
+#include "modules/esp32/AudioModule.h"
 #include "modules/esp32/RangeTestModule.h"
 #include "modules/esp32/StoreForwardModule.h"
-#ifdef USE_SX1280
-#include "modules/esp32/AudioModule.h"
-#endif
 #endif
 #if defined(ARCH_ESP32) || defined(ARCH_NRF52)
 #include "modules/ExternalNotificationModule.h"
-#if !defined(TTGO_T_ECHO)
+#if (defined(ARCH_ESP32) || defined(ARCH_NRF52)) && !defined(TTGO_T_ECHO) && !defined(CONFIG_IDF_TARGET_ESP32S2)
 #include "modules/SerialModule.h"
 #endif
 #endif
@@ -34,52 +36,62 @@
  */
 void setupModules()
 {
+    if (config.device.role != meshtastic_Config_DeviceConfig_Role_REPEATER) {
 #if HAS_BUTTON
-    inputBroker = new InputBroker();
+        inputBroker = new InputBroker();
 #endif
-    adminModule = new AdminModule();
-    nodeInfoModule = new NodeInfoModule();
-    positionModule = new PositionModule();
-    waypointModule = new WaypointModule();
-    textMessageModule = new TextMessageModule();
-    
-    // Note: if the rest of meshtastic doesn't need to explicitly use your module, you do not need to assign the instance
-    // to a global variable.
+        adminModule = new AdminModule();
+        nodeInfoModule = new NodeInfoModule();
+        positionModule = new PositionModule();
+        waypointModule = new WaypointModule();
+        textMessageModule = new TextMessageModule();
+        traceRouteModule = new TraceRouteModule();
 
-    new RemoteHardwareModule();
-    new ReplyModule();
+        // Note: if the rest of meshtastic doesn't need to explicitly use your module, you do not need to assign the instance
+        // to a global variable.
+
+        new RemoteHardwareModule();
+        new ReplyModule();
 #if HAS_BUTTON
-    rotaryEncoderInterruptImpl1 = new RotaryEncoderInterruptImpl1();
-    rotaryEncoderInterruptImpl1->init();
-    upDownInterruptImpl1 = new UpDownInterruptImpl1();
-    upDownInterruptImpl1->init();
-    cardKbI2cImpl = new CardKbI2cImpl();
-    cardKbI2cImpl->init();
+        rotaryEncoderInterruptImpl1 = new RotaryEncoderInterruptImpl1();
+        rotaryEncoderInterruptImpl1->init();
+        upDownInterruptImpl1 = new UpDownInterruptImpl1();
+        upDownInterruptImpl1->init();
+        cardKbI2cImpl = new CardKbI2cImpl();
+        cardKbI2cImpl->init();
 #endif
 #if HAS_SCREEN
-    cannedMessageModule = new CannedMessageModule();
+        cannedMessageModule = new CannedMessageModule();
 #endif
 #if HAS_TELEMETRY
-    new DeviceTelemetryModule();
-    new EnvironmentTelemetryModule();
+        new DeviceTelemetryModule();
 #endif
-#if (defined(ARCH_ESP32) || defined(ARCH_NRF52)) && !defined(TTGO_T_ECHO)
-    new SerialModule();
+#if HAS_SENSOR
+        new EnvironmentTelemetryModule();
+        if (nodeTelemetrySensorsMap[meshtastic_TelemetrySensorType_PMSA003I] > 0) {
+            new AirQualityTelemetryModule();
+        }
+#endif
+#if (defined(ARCH_ESP32) || defined(ARCH_NRF52)) && !defined(TTGO_T_ECHO) && !defined(CONFIG_IDF_TARGET_ESP32S2) &&              \
+    !defined(CONFIG_IDF_TARGET_ESP32C3)
+        new SerialModule();
 #endif
 #ifdef ARCH_ESP32
-    // Only run on an esp32 based device.
-#ifdef USE_SX1280
-    new AudioModule();
-#endif
-    new ExternalNotificationModule();
+        // Only run on an esp32 based device.
+        audioModule = new AudioModule();
+        externalNotificationModule = new ExternalNotificationModule();
 
-    storeForwardModule = new StoreForwardModule();
+        storeForwardModule = new StoreForwardModule();
 
-    new RangeTestModule();
+        new RangeTestModule();
 #elif defined(ARCH_NRF52)
-    new ExternalNotificationModule();
+        externalNotificationModule = new ExternalNotificationModule();
 #endif
-
-    // NOTE! This module must be added LAST because it likes to check for replies from other modules and avoid sending extra acks
+    } else {
+        adminModule = new AdminModule();
+        traceRouteModule = new TraceRouteModule();
+    }
+    // NOTE! This module must be added LAST because it likes to check for replies from other modules and avoid sending extra
+    // acks
     routingModule = new RoutingModule();
 }

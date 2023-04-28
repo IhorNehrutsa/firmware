@@ -12,16 +12,16 @@
 
 #define RESET_OLED 16 // If defined, this pin will be used to reset the display controller
 
-#define LED_PIN 25     // If defined we will blink this LED
-#define BUTTON_PIN 0   // If defined, this will be used for user button presses
+#define LED_PIN 25   // If defined we will blink this LED
+#define BUTTON_PIN 0 // If defined, this will be used for user button presses
 
 #define USE_RF95
 #define LORA_DIO0 26 // a No connect on the SX1262 module
 #ifndef USE_JTAG
 #define LORA_RESET 14
 #endif
-#define LORA_DIO1 35 // Not really used
-#define LORA_DIO2 34 // Not really used
+#define LORA_DIO1 RADIOLIB_NC
+#define LORA_DIO2 32 // Not really used
 
 // ratio of voltage divider = 3.20 (R1=100k, R2=220k)
 #define ADC_MULTIPLIER 3.2

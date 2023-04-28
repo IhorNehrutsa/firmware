@@ -13,7 +13,7 @@ struct GlobalPacketId {
 
     bool operator==(const GlobalPacketId &p) const { return node == p.node && id == p.id; }
 
-    explicit GlobalPacketId(const MeshPacket *p)
+    explicit GlobalPacketId(const meshtastic_MeshPacket *p)
     {
         node = getFrom(p);
         id = p->id;
@@ -30,7 +30,7 @@ struct GlobalPacketId {
  * A packet queued for retransmission
  */
 struct PendingPacket {
-    MeshPacket *packet;
+    meshtastic_MeshPacket *packet;
 
     /** The next time we should try to retransmit this packet */
     uint32_t nextTxMsec = 0;
@@ -38,14 +38,8 @@ struct PendingPacket {
     /** Starts at NUM_RETRANSMISSIONS -1(normally 3) and counts down.  Once zero it will be removed from the list */
     uint8_t numRetransmissions = 0;
 
-    /** True if we have started trying to find a route - for DSR usage
-     * While trying to find a route we don't actually send the data packet.  We just leave it here pending until
-     * we have a route or we've failed to find one.
-     */
-    bool wantRoute = false;
-
     PendingPacket() {}
-    explicit PendingPacket(MeshPacket *p);
+    explicit PendingPacket(meshtastic_MeshPacket *p);
 };
 
 class GlobalPacketIdHashFunction
@@ -74,7 +68,7 @@ class ReliableRouter : public FloodingRouter
      * later free() the packet to pool.  This routine is not allowed to stall.
      * If the txmit queue is full it might return an error
      */
-    virtual ErrorCode send(MeshPacket *p) override;
+    virtual ErrorCode send(meshtastic_MeshPacket *p) override;
 
     /** Do our retransmission handling */
     virtual int32_t runOnce() override
@@ -91,7 +85,7 @@ class ReliableRouter : public FloodingRouter
     /**
      * Look for acks/naks or someone retransmitting us
      */
-    virtual void sniffReceived(const MeshPacket *p, const Routing *c) override;
+    virtual void sniffReceived(const meshtastic_MeshPacket *p, const meshtastic_Routing *c) override;
 
     /**
      * Try to find the pending packet record for this ID (or NULL if not found)
@@ -102,12 +96,12 @@ class ReliableRouter : public FloodingRouter
     /**
      * We hook this method so we can see packets before FloodingRouter says they should be discarded
      */
-    virtual bool shouldFilterReceived(MeshPacket *p) override;
+    virtual bool shouldFilterReceived(const meshtastic_MeshPacket *p) override;
 
     /**
      * Add p to the list of packets to retransmit occasionally.  We will free it once we stop retransmitting.
      */
-    PendingPacket *startRetransmission(MeshPacket *p);
+    PendingPacket *startRetransmission(meshtastic_MeshPacket *p);
 
   private:
     /**

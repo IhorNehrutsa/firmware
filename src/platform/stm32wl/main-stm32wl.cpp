@@ -1,7 +1,7 @@
+#include "RTC.h"
+#include "configuration.h"
 #include <stm32wle5xx.h>
 #include <stm32wlxx_hal.h>
-#include "configuration.h"
-#include "RTC.h"
 
 void setBluetoothEnable(bool on) {}
 
@@ -15,13 +15,12 @@ void getMacAddr(uint8_t *dmac)
         dmac[i] = i;
 }
 
-void cpuDeepSleep(uint64_t msecToWake) {}
+void cpuDeepSleep(uint32_t msecToWake) {}
 
 /* pacify libc_nano */
 extern "C" {
-int _gettimeofday( struct timeval *tv, void *tzvp )
+int _gettimeofday(struct timeval *tv, void *tzvp)
 {
     return -1;
 }
 }
-

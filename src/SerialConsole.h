@@ -6,7 +6,7 @@
  * Provides both debug printing and, if the client starts sending protobufs to us, switches to send/receive protobufs
  * (and starts dropping debug printing - FIXME, eventually those prints should be encapsulated in protobufs).
  */
-class SerialConsole : public StreamAPI, public RedirectablePrint
+class SerialConsole : public StreamAPI, public RedirectablePrint, private concurrency::OSThread
 {
   public:
     SerialConsole();
@@ -24,8 +24,11 @@ class SerialConsole : public StreamAPI, public RedirectablePrint
         return RedirectablePrint::write(c);
     }
 
-  protected:
+    virtual int32_t runOnce() override;
 
+    void flush();
+
+  protected:
     /// Check the current underlying physical link to see if the client is currently connected
     virtual bool checkIsConnected() override;
 };
