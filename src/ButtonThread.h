@@ -113,7 +113,7 @@ class ButtonThread : public concurrency::OSThread
 
     static void userButtonPressed()
     {
-        DEBUG_MSG("press!\n");
+        LOG_DEBUG("press!\n");
 #ifdef BUTTON_PIN
         if (((config.device.button_gpio ? config.device.button_gpio : BUTTON_PIN) !=
              moduleConfig.canned_message.inputbroker_pin_press) ||
@@ -125,7 +125,7 @@ class ButtonThread : public concurrency::OSThread
 
     static void userButtonPressedLong()
     {
-        DEBUG_MSG("Long press!\n");
+        LOG_DEBUG("Long press!\n");
 #ifdef ARCH_ESP32
         screen->adjustBrightness();
 #endif
@@ -151,7 +151,7 @@ class ButtonThread : public concurrency::OSThread
             }
 #endif
         } else {
-            DEBUG_MSG("Long press %u\n", (millis() - longPressTime));
+            LOG_DEBUG("Long press %u\n", (millis() - longPressTime));
         }
     }
 

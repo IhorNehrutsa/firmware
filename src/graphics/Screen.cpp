@@ -1681,31 +1681,31 @@ void DebugInfo::drawFrameSettings(OLEDDisplay *display, OLEDDisplayUiState *stat
     case meshtastic_Config_LoRaConfig_ModemPreset_VERY_LONG_SLOW:
         mode = "VeryL";
         break;
-    case Config_LoRaConfig_ModemPreset_300:
+    case meshtastic_Config_LoRaConfig_ModemPreset_AIR_RATE_300:
         mode = "0.3Kbps";
         break;
-    case Config_LoRaConfig_ModemPreset_1200:
+    case meshtastic_Config_LoRaConfig_ModemPreset_AIR_RATE_1200:
         mode = "1.2Kbps";
         break;
-    case Config_LoRaConfig_ModemPreset_2400:
+    case meshtastic_Config_LoRaConfig_ModemPreset_AIR_RATE_2400:
         mode = "2.4Kbps";
         break;
-    case Config_LoRaConfig_ModemPreset_4800:
+    case meshtastic_Config_LoRaConfig_ModemPreset_AIR_RATE_4800:
         mode = "4.8Kbps";
         break;
-    case Config_LoRaConfig_ModemPreset_9600:
+    case meshtastic_Config_LoRaConfig_ModemPreset_AIR_RATE_9600:
         mode = "9.6Kbps";
         break;
-    case Config_LoRaConfig_ModemPreset_19200:
+    case meshtastic_Config_LoRaConfig_ModemPreset_AIR_RATE_19200:
         mode = "19.2Kbps";
         break;
-    case Config_LoRaConfig_ModemPreset_37500:
+    case meshtastic_Config_LoRaConfig_ModemPreset_AIR_RATE_37500:
         mode = "37.5Kbps";
         break;
-    case Config_LoRaConfig_ModemPreset_38400:
+    case meshtastic_Config_LoRaConfig_ModemPreset_AIR_RATE_38400:
         mode = "38.4Kbps";
         break;
-    case Config_LoRaConfig_ModemPreset_62500:
+    case meshtastic_Config_LoRaConfig_ModemPreset_AIR_RATE_62500:
         mode = "62.5Kbps";
         break;
     default:
