@@ -12,7 +12,8 @@
 // we need to throttle our sending, so that if a gpio is bouncing up and down we
 // don't generate more messages than the net can send. So we limit watch messages to
 // a max of one change per 30 seconds
-#define WATCH_INTERVAL_MSEC (30 * 1000)
+//#define WATCH_INTERVAL_MSEC (30 * 1000)
+#define WATCH_INTERVAL_MSEC (100)
 
 /// Set pin modes for every set bit in a mask
 static void pinModes(uint64_t mask, uint8_t mode)
