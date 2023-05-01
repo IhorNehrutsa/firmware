@@ -113,7 +113,7 @@ class ButtonThread : public concurrency::OSThread
 
     static void userButtonPressed()
     {
-        // LOG_DEBUG("press!\n");
+        DEBUG_MSG("press!\n");
 #ifdef BUTTON_PIN
         if (((config.device.button_gpio ? config.device.button_gpio : BUTTON_PIN) !=
              moduleConfig.canned_message.inputbroker_pin_press) ||
@@ -122,9 +122,13 @@ class ButtonThread : public concurrency::OSThread
         }
 #endif
     }
+
     static void userButtonPressedLong()
     {
-        // LOG_DEBUG("Long press!\n");
+        DEBUG_MSG("Long press!\n");
+#ifdef ARCH_ESP32
+        screen->adjustBrightness();
+#endif
         // If user button is held down for 5 seconds, shutdown the device.
         if ((millis() - longPressTime > 5000) && (longPressTime > 0)) {
 #if defined(ARCH_NRF52) || defined(ARCH_ESP32)
@@ -147,7 +151,7 @@ class ButtonThread : public concurrency::OSThread
             }
 #endif
         } else {
-            // LOG_DEBUG("Long press %u\n", (millis() - longPressTime));
+            DEBUG_MSG("Long press %u\n", (millis() - longPressTime));
         }
     }
 
