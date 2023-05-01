@@ -43,23 +43,23 @@ const RegionInfo regions[] = {
        cycle. (Please refer to section 4.21 in the following document)
         https://ec.europa.eu/growth/tools-databases/tris/index.cfm/ro/search/?trisaction=search.detail&year=2021&num=528&dLang=EN
      */
-    //RDEF(EU_868, 869.4f, 869.65f, 10, 0, 27, false, false, false),
+    RDEF(EU_868, 869.4f, 869.65f, 10, 0, 27, false, false, false),
 
     /*
         https://lora-alliance.org/wp-content/uploads/2020/11/lorawan_regional_parameters_v1.0.3reva_0.pdf
      */
-    //RDEF(CN, 470.0f, 510.0f, 100, 0, 19, true, false, false),
+    RDEF(CN, 470.0f, 510.0f, 100, 0, 19, true, false, false),
 
     /*
         https://lora-alliance.org/wp-content/uploads/2020/11/lorawan_regional_parameters_v1.0.3reva_0.pdf
      */
-    //RDEF(JP, 920.8f, 927.8f, 100, 0, 16, true, false, false),
+    RDEF(JP, 920.8f, 927.8f, 100, 0, 16, true, false, false),
 
     /*
         https://www.iot.org.au/wp/wp-content/uploads/2016/12/IoTSpectrumFactSheet.pdf
         https://iotalliance.org.nz/wp-content/uploads/sites/4/2019/05/IoT-Spectrum-in-NZ-Briefing-Paper.pdf
      */
-    //RDEF(ANZ, 915.0f, 928.0f, 100, 0, 30, true, false, false),
+    RDEF(ANZ, 915.0f, 928.0f, 100, 0, 30, true, false, false),
 
     /*
         https://digital.gov.ru/uploaded/files/prilozhenie-12-k-reshenyu-gkrch-18-46-03-1.pdf
@@ -67,33 +67,33 @@ const RegionInfo regions[] = {
         Note:
             - We do LBT, so 100% is allowed.
      */
-    //RDEF(RU, 868.7f, 869.2f, 100, 0, 20, true, false, false),
+    RDEF(RU, 868.7f, 869.2f, 100, 0, 20, true, false, false),
 
     /*
         ???
      */
-    //RDEF(KR, 920.0f, 923.0f, 100, 0, 0, true, false, false),
+    RDEF(KR, 920.0f, 923.0f, 100, 0, 0, true, false, false),
 
     /*
         ???
      */
-    //RDEF(TW, 920.0f, 925.0f, 100, 0, 0, true, false, false),
+    RDEF(TW, 920.0f, 925.0f, 100, 0, 0, true, false, false),
 
     /*
         https://lora-alliance.org/wp-content/uploads/2020/11/lorawan_regional_parameters_v1.0.3reva_0.pdf
      */
-    //RDEF(IN, 865.0f, 867.0f, 100, 0, 30, true, false, false),
+    RDEF(IN, 865.0f, 867.0f, 100, 0, 30, true, false, false),
 
     /*
          https://rrf.rsm.govt.nz/smart-web/smart/page/-smart/domain/licence/LicenceSummary.wdk?id=219752
          https://iotalliance.org.nz/wp-content/uploads/sites/4/2019/05/IoT-Spectrum-in-NZ-Briefing-Paper.pdf
       */
-    //RDEF(NZ_865, 864.0f, 868.0f, 100, 0, 36, true, false, false),
+    RDEF(NZ_865, 864.0f, 868.0f, 100, 0, 36, true, false, false),
 
     /*
        https://lora-alliance.org/wp-content/uploads/2020/11/lorawan_regional_parameters_v1.0.3reva_0.pdf
     */
-    //RDEF(TH, 920.0f, 925.0f, 100, 0, 16, true, false, false),
+    RDEF(TH, 920.0f, 925.0f, 100, 0, 16, true, false, false),
 
     /*
         433,05-434,7 Mhz 10 mW
@@ -111,7 +111,7 @@ const RegionInfo regions[] = {
        2.4 GHZ WLAN Band equivalent. Only for SX128x chips.
     */
 
-    //RDEF(LORA_24, 2400.0f, 2483.5f, 100, 0, 10, true, false, true),
+    RDEF(LORA_24, 2400.0f, 2483.5f, 100, 0, 10, true, false, true),
 
     /*
         This needs to be last. Same as US.
@@ -413,7 +413,7 @@ void RadioInterface::applyModemConfig()
             cr = 8;
             sf = 12;
             break;
-        case Config_LoRaConfig_ModemPreset_VERY_LONG_SLOW: // 46 bps
+        case meshtastic_Config_LoRaConfig_ModemPreset_VERY_LONG_SLOW: // 46 bps
             bw = (myRegion->wideLora) ? 203.125 : 31.25;
             cr = 8;
             sf = 12;
@@ -438,47 +438,47 @@ static  const  int8e_t E22x_LoraBpsTable[ 8 ][ 3 ] =
 {LORA_BW_500 , LORA_SF5 , LORA_CR_4_5}, // Lora 62,5 кбіт /с                62500.0
 };
 */
-        case Config_LoRaConfig_ModemPreset_300:
+        case meshtastic_Config_LoRaConfig_ModemPreset_AIR_RATE_300:
             bw = 250.0;
             cr = 8;
             sf = 12;
             break;
-        case Config_LoRaConfig_ModemPreset_1200:
+        case meshtastic_Config_LoRaConfig_ModemPreset_AIR_RATE_1200:
             bw = 500.0;
             cr = 8;
             sf = 11;
             break;
-        case Config_LoRaConfig_ModemPreset_2400:
+        case meshtastic_Config_LoRaConfig_ModemPreset_AIR_RATE_2400:
             bw = 500.0;
             cr = 5;
             sf = 11;
             break;
-        case Config_LoRaConfig_ModemPreset_4800:
+        case meshtastic_Config_LoRaConfig_ModemPreset_AIR_RATE_4800:
             bw = 250.0;
             cr = 5;
             sf = 8;
             break;
-        case Config_LoRaConfig_ModemPreset_9600:
+        case meshtastic_Config_LoRaConfig_ModemPreset_AIR_RATE_9600:
             bw = 500.0;
             cr = 6;
             sf = 8;
             break;
-        case Config_LoRaConfig_ModemPreset_19200:
+        case meshtastic_Config_LoRaConfig_ModemPreset_AIR_RATE_19200:
             bw = 500.0;
             cr = 6;
             sf = 7;
             break;
-        case Config_LoRaConfig_ModemPreset_37500:
+        case meshtastic_Config_LoRaConfig_ModemPreset_AIR_RATE_37500:
             bw = 500.0;
             cr = 5;
             sf = 6;
             break;
-        case Config_LoRaConfig_ModemPreset_38400:
+        case meshtastic_Config_LoRaConfig_ModemPreset_AIR_RATE_38400:
             bw = 500.0;
             cr = 8;
             sf = 5;
             break;
-        case Config_LoRaConfig_ModemPreset_62500:
+        case meshtastic_Config_LoRaConfig_ModemPreset_AIR_RATE_62500:
             bw = 500.0;
             cr = 5;
             sf = 5;
@@ -523,7 +523,7 @@ static  const  int8e_t E22x_LoraBpsTable[ 8 ][ 3 ] =
     int channel_num = (loraConfig.channel_num ? loraConfig.channel_num - 1 : hash(channelName)) % numChannels;
 
     // Old frequency selection formula
-    float freq = myRegion->freqStart + ((((myRegion->freqEnd - myRegion->freqStart) / numChannels) / 2) * channel_num);
+    // float freq = myRegion->freqStart + ((((myRegion->freqEnd - myRegion->freqStart) / numChannels) / 2) * channel_num);
 
     // New frequency selection formula
     float freq = myRegion->freqStart + (bw / 2000) + (channel_num * (bw / 1000));

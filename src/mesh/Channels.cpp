@@ -266,31 +266,31 @@ const char *Channels::getName(size_t chIndex)
             case meshtastic_Config_LoRaConfig_ModemPreset_VERY_LONG_SLOW:
                 channelName = "VLongSlow";
                 break;
-            case Config_LoRaConfig_ModemPreset_300:
+            case meshtastic_Config_LoRaConfig_ModemPreset_AIR_RATE_300:
                 channelName = "0.3Kbps";
                 break;
-            case Config_LoRaConfig_ModemPreset_1200:
+            case meshtastic_Config_LoRaConfig_ModemPreset_AIR_RATE_1200:
                 channelName = "1.2Kbps";
                 break;
-            case Config_LoRaConfig_ModemPreset_2400:
+            case meshtastic_Config_LoRaConfig_ModemPreset_AIR_RATE_2400:
                 channelName = "2.4Kbps";
                 break;
-            case Config_LoRaConfig_ModemPreset_4800:
+            case meshtastic_Config_LoRaConfig_ModemPreset_AIR_RATE_4800:
                 channelName = "4.8Kbps";
                 break;
-            case Config_LoRaConfig_ModemPreset_9600:
+            case meshtastic_Config_LoRaConfig_ModemPreset_AIR_RATE_9600:
                 channelName = "9.6Kbps";
                 break;
-            case Config_LoRaConfig_ModemPreset_19200:
+            case meshtastic_Config_LoRaConfig_ModemPreset_AIR_RATE_19200:
                 channelName = "19.2Kbps";
                 break;
-            case Config_LoRaConfig_ModemPreset_37500:
+            case meshtastic_Config_LoRaConfig_ModemPreset_AIR_RATE_37500:
                 channelName = "37.5Kbps";
                 break;
-            case Config_LoRaConfig_ModemPreset_38400:
+            case meshtastic_Config_LoRaConfig_ModemPreset_AIR_RATE_38400:
                 channelName = "38.4Kbps";
                 break;
-            case Config_LoRaConfig_ModemPreset_62500:
+            case meshtastic_Config_LoRaConfig_ModemPreset_AIR_RATE_62500:
                 channelName = "62.5Kbps";
                 break;
             default:
