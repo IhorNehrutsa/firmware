@@ -93,6 +93,8 @@ git checkout -b ptd remotes/origin/ptd --
 
 # 3) Build Meshtastic Python Client
 
+https://python.meshtastic.org/index.html
+
 md D:\LoRa\MESHTASTIC
 
 WINDOWS context menu -> Git Bash Here: D:\LoRa\MESHTASTIC
@@ -114,6 +116,7 @@ git checkout -b ptd remotes/origin/ptd --
 
 https://meshtastic.org/docs/hardware/peripheral/
 
+https://meshtastic.org/docs/software/python/cli
 
 D:\LoRa\MESHTASTIC\python>python meshtastic_main.py --nodes
 
@@ -123,13 +126,37 @@ Warning: Multiple serial ports were detected so one serial port must be specifie
 D:\LoRa\MESHTASTIC\python>python meshtastic_main.py --port COM21 --nodes
 
 Connected to radio
-╒═════╤═════════════════╤═══════╤═══════════╤════════════╤═════════════╤════════════╤═════════════════╤════════════════╤══════════╤═════════════════════╤═══════════════╤═══════════╕
-│   N │ User            │ AKA   │ ID        │ Latitude   │ Longitude   │ Altitude   │ Channel util.   │ Tx air util.   │ SNR      │ LastHeard           │ Since         │ Battery   │
-╞═════╪═════════════════╪═══════╪═══════════╪════════════╪═════════════╪════════════╪═════════════════╪════════════════╪══════════╪═════════════════════╪═══════════════╪═══════════╡
-│   1 │ Meshtastic a3e8 │ a3e8  │ !a3f9a3e8 │ N/A        │ N/A         │ N/A        │ N/A             │ 0.33%          │ N/A      │ 2023-05-02 13:30:02 │ just now      │ N/A       │
-├─────┼─────────────────┼───────┼───────────┼────────────┼─────────────┼────────────┼─────────────────┼────────────────┼──────────┼─────────────────────┼───────────────┼───────────┤
-│   2 │ Meshtastic 2388 │ 2388  │ !a3fb2388 │ 46.3919°   │ 30.7070°    │ 61 m       │ N/A             │ 0.24%          │ 12.00 dB │ 2023-05-02 13:21:21 │ 8 minutes ago │ 100%      │
-╘═════╧═════════════════╧═══════╧═══════════╧════════════╧═════════════╧════════════╧═════════════════╧════════════════╧══════════╧═════════════════════╧═══════════════╧═══════════╛
+
+╒═════╤═════════════════╤═══════╤═══════════╤════════════╤═════════════╤════════════╤═════════════════╤════════════════╤══════════╤═════════════════════╤════════════════╤═══════════╕
+│   N │ User            │ AKA   │ ID        │ Latitude   │ Longitude   │ Altitude   │ Channel util.   │ Tx air util.   │ SNR      │ LastHeard           │ Since          │ Battery   │
+╞═════╪═════════════════╪═══════╪═══════════╪════════════╪═════════════╪════════════╪═════════════════╪════════════════╪══════════╪═════════════════════╪════════════════╪═══════════╡
+│   1 │ Meshtastic a3e8 │ a3e8  │ !a3f9a3e8 │ 46.3913°   │ 30.7068°    │ 5 m        │ 2.67%           │ 0.75%          │ N/A      │ 2023-05-02 14:04:40 │ just now       │ N/A       │
+├─────┼─────────────────┼───────┼───────────┼────────────┼─────────────┼────────────┼─────────────────┼────────────────┼──────────┼─────────────────────┼────────────────┼───────────┤
+│   2 │ Meshtastic 3c68 │ 3c68  │ !96a13c68 │ 46.3913°   │ 30.7068°    │ 16 m       │ N/A             │ N/A            │ 12.75 dB │ 2023-05-02 14:03:45 │ 56 seconds ago │ N/A       │
+├─────┼─────────────────┼───────┼───────────┼────────────┼─────────────┼────────────┼─────────────────┼────────────────┼──────────┼─────────────────────┼────────────────┼───────────┤
+│   3 │ Meshtastic 2388 │ 2388  │ !a3fb2388 │ 46.3912°   │ 30.7070°    │ -61 m      │ 14.81%          │ 0.10%          │ 10.00 dB │ 2023-05-02 14:02:39 │ 2 minutes ago  │ 99%       │
+╘═════╧═════════════════╧═══════╧═══════════╧════════════╧═════════════╧════════════╧═════════════════╧════════════════╧══════════╧═════════════════════╧════════════════╧═══════════╛
+
+D:\LoRa\MESHTASTIC\python>python meshtastic_main.py --port COM6 --info
+
+Connected to radio
+
+Owner: Meshtastic 3c68 (3c68)
+My info: { "myNodeNum": 2527149160, "maxChannels": 8, "firmwareVersion": "2.1.10.8fe03974", "rebootCount": 473, "bitrate": 77.526985, "messageTimeoutMsec": 300000, "minAppVersion": 20300, "hasWifi": true, "channelUtilization": 0.89, "airUtilTx": 0.16008334 }
+
+Nodes in mesh: {"!96a13c68": {"num": 2527149160, "user": {"longName": "Meshtastic 3c68", "shortName": "3c68", "macaddr": "c8:2b:96:a1:3c:68", "hwModel": 100}, "position": {"latitudeI": 463913466, "longitudeI": 307068083, "altitude": 16, "time": 1683025419, "seqNumber": 4, "latitude": 46.3913466, "longitude": 30.7068083}, "lastHeard": 1683025419}, "!a3fb2388": {"num": 2751144840, "user": {"longName": "Meshtastic 2388", "shortName": "2388", "macaddr": "c8:c9:a3:fb:23:88", "hwModel": "TBEAM"}, "position": {"latitudeI": 463911583, "longitudeI": 307069816, "altitude": -61, "time": 1683025358, "latitude": 46.3911583, "longitude": 30.7069816}, "snr": 6.5, "lastHeard": 1683025354}, "!a3f9a3e8": {"num": 2751046632, "user": {"longName": "Meshtastic a3e8", "shortName": "a3e8", "macaddr": "c8:c9:a3:f9:a3:e8", "hwModel": "TBEAM"}, "position": {"latitudeI": 463913233, "longitudeI": 307067750, "altitude": 5, "time": 1683025359, "latitude": 46.391323299999996, "longitude": 30.706775}, "snr": 6.5}}
+
+Preferences: { "device": { "serialEnabled": true }, "position": { "positionBroadcastSecs": 900, "positionBroadcastSmartEnabled": true, "gpsEnabled": true, "gpsUpdateInterval": 120, "gpsAttemptTime": 900, "positionFlags": 3 }, "power": { "waitBluetoothSecs": 60, "meshSdsTimeoutSecs": 7200, "sdsSecs": 4294967295, "lsSecs": 300, "minWakeSecs": 10 }, "network": { "ntpServer": "0.pool.ntp.org" }, "display": { "screenOnSecs": 600 }, "lora": { "usePreset": true, "region": "EU_433", "hopLimit": 3, "txEnabled": true, "txPower": 12 }, "bluetooth": { "enabled": true, "mode": "FIXED_PIN", "fixedPin": 123456 } }
+
+Module preferences: { "mqtt": { "address": "mqtt.meshtastic.org", "username": "meshdev", "password": "large4cats" }, "serial": {}, "externalNotification": { "enabled": true, "active": true, "alertMessage": true, "alertBell": true }, "rangeTest": {}, "telemetry": { "deviceUpdateInterval": 900, "environmentUpdateInterval": 900 }, "cannedMessage": {}, "audio": {}, "remoteHardware": {} }
+
+Channels:
+  PRIMARY psk=default { "psk": "AQ==" }
+  SECONDARY psk=secret { "psk": "D2J+e5SqfoxjYzaKZJzIxJg9VXs7j6NBMnwRtwo/ixs=", "name": "gpio" }
+
+Primary channel URL: https://meshtastic.org/e/#CgMSAQESCggBOAJAA0gBUAw
+
+Complete URL (includes all channels): https://meshtastic.org/e/#CgMSAQEKKBIgGnOgWkov6dyU0iL9RSmPqgSnoDw2XHlq9SpqQwO0uQcaBGdwaW8SCggBOAJAA0gBUAw
 
 D:\LoRa\MESHTASTIC\python>python meshtastic_main.py --port COM21 --info
 
@@ -147,6 +174,10 @@ Module preferences: { "mqtt": { "address": "mqtt.meshtastic.org", "username": "m
 Channels:
   PRIMARY psk=default { "psk": "AQ==" }
 
+Primary channel URL: https://meshtastic.org/e/#CgMSAQESCggBOAJAA0gBUAw
+
+Complete URL (includes all channels): https://meshtastic.org/e/#CgMSAQEKKBIgZJ_ewVvkL3ofg6RjbFLkIBkDVPQF3WrwOMiZmeAD734aBGdwaW8SCggBOAJAA0gBUAw
+
 D:\LoRa\MESHTASTIC\python>python meshtastic_main.py --port COM22 --info
 
 Connected to radio
@@ -163,3 +194,16 @@ Module preferences: { "mqtt": { "address": "mqtt.meshtastic.org", "username": "m
 Channels:
   PRIMARY psk=default { "psk": "AQ==" }
 
+Primary channel URL: https://meshtastic.org/e/#CgMSAQESCggBOAJAA0gBUAw
+
+Complete URL (includes all channels): https://meshtastic.org/e/#CgMSAQEKKBIgjMzsiQ0ja-ANomczmW0aPl5AQXKhV5f0hf1CgaX2yFQaBGdwaW8SCggBOAJAA0gBUAw
+
+D:\LoRa\MESHTASTIC\python>python meshtastic_main.py --port COM21  --ch-add gpio
+
+Connected to radio
+
+Writing modified channels to device
+
+D:\LoRa\MESHTASTIC\python>python meshtastic_main.py --port COM21 --seturl https://meshtastic.org/e/#CgMSAQEKKBIgGnOgWkov6dyU0iL9RSmPqgSnoDw2XHlq9SpqQwO0uQcaBGdwaW8SCggBOAJAA0gBUAw
+
+D:\LoRa\MESHTASTIC\python>python meshtastic_main.py --port COM22 --seturl https://meshtastic.org/e/#CgMSAQEKKBIgGnOgWkov6dyU0iL9RSmPqgSnoDw2XHlq9SpqQwO0uQcaBGdwaW8SCggBOAJAA0gBUAw
