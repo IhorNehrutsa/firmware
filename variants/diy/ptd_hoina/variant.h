@@ -9,11 +9,12 @@
 /*
  * Buttons
  */
-#define PIN_BUTTON1 14 // up
-#define PIN_BUTTON2 12 // left
-#define PIN_BUTTON3 26 // center
-#define PIN_BUTTON4 13 // right ?
-#define PIN_BUTTON5 15 // down ?
+#define PIN_BUTTON1 14 // 0x0004000 // up
+#define PIN_BUTTON2 12 // 0x0001000 // left
+#define PIN_BUTTON3 26 // 0x4000000 // center
+#define PIN_BUTTON4 13 // 0x0002000 // right ?
+#define PIN_BUTTON5 15 // 0x0008000 // down ?
+//                        0x400f000
 
 /*
 #define PIN_BUTTON_TOUCH PIN_BUTTON4
@@ -26,7 +27,7 @@
 //#define BATTERY_PIN 35 // A battery voltage measurement pin, voltage divider connected here to measure battery voltage
 //#define ADC_MULTIPLIER 1.85 // (R1 = 470k, R2 = 680k)
 //#define EXT_NOTIFY_OUT 27 // Overridden default pin to use for Ext Notify Module (#975).
-#define LED_PIN 27 // add status LED (compatible with core-pcb and DIY targets)
+//#define LED_PIN 27 // add status LED (compatible with core-pcb and DIY targets)
 
 #define LORA_DIO0 -1  // a No connect on the SX1262/SX1268 module
 #define LORA_RESET 25  // RST for SX1276, and for SX1262/SX1268
