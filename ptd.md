@@ -37,7 +37,7 @@ https://github.com/protocolbuffers/protobuf/releases/download/v23.0-rc2/protoc-2
 https://buf.build/meshtastic/protobufs/docs/main:meshtastic
 
 
-1) Build Meshtastic Firmware
+# 1) Build Meshtastic Firmware
 
 md D:\LoRa\MESHTASTIC
 
@@ -65,7 +65,7 @@ git checkout -b PTD remotes/origin/PTD --
 https://platformio.org/platformio-ide
 
 
-2) Build Meshtastic Android Client
+# 2) Build Meshtastic Android Client
 
 md D:\LoRa\MESHTASTIC
 
@@ -84,7 +84,7 @@ git submodule update --init
 git checkout -b ptd remotes/origin/ptd --
 
 
-3) Build Meshtastic Python Client
+# 3) Build Meshtastic Python Client
 
 md D:\LoRa\MESHTASTIC
 
