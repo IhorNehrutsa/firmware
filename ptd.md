@@ -41,7 +41,7 @@ https://buf.build/meshtastic/protobufs/docs/main:meshtastic
 
 md D:\LoRa\MESHTASTIC
 
-Git Bash Here: D:\LoRa\MESHTASTIC
+WINDOWS context menu -> Git Bash Here: D:\LoRa\MESHTASTIC
 
 * Клонируем:
 
@@ -54,7 +54,7 @@ git submodule update --init
 
 * Переключаемся:
 
-git.exe checkout -b PTD remotes/origin/PTD --
+git checkout -b PTD remotes/origin/PTD --
 
 * Ререгенерируем protobufі:
 
@@ -67,6 +67,38 @@ https://platformio.org/platformio-ide
 
 2) Build Meshtastic Android Client
 
+md D:\LoRa\MESHTASTIC
+
+WINDOWS context menu -> Git Bash Here: D:\LoRa\MESHTASTIC
+
+* Клонируем:
+
+git clone https://github.com/IhorNehrutsa/Meshtastic-Android.git
+
+cd Meshtastic-Android
+
+git submodule update --init
+
+* Переключаемся:
+
+git checkout -b ptd remotes/origin/ptd --
+
 
 3) Build Meshtastic Python Client
+
+md D:\LoRa\MESHTASTIC
+
+WINDOWS context menu -> Git Bash Here: D:\LoRa\MESHTASTIC
+
+* Клонируем:
+
+git clone https://github.com/IhorNehrutsa/python.git
+
+cd python
+
+git submodule update --init
+
+* Переключаемся:
+
+git checkout -b ptd remotes/origin/ptd --
 
