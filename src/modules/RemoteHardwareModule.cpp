@@ -33,7 +33,7 @@ static uint64_t digitalReads(uint64_t mask)
     // The Arduino docs show to run pinMode(). But, when testing, found it is best not to.
     // If the line below is uncommented, read will flip the pin to the default of the second
     // argument in pinModes(), which will make the read turn the PIN "on".
-    // pinModes(mask, INPUT_PULLUP);
+    pinModes(mask, INPUT_PULLUP);
 
     for (uint64_t i = 0; i < NUM_GPIOS; i++) {
         uint64_t m = 1ULL << i;
