@@ -13,7 +13,7 @@
 // don't generate more messages than the net can send. So we limit watch messages to
 // a max of one change per 30 seconds
 //#define WATCH_INTERVAL_MSEC (30 * 1000)
-#define WATCH_INTERVAL_MSEC (100)
+#define WATCH_INTERVAL_MSEC (1 * 1000)
 
 /// Set pin modes for every set bit in a mask
 static void pinModes(uint64_t mask, uint8_t mode)
@@ -117,7 +117,7 @@ bool RemoteHardwareModule::handleReceivedProtobuf(const meshtastic_MeshPacket &r
 
 int32_t RemoteHardwareModule::runOnce()
 {
-    if (moduleConfig.remote_hardware.enabled && watchGpios) {
+    if (moduleConfig.remote_hardware.enabled && watchGpios || true) {
         uint32_t now = millis();
 
         if (now - lastWatchMsec >= WATCH_INTERVAL_MSEC) {
