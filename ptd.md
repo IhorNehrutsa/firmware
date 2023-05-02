@@ -119,14 +119,14 @@ https://meshtastic.org/docs/hardware/peripheral/
 https://meshtastic.org/docs/software/python/cli
 
 D:\LoRa\MESHTASTIC\python>python meshtastic_main.py --nodes
-
+```
 Warning: Multiple serial ports were detected so one serial port must be specified with the '--port'.
-  Ports detected:['COM21', 'COM22']
+  Ports detected:['COM21', 'COM22', 'COM6']
+```
 
 D:\LoRa\MESHTASTIC\python>python meshtastic_main.py --port COM21 --nodes
-
+```
 Connected to radio
-
 ╒═════╤═════════════════╤═══════╤═══════════╤════════════╤═════════════╤════════════╤═════════════════╤════════════════╤══════════╤═════════════════════╤════════════════╤═══════════╕
 │   N │ User            │ AKA   │ ID        │ Latitude   │ Longitude   │ Altitude   │ Channel util.   │ Tx air util.   │ SNR      │ LastHeard           │ Since          │ Battery   │
 ╞═════╪═════════════════╪═══════╪═══════════╪════════════╪═════════════╪════════════╪═════════════════╪════════════════╪══════════╪═════════════════════╪════════════════╪═══════════╡
@@ -136,9 +136,10 @@ Connected to radio
 ├─────┼─────────────────┼───────┼───────────┼────────────┼─────────────┼────────────┼─────────────────┼────────────────┼──────────┼─────────────────────┼────────────────┼───────────┤
 │   3 │ Meshtastic 2388 │ 2388  │ !a3fb2388 │ 46.3912°   │ 30.7070°    │ -61 m      │ 14.81%          │ 0.10%          │ 10.00 dB │ 2023-05-02 14:02:39 │ 2 minutes ago  │ 99%       │
 ╘═════╧═════════════════╧═══════╧═══════════╧════════════╧═════════════╧════════════╧═════════════════╧════════════════╧══════════╧═════════════════════╧════════════════╧═══════════╛
+```
 
 D:\LoRa\MESHTASTIC\python>python meshtastic_main.py --port COM6 --info
-
+```
 Connected to radio
 
 Owner: Meshtastic 3c68 (3c68)
@@ -157,9 +158,10 @@ Channels:
 Primary channel URL: https://meshtastic.org/e/#CgMSAQESCggBOAJAA0gBUAw
 
 Complete URL (includes all channels): https://meshtastic.org/e/#CgMSAQEKKBIgGnOgWkov6dyU0iL9RSmPqgSnoDw2XHlq9SpqQwO0uQcaBGdwaW8SCggBOAJAA0gBUAw
+```
 
 D:\LoRa\MESHTASTIC\python>python meshtastic_main.py --port COM21 --info
-
+```
 Connected to radio
 
 Owner: Meshtastic a3e8 (a3e8)
@@ -175,11 +177,10 @@ Channels:
   PRIMARY psk=default { "psk": "AQ==" }
 
 Primary channel URL: https://meshtastic.org/e/#CgMSAQESCggBOAJAA0gBUAw
-
-Complete URL (includes all channels): https://meshtastic.org/e/#CgMSAQEKKBIgZJ_ewVvkL3ofg6RjbFLkIBkDVPQF3WrwOMiZmeAD734aBGdwaW8SCggBOAJAA0gBUAw
+```
 
 D:\LoRa\MESHTASTIC\python>python meshtastic_main.py --port COM22 --info
-
+```
 Connected to radio
 
 Owner: Meshtastic 2388 (2388)
@@ -195,15 +196,45 @@ Channels:
   PRIMARY psk=default { "psk": "AQ==" }
 
 Primary channel URL: https://meshtastic.org/e/#CgMSAQESCggBOAJAA0gBUAw
-
-Complete URL (includes all channels): https://meshtastic.org/e/#CgMSAQEKKBIgjMzsiQ0ja-ANomczmW0aPl5AQXKhV5f0hf1CgaX2yFQaBGdwaW8SCggBOAJAA0gBUAw
+```
 
 D:\LoRa\MESHTASTIC\python>python meshtastic_main.py --port COM21  --ch-add gpio
-
+```
 Connected to radio
-
 Writing modified channels to device
+```
 
 D:\LoRa\MESHTASTIC\python>python meshtastic_main.py --port COM21 --seturl https://meshtastic.org/e/#CgMSAQEKKBIgGnOgWkov6dyU0iL9RSmPqgSnoDw2XHlq9SpqQwO0uQcaBGdwaW8SCggBOAJAA0gBUAw
 
 D:\LoRa\MESHTASTIC\python>python meshtastic_main.py --port COM22 --seturl https://meshtastic.org/e/#CgMSAQEKKBIgGnOgWkov6dyU0iL9RSmPqgSnoDw2XHlq9SpqQwO0uQcaBGdwaW8SCggBOAJAA0gBUAw
+
+D:\LoRa\MESHTASTIC\python>python meshtastic_main.py --port COM6 --gpio-wrb 27 1 --dest !96a13c68
+```
+Connected to radio
+Writing GPIO mask 0x8000000 with value 0x8000000 to !96a13c68
+```
+
+D:\LoRa\MESHTASTIC\python>python meshtastic_main.py --port COM6 --gpio-wrb 27 0 --dest !96a13c68
+```
+Connected to radio
+Writing GPIO mask 0x8000000 with value 0x0 to !96a13c68
+```
+
+D:\LoRa\MESHTASTIC\python>python meshtastic_main.py --port COM6 --gpio-rd 0x400f000 --dest !96a13c68
+```
+Connected to radio
+Reading GPIO mask 0x400f000 from !96a13c68
+Received RemoteHardware type=READ_GPIOS_REPLY, gpio_value=67170304 value=67170304=0x400F000
+end of gpio_rd
+```
+
+D:\LoRa\MESHTASTIC\python>python meshtastic_main.py --port COM21 --gpio-watch 0x400f000 --dest !96a13c68
+```
+Connected to radio
+Watching GPIO mask 0x400f000 from !96a13c68. Press ctrl-c to exit
+Received RemoteHardware type=GPIOS_CHANGED, gpio_value=67137536 value=67137536=0x4007000
+Received RemoteHardware type=GPIOS_CHANGED, gpio_value=67170304 value=67170304=0x400F000
+Received RemoteHardware type=GPIOS_CHANGED, gpio_value=67166208 value=67166208=0x400E000
+Received RemoteHardware type=GPIOS_CHANGED, gpio_value=67166208 value=67166208=0x400E000
+Received RemoteHardware type=GPIOS_CHANGED, gpio_value=67170304 value=67170304=0x400F000
+```
