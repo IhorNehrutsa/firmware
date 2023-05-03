@@ -55,7 +55,7 @@ RemoteHardwareModule::RemoteHardwareModule()
 
 bool RemoteHardwareModule::handleReceivedProtobuf(const meshtastic_MeshPacket &req, meshtastic_HardwareMessage *pptr)
 {
-    if (moduleConfig.remote_hardware.enabled || true) {
+    if (moduleConfig.remote_hardware.enabled) {
         auto p = *pptr;
         LOG_INFO("Received RemoteHardware typ=%d\n", p.type );
 
@@ -117,7 +117,7 @@ bool RemoteHardwareModule::handleReceivedProtobuf(const meshtastic_MeshPacket &r
 
 int32_t RemoteHardwareModule::runOnce()
 {
-    if (moduleConfig.remote_hardware.enabled && watchGpios || true) {
+    if (moduleConfig.remote_hardware.enabled && watchGpios) {
         uint32_t now = millis();
 
         if (now - lastWatchMsec >= WATCH_INTERVAL_MSEC) {
