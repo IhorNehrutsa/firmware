@@ -1,26 +1,27 @@
 #define HAS_SCREEN 0
 #define HAS_GPS 0
-#define HAS_BUTTON 0
+#define HAS_BUTTON 1
 #define HAS_WIRE 0
 #define HAS_TELEMETRY 0
 //#define HAS_BLUETOOTH 0
 //#define HAS_WIFI 0
 
 /*
- * Buttons
+ * PTD Buttons
  */
-#define PIN_BUTTON1 14 // 0x0004000 // up
-#define PIN_BUTTON2 12 // 0x0001000 // left
-#define PIN_BUTTON3 26 // 0x4000000 // center
-#define PIN_BUTTON4 13 // 0x0002000 // right ?
-#define PIN_BUTTON5 15 // 0x0008000 // down ?
-//                        0x400f000
+#define BUTTON_UP     14 // 0x0004000
+#define BUTTON_LEFT   12 // 0x0001000
+#define BUTTON_CENTER 26 // 0x4000000
+#define BUTTON_RIGHT  13 // 0x0002000
+#define BUTTON_DOWN   15 // 0x0008000
+//                          0x400f000
 
 /*
-#define PIN_BUTTON_TOUCH PIN_BUTTON4
-
-#define BUTTON_PIN       PIN_BUTTON3 // The middle button GPIO on the T-Beam
-#define BUTTON_PIN_ALT   PIN_BUTTON5
+#define PIN_BUTTON_TOUCH BUTTON_RIGHT
+*/
+//#define BUTTON_PIN       BUTTON_UP // The middle button GPIO on the T-Beam
+/*
+#define BUTTON_PIN_ALT   BUTTON_RIGHT
 #define BUTTON_PIN_TOUCH PIN_BUTTON_TOUCH
 */
 

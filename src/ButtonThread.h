@@ -30,6 +30,13 @@ class ButtonThread : public concurrency::OSThread
 #ifdef BUTTON_PIN
     OneButton userButton;
 #endif
+#ifdef BUTTON_CENTER
+    OneButton userButtonUp;
+    OneButton userButtonLeft;
+    OneButton userButtonCenter;
+    OneButton userButtonRight;
+    OneButton userButtonDown;
+#endif
 #ifdef BUTTON_PIN_ALT
     OneButton userButtonAlt;
 #endif
@@ -58,6 +65,32 @@ class ButtonThread : public concurrency::OSThread
         userButton.attachLongPressStart(userButtonPressedLongStart);
         userButton.attachLongPressStop(userButtonPressedLongStop);
         wakeOnIrq(config.device.button_gpio ? config.device.button_gpio : BUTTON_PIN, FALLING);
+#endif
+#ifdef BUTTON_CENTER
+        userButtonUp     = OneButton(BUTTON_UP, true, true);
+        userButtonLeft   = OneButton(BUTTON_LEFT, true, true);
+        userButtonCenter = OneButton(BUTTON_CENTER, true, true);
+        userButtonRight  = OneButton(BUTTON_RIGHT, true, true);
+        userButtonDown   = OneButton(BUTTON_DOWN, true, true);
+        userButtonUp    .attachClick(userButtonCenterPressed);
+        userButtonLeft  .attachClick(userButtonCenterPressed);
+        userButtonCenter.attachClick(userButtonCenterPressed);
+        userButtonRight .attachClick(userButtonCenterPressed);
+        userButtonDown  .attachClick(userButtonCenterPressed);
+        userButtonUp    .attachDoubleClick(userButtonCenterDoublePressed);
+        /*
+        userButtonLeft  .attachDoubleClick(userButtonCenterDoublePressed);
+        userButtonCenter.attachDoubleClick(userButtonCenterDoublePressed);
+        userButtonRight .attachDoubleClick(userButtonCenterDoublePressed);
+        userButtonDown  .attachDoubleClick(userButtonCenterDoublePressed);
+        */
+        #define MS 300
+        userButtonUp    .setClickTicks(MS);
+        userButtonLeft  .setClickTicks(MS);
+        userButtonCenter.setClickTicks(MS);
+        userButtonRight .setClickTicks(MS);
+        userButtonDown  .setClickTicks(MS);
+        wakeOnIrq(BUTTON_CENTER, FALLING);
 #endif
 #ifdef BUTTON_PIN_ALT
         userButtonAlt = OneButton(BUTTON_PIN_ALT, true, true);
@@ -90,6 +123,18 @@ class ButtonThread : public concurrency::OSThread
         userButton.tick();
         canSleep &= userButton.isIdle();
 #endif
+#ifdef BUTTON_CENTER
+        userButtonUp.tick();
+        userButtonLeft.tick();
+        userButtonCenter.tick();
+        userButtonRight.tick();
+        userButtonDown.tick();
+        canSleep &= userButtonUp.isIdle();
+        canSleep &= userButtonLeft.isIdle();
+        canSleep &= userButtonCenter.isIdle();
+        canSleep &= userButtonRight.isIdle();
+        canSleep &= userButtonDown.isIdle();
+#endif
 #ifdef BUTTON_PIN_ALT
         userButtonAlt.tick();
         canSleep &= userButtonAlt.isIdle();
@@ -105,11 +150,13 @@ class ButtonThread : public concurrency::OSThread
     }
 
   private:
+#ifdef BUTTON_PIN_TOUCH
     static void touchPressed()
     {
         screen->forceDisplay();
         LOG_DEBUG("touch press!\n");
     }
+#endif
 
     static void userButtonPressed()
     {
@@ -197,6 +244,35 @@ class ButtonThread : public concurrency::OSThread
                 power->shutdown();
             }
         }
+    }
+
+    static void userButtonCenterPressed()
+    {
+        LOG_DEBUG("press Center 555!\n");
+#ifdef BUTTON_CENTER
+        /* aaa
+        if (((config.device.button_gpio ? config.device.button_gpio : BUTTON__PIN) !=
+             moduleConfig.canned_message.inputbroker_pin_press) ||
+            !moduleConfig.canned_message.enabled) {
+            powerFSM.trigger(EVENT_PRESS);
+        }
+        */
+#endif
+    }
+
+    static void userButtonCenterDoublePressed()
+    {
+        LOG_DEBUG("press Double Center 555!\n");
+        /*
+#ifdef BUTTON_CENTER
+#if defined(USE_EINK) && defined(PIN_EINK_EN)
+        digitalWrite(PIN_EINK_EN, digitalRead(PIN_EINK_EN) == LOW);
+#endif
+        screen->print("Sent ad-hoc ping\n");
+        service.refreshMyNodeInfo();
+        service.sendNetworkPing(NODENUM_BROADCAST, true);
+#endif
+        */
     }
 };
 

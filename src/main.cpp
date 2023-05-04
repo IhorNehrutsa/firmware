@@ -228,6 +228,22 @@ void setup()
 #endif
 #endif
 
+#ifdef BUTTON_CENTER
+    pinMode(BUTTON_UP    , INPUT_PULLUP);
+    pinMode(BUTTON_LEFT  , INPUT_PULLUP);
+    pinMode(BUTTON_CENTER, INPUT_PULLUP);
+    pinMode(BUTTON_RIGHT , INPUT_PULLUP);
+    pinMode(BUTTON_DOWN  , INPUT_PULLUP);
+    /*
+    gpio_pullup_en((gpio_num_t)BUTTON_UP    );
+    gpio_pullup_en((gpio_num_t)BUTTON_LEFT  );
+    gpio_pullup_en((gpio_num_t)BUTTON_CENTER);
+    gpio_pullup_en((gpio_num_t)BUTTON_RIGHT );
+    gpio_pullup_en((gpio_num_t)BUTTON_DOWN  );
+    */
+    LOG_INFO("gpio_pullup_en(BUTTON_CENTER);");
+#endif
+
     OSThread::setup();
 
     ledPeriodic = new Periodic("Blink", ledBlinker);
