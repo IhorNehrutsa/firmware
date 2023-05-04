@@ -77,9 +77,9 @@ typedef enum _meshtastic_PortNum {
  Maintained by Github user a-f-G-U-C (a Meshtastic contributor)
  Project files at https://github.com/a-f-G-U-C/Meshtastic-ZPS */
     meshtastic_PortNum_ZPS_APP = 68,
-    /* Used to let multiple instances of Linux native applications communicate 
+    /* Used to let multiple instances of Linux native applications communicate
  as if they did using their LoRa chip.
- Maintained by GitHub user GUVWAF. 
+ Maintained by GitHub user GUVWAF.
  Project files at https://github.com/GUVWAF/Meshtasticator */
     meshtastic_PortNum_SIMULATOR_APP = 69,
     /* Provides a traceroute functionality to show the route a packet towards
@@ -93,6 +93,8 @@ typedef enum _meshtastic_PortNum {
     meshtastic_PortNum_PRIVATE_APP = 256,
     /* ATAK Forwarder Module https://github.com/paulmandal/atak-forwarder */
     meshtastic_PortNum_ATAK_FORWARDER = 257,
+    /* PTD */
+    meshtastic_PortNum_PTD_APP = 258,
     /* Currently we limit port nums to no higher than this value */
     meshtastic_PortNum_MAX = 511
 } meshtastic_PortNum;

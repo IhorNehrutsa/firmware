@@ -6,6 +6,8 @@
 #include "graphics/Screen.h"
 #include "power.h"
 #include <OneButton.h>
+//#include "MeshService.h"
+#include "ProtobufModule.h"
 
 namespace concurrency
 {
@@ -72,11 +74,11 @@ class ButtonThread : public concurrency::OSThread
         userButtonCenter = OneButton(BUTTON_CENTER, true, true);
         userButtonRight  = OneButton(BUTTON_RIGHT, true, true);
         userButtonDown   = OneButton(BUTTON_DOWN, true, true);
-        userButtonUp    .attachClick(userButtonCenterPressed);
-        userButtonLeft  .attachClick(userButtonCenterPressed);
+        userButtonUp    .attachClick(userButtonUpPressed);
+        userButtonLeft  .attachClick(userButtonLeftPressed);
         userButtonCenter.attachClick(userButtonCenterPressed);
-        userButtonRight .attachClick(userButtonCenterPressed);
-        userButtonDown  .attachClick(userButtonCenterPressed);
+        userButtonRight .attachClick(userButtonRightPressed);
+        userButtonDown  .attachClick(userButtonDownPressed);
         userButtonUp    .attachDoubleClick(userButtonCenterDoublePressed);
         /*
         userButtonLeft  .attachDoubleClick(userButtonCenterDoublePressed);
@@ -246,33 +248,75 @@ class ButtonThread : public concurrency::OSThread
         }
     }
 
+    static void sendToPhone(meshtastic_PtdButtons *b)
+    {
+//        ProtobufModule *protobufModule;
+//        meshtastic_MeshPacket *p = protobufModule -> allocDataProtobuf(b);
+        meshtastic_MeshPacket *p = router->allocForSending();
+        p->to = p->from;
+        p->decoded.portnum = meshtastic_PortNum_PTD_APP;
+        p->decoded.want_response = false;
+        p->decoded.payload.size = sizeof(meshtastic_PtdButtons);
+        memcpy(p->decoded.payload.bytes, b, p->decoded.payload.size);
+        p->priority = meshtastic_MeshPacket_Priority_MIN;
+        p->hop_limit = 0;
+
+        service.sendToPhone(p);
+    }
+
+    static void userButtonUpPressed()
+    {
+        LOG_DEBUG("press Up!\n");
+
+        meshtastic_PtdButtons b;
+        memset(&b, 0, sizeof(b));
+        b.up = EVENT_PRESS;
+        sendToPhone(&b);
+    }
+
+    static void userButtonLeftPressed()
+    {
+        LOG_DEBUG("press Left!\n");
+
+        meshtastic_PtdButtons b;
+        memset(&b, 0, sizeof(b));
+        b.left = EVENT_PRESS;
+        sendToPhone(&b);
+    }
+
     static void userButtonCenterPressed()
     {
-        LOG_DEBUG("press Center 555!\n");
-#ifdef BUTTON_CENTER
-        /* aaa
-        if (((config.device.button_gpio ? config.device.button_gpio : BUTTON__PIN) !=
-             moduleConfig.canned_message.inputbroker_pin_press) ||
-            !moduleConfig.canned_message.enabled) {
-            powerFSM.trigger(EVENT_PRESS);
-        }
-        */
-#endif
+        LOG_DEBUG("press Center!\n");
+
+        meshtastic_PtdButtons b;
+        memset(&b, 0, sizeof(b));
+        b.center = EVENT_PRESS;
+        sendToPhone(&b);
+    }
+
+    static void userButtonRightPressed()
+    {
+        LOG_DEBUG("press Right!\n");
+
+        meshtastic_PtdButtons b;
+        memset(&b, 0, sizeof(b));
+        b.right = EVENT_PRESS;
+        sendToPhone(&b);
+    }
+
+    static void userButtonDownPressed()
+    {
+        LOG_DEBUG("press Down!\n");
+
+        meshtastic_PtdButtons b;
+        memset(&b, 0, sizeof(b));
+        b.down = EVENT_PRESS;
+        sendToPhone(&b);
     }
 
     static void userButtonCenterDoublePressed()
     {
         LOG_DEBUG("press Double Center 555!\n");
-        /*
-#ifdef BUTTON_CENTER
-#if defined(USE_EINK) && defined(PIN_EINK_EN)
-        digitalWrite(PIN_EINK_EN, digitalRead(PIN_EINK_EN) == LOW);
-#endif
-        screen->print("Sent ad-hoc ping\n");
-        service.refreshMyNodeInfo();
-        service.sendNetworkPing(NODENUM_BROADCAST, true);
-#endif
-        */
     }
 };
 
