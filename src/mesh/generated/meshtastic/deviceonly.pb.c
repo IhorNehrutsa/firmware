@@ -15,5 +15,9 @@ PB_BIND(meshtastic_ChannelFile, meshtastic_ChannelFile, 2)
 PB_BIND(meshtastic_OEMStore, meshtastic_OEMStore, 2)
 
 
+PB_BIND(meshtastic_PtdButtons, meshtastic_PtdButtons, AUTO)
+
+
+
 
 

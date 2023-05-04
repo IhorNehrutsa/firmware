@@ -3,8 +3,7 @@
 #define HAS_BUTTON 1
 #define HAS_WIRE 0
 #define HAS_TELEMETRY 0
-//#define HAS_BLUETOOTH 0
-//#define HAS_WIFI 0
+#define HAS_SENSOR 0
 
 /*
  * PTD Buttons

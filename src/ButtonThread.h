@@ -6,6 +6,24 @@
 #include "graphics/Screen.h"
 #include "power.h"
 #include <OneButton.h>
+//#include "MeshService.h"
+#include "ProtobufModule.h"
+
+#ifdef BUTTON_UP
+extern OneButton *userButtonUp;
+#endif
+#ifdef BUTTON_LEFT
+extern OneButton *userButtonLe;
+#endif
+#ifdef BUTTON_CENTER
+extern OneButton *userButtonCe;
+#endif
+#ifdef BUTTON_RIGHT
+extern OneButton *userButtonRi;
+#endif
+#ifdef BUTTON_DOWN
+extern OneButton *userButtonDo;
+#endif
 
 namespace concurrency
 {
@@ -21,7 +39,7 @@ void wakeOnIrq(int irq, int mode)
             BaseType_t higherWake = 0;
             mainDelay.interruptFromISR(&higherWake);
         },
-        FALLING);
+        mode);
 }
 
 class ButtonThread : public concurrency::OSThread
@@ -29,13 +47,6 @@ class ButtonThread : public concurrency::OSThread
 // Prepare for button presses
 #ifdef BUTTON_PIN
     OneButton userButton;
-#endif
-#ifdef BUTTON_CENTER
-    OneButton userButtonUp;
-    OneButton userButtonLeft;
-    OneButton userButtonCenter;
-    OneButton userButtonRight;
-    OneButton userButtonDown;
 #endif
 #ifdef BUTTON_PIN_ALT
     OneButton userButtonAlt;
@@ -58,7 +69,7 @@ class ButtonThread : public concurrency::OSThread
         pinMode(config.device.button_gpio ? config.device.button_gpio : BUTTON_PIN, INPUT_PULLUP_SENSE);
 #endif
         userButton.attachClick(userButtonPressed);
-        userButton.setClickTicks(300);
+        userButton.setClickMs(300);
         userButton.attachDuringLongPress(userButtonPressedLong);
         userButton.attachDoubleClick(userButtonDoublePressed);
         userButton.attachMultiClick(userButtonMultiPressed);
@@ -66,32 +77,55 @@ class ButtonThread : public concurrency::OSThread
         userButton.attachLongPressStop(userButtonPressedLongStop);
         wakeOnIrq(config.device.button_gpio ? config.device.button_gpio : BUTTON_PIN, FALLING);
 #endif
-#ifdef BUTTON_CENTER
-        userButtonUp     = OneButton(BUTTON_UP, true, true);
-        userButtonLeft   = OneButton(BUTTON_LEFT, true, true);
-        userButtonCenter = OneButton(BUTTON_CENTER, true, true);
-        userButtonRight  = OneButton(BUTTON_RIGHT, true, true);
-        userButtonDown   = OneButton(BUTTON_DOWN, true, true);
-        userButtonUp    .attachClick(userButtonCenterPressed);
-        userButtonLeft  .attachClick(userButtonCenterPressed);
-        userButtonCenter.attachClick(userButtonCenterPressed);
-        userButtonRight .attachClick(userButtonCenterPressed);
-        userButtonDown  .attachClick(userButtonCenterPressed);
-        userButtonUp    .attachDoubleClick(userButtonCenterDoublePressed);
-        /*
-        userButtonLeft  .attachDoubleClick(userButtonCenterDoublePressed);
-        userButtonCenter.attachDoubleClick(userButtonCenterDoublePressed);
-        userButtonRight .attachDoubleClick(userButtonCenterDoublePressed);
-        userButtonDown  .attachDoubleClick(userButtonCenterDoublePressed);
-        */
+
         #define MS 300
-        userButtonUp    .setClickTicks(MS);
-        userButtonLeft  .setClickTicks(MS);
-        userButtonCenter.setClickTicks(MS);
-        userButtonRight .setClickTicks(MS);
-        userButtonDown  .setClickTicks(MS);
+#ifdef BUTTON_UP
+        userButtonUp = new OneButton(BUTTON_UP, true, true);
+        userButtonUp->setClickMs(MS);
+        userButtonUp->attachClick(userButtonUpClick, userButtonUp);
+        userButtonUp->attachDoubleClick(userButtonUpDoubleClick, userButtonUp);
+        userButtonUp->attachMultiClick(userButtonUpMultiClick, userButtonUp);
+        userButtonUp->attachLongPressStart(userButtonUpLongPressStart, userButtonUp);
+        userButtonUp->attachLongPressStop(userButtonUpLongPressStop, userButtonUp);
+#endif
+#ifdef BUTTON_LEFT
+        userButtonLe = new OneButton(BUTTON_LEFT, true, true);
+        userButtonLe->setClickMs(MS);
+        userButtonLe->attachClick(userButtonLeClick, userButtonLe);
+        userButtonLe->attachDoubleClick(userButtonLeDoubleClick, userButtonLe);
+        userButtonLe->attachMultiClick(userButtonLeMultiClick, userButtonLe);
+        userButtonLe->attachLongPressStart(userButtonLeLongPressStart, userButtonLe);
+        userButtonLe->attachLongPressStop(userButtonLeLongPressStop, userButtonLe);
+#endif
+#ifdef BUTTON_CENTER
+        userButtonCe = new OneButton(BUTTON_CENTER, true, true);
+        userButtonCe->setClickMs(MS);
+        userButtonCe->attachClick(userButtonCeClick, userButtonCe);
+        userButtonCe->attachDoubleClick(userButtonCeDoubleClick, userButtonCe);
+        userButtonCe->attachMultiClick(userButtonCeMultiClick, userButtonCe);
+        userButtonCe->attachLongPressStart(userButtonCeLongPressStart, userButtonCe);
+        userButtonCe->attachLongPressStop(userButtonCeLongPressStop, userButtonCe);
         wakeOnIrq(BUTTON_CENTER, FALLING);
 #endif
+#ifdef BUTTON_RIGHT
+        userButtonRi = new OneButton(BUTTON_RIGHT, true, true);
+        userButtonRi->setClickMs(MS);
+        userButtonRi->attachClick(userButtonRiClick, userButtonRi);
+        userButtonRi->attachDoubleClick(userButtonRiDoubleClick, userButtonRi);
+        userButtonRi->attachMultiClick(userButtonRiMultiClick, userButtonRi);
+        userButtonRi->attachLongPressStart(userButtonRiLongPressStart, userButtonRi);
+        userButtonRi->attachLongPressStop(userButtonRiLongPressStop, userButtonRi);
+#endif
+#ifdef BUTTON_DOWN
+        userButtonDo = new OneButton(BUTTON_DOWN, true, true);
+        userButtonDo->setClickMs(MS);
+        userButtonDo->attachClick(userButtonDoClick, userButtonDo);
+        userButtonDo->attachDoubleClick(userButtonDoDoubleClick, userButtonDo);
+        userButtonDo->attachMultiClick(userButtonDoMultiClick, userButtonDo);
+        userButtonDo->attachLongPressStart(userButtonDoLongPressStart, userButtonDo);
+        userButtonDo->attachLongPressStop(userButtonDoLongPressStop, userButtonDo);
+#endif
+
 #ifdef BUTTON_PIN_ALT
         userButtonAlt = OneButton(BUTTON_PIN_ALT, true, true);
 #ifdef INPUT_PULLUP_SENSE
@@ -123,17 +157,25 @@ class ButtonThread : public concurrency::OSThread
         userButton.tick();
         canSleep &= userButton.isIdle();
 #endif
+#ifdef BUTTON_
+        userButtonUp->tick();
+        canSleep &= userButtonUp->isIdle();
+#endif
+#ifdef BUTTON_
+        userButtonLe->tick();
+        canSleep &= userButtonLe->isIdle();
+#endif
 #ifdef BUTTON_CENTER
-        userButtonUp.tick();
-        userButtonLeft.tick();
-        userButtonCenter.tick();
-        userButtonRight.tick();
-        userButtonDown.tick();
-        canSleep &= userButtonUp.isIdle();
-        canSleep &= userButtonLeft.isIdle();
-        canSleep &= userButtonCenter.isIdle();
-        canSleep &= userButtonRight.isIdle();
-        canSleep &= userButtonDown.isIdle();
+        userButtonCe->tick();
+        canSleep &= userButtonCe->isIdle();
+#endif
+#ifdef BUTTON_
+        userButtonRi->tick();
+        canSleep &= userButtonRi->isIdle();
+#endif
+#ifdef BUTTON_
+        userButtonDo->tick();
+        canSleep &= userButtonDo->isIdle();
 #endif
 #ifdef BUTTON_PIN_ALT
         userButtonAlt.tick();
@@ -246,34 +288,198 @@ class ButtonThread : public concurrency::OSThread
         }
     }
 
-    static void userButtonCenterPressed()
+    static void sendToPhone(OneButton *oneButton, meshtastic_PtdButtons_PtdButtonEvent event)
     {
-        LOG_DEBUG("press Center 555!\n");
-#ifdef BUTTON_CENTER
-        /* aaa
-        if (((config.device.button_gpio ? config.device.button_gpio : BUTTON__PIN) !=
-             moduleConfig.canned_message.inputbroker_pin_press) ||
-            !moduleConfig.canned_message.enabled) {
-            powerFSM.trigger(EVENT_PRESS);
-        }
-        */
-#endif
+        meshtastic_PtdButtons b;
+        memset(&b, 0, sizeof(b));
+        b.button_pin = oneButton->pin();
+        b.event = event;
+        b.buttons_states = 0;
+        #ifdef BUTTON_UP
+        b.buttons_states |= ((uint64_t)userButtonUp->debouncedValue() << userButtonUp->pin());
+        #endif
+        #ifdef BUTTON_LEFT
+        b.buttons_states |= ((uint64_t)userButtonLe->debouncedValue() << userButtonLe->pin());
+        #endif
+        #ifdef BUTTON_CENTER
+        b.buttons_states |= ((uint64_t)userButtonCe->debouncedValue() << userButtonCe->pin());
+        #endif
+        #ifdef BUTTON_RIGHT
+        b.buttons_states |= ((uint64_t)userButtonRi->debouncedValue() << userButtonRi->pin());
+        #endif
+        #ifdef BUTTON_DOWN
+        b.buttons_states |= ((uint64_t)userButtonDo->debouncedValue() << userButtonDo->pin());
+        #endif
+
+        LOG_DEBUG("sendToPhone button_pin=%u=0x%08X event=%d buttons_states=0x%08X\n", b.button_pin, 1 << b.button_pin, b.event, b.buttons_states);
+
+        meshtastic_MeshPacket *p = router->allocForSending();
+        p->to = p->from;
+        p->decoded.portnum = meshtastic_PortNum_PTD_APP;
+        p->decoded.want_response = false;
+        p->decoded.payload.size = sizeof(meshtastic_PtdButtons);
+        memcpy(p->decoded.payload.bytes, &b, p->decoded.payload.size);
+        p->priority = meshtastic_MeshPacket_Priority_MIN;
+        p->hop_limit = 0;
+
+        service.sendToPhone(p);
     }
 
-    static void userButtonCenterDoublePressed()
+    // Click
+    static void userButtonUpClick(void *oneButton)
     {
-        LOG_DEBUG("press Double Center 555!\n");
-        /*
-#ifdef BUTTON_CENTER
-#if defined(USE_EINK) && defined(PIN_EINK_EN)
-        digitalWrite(PIN_EINK_EN, digitalRead(PIN_EINK_EN) == LOW);
-#endif
-        screen->print("Sent ad-hoc ping\n");
-        service.refreshMyNodeInfo();
-        service.sendNetworkPing(NODENUM_BROADCAST, true);
-#endif
-        */
+        LOG_DEBUG("Up Click\n");
+        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_CLICK);
     }
+
+    static void userButtonLeClick(void *oneButton)
+    {
+        LOG_DEBUG("Left Click\n");
+        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_CLICK);
+    }
+
+    static void userButtonCeClick(void *oneButton)
+    {
+        LOG_DEBUG("Center Click\n");
+        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_CLICK);
+    }
+
+    static void userButtonRiClick(void *oneButton)
+    {
+        LOG_DEBUG("Right Click\n");
+        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_CLICK);
+    }
+
+    static void userButtonDoClick(void *oneButton)
+    {
+        LOG_DEBUG("Down Click\n");
+        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_CLICK);
+    }
+
+    // DoubleClick
+    static void userButtonUpDoubleClick(void *oneButton)
+    {
+        LOG_DEBUG("Up Double Click\n");
+        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_DOUBLE_CLICK);
+    }
+
+    static void userButtonLeDoubleClick(void *oneButton)
+    {
+        LOG_DEBUG("Left Double Click\n");
+        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_DOUBLE_CLICK);
+    }
+
+    static void userButtonCeDoubleClick(void *oneButton)
+    {
+        LOG_DEBUG("Center Double Click\n");
+        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_DOUBLE_CLICK);
+    }
+
+    static void userButtonRiDoubleClick(void *oneButton)
+    {
+        LOG_DEBUG("Right Double Click\n");
+        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_DOUBLE_CLICK);
+    }
+
+    static void userButtonDoDoubleClick(void *oneButton)
+    {
+        LOG_DEBUG("Down Double Click\n");
+        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_DOUBLE_CLICK);
+    }
+
+    // MultiClick
+    static void userButtonUpMultiClick(void *oneButton)
+    {
+        LOG_DEBUG("Up MultiClick\n");
+        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_MULTI_CLICK);
+    }
+
+    static void userButtonLeMultiClick(void *oneButton)
+    {
+        LOG_DEBUG("Left MultiClick\n");
+        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_MULTI_CLICK);
+    }
+
+    static void userButtonCeMultiClick(void *oneButton)
+    {
+        LOG_DEBUG("Center MultiClick\n");
+        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_MULTI_CLICK);
+    }
+
+    static void userButtonRiMultiClick(void *oneButton)
+    {
+        LOG_DEBUG("Right MultiClick\n");
+        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_MULTI_CLICK);
+    }
+
+    static void userButtonDoMultiClick(void *oneButton)
+    {
+        LOG_DEBUG("Down MultiClick\n");
+        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_MULTI_CLICK);
+    }
+
+    // LongPressStart
+    static void userButtonUpLongPressStart(void *oneButton)
+    {
+        LOG_DEBUG("Up LongPressStart\n");
+        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_LONG_PRESS_START);
+    }
+
+    static void userButtonLeLongPressStart(void *oneButton)
+    {
+        LOG_DEBUG("Left LongPressStart\n");
+        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_LONG_PRESS_START);
+    }
+
+    static void userButtonCeLongPressStart(void *oneButton)
+    {
+        LOG_DEBUG("Center LongPressStart\n");
+        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_LONG_PRESS_START);
+    }
+
+    static void userButtonRiLongPressStart(void *oneButton)
+    {
+        LOG_DEBUG("Right LongPressStart\n");
+        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_LONG_PRESS_START);
+    }
+
+    static void userButtonDoLongPressStart(void *oneButton)
+    {
+        LOG_DEBUG("Down LongPressStart\n");
+        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_LONG_PRESS_START);
+    }
+
+    // LongPressStop
+    static void userButtonUpLongPressStop(void *oneButton)
+    {
+        LOG_DEBUG("Up LongPressStop\n");
+        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_LONG_PRESS_STOP);
+    }
+
+    static void userButtonLeLongPressStop(void *oneButton)
+    {
+        LOG_DEBUG("Left LongPressStop\n");
+        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_LONG_PRESS_STOP);
+    }
+
+    static void userButtonCeLongPressStop(void *oneButton)
+    {
+        LOG_DEBUG("Center LongPressStop\n");
+        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_LONG_PRESS_STOP);
+    }
+
+    static void userButtonRiLongPressStop(void *oneButton)
+    {
+        LOG_DEBUG("Right LongPressStop\n");
+        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_LONG_PRESS_STOP);
+    }
+
+    static void userButtonDoLongPressStop(void *oneButton)
+    {
+        LOG_DEBUG("Down LongPressStop\n");
+        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_LONG_PRESS_STOP);
+    }
+
 };
 
 } // namespace concurrency
