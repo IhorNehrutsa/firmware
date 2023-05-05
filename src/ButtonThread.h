@@ -23,7 +23,7 @@ void wakeOnIrq(int irq, int mode)
             BaseType_t higherWake = 0;
             mainDelay.interruptFromISR(&higherWake);
         },
-        FALLING);
+        mode);
 }
 
 class ButtonThread : public concurrency::OSThread
