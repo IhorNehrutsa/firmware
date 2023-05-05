@@ -74,12 +74,20 @@ class ButtonThread : public concurrency::OSThread
         userButtonCenter = OneButton(BUTTON_CENTER, true, true);
         userButtonRight  = OneButton(BUTTON_RIGHT, true, true);
         userButtonDown   = OneButton(BUTTON_DOWN, true, true);
-        userButtonUp    .attachClick(userButtonUpPressed);
-        userButtonLeft  .attachClick(userButtonLeftPressed);
-        userButtonCenter.attachClick(userButtonCenterPressed);
-        userButtonRight .attachClick(userButtonRightPressed);
-        userButtonDown  .attachClick(userButtonDownPressed);
-        userButtonUp    .attachDoubleClick(userButtonCenterDoublePressed);
+
+        userButtonUp    .attachClick(userButtonUpPressed, &userButtonUp);
+        userButtonLeft  .attachClick(userButtonLeftPressed, &userButtonLeft);
+        userButtonCenter.attachClick(userButtonCenterPressed, &userButtonCenter);
+        userButtonRight .attachClick(userButtonRightPressed, &userButtonRight);
+        userButtonDown  .attachClick(userButtonDownPressed, &userButtonDown);
+
+        userButtonUp    .attachRelease(userButtonUpReleased, &userButtonUp);
+        userButtonLeft  .attachRelease(userButtonLeftReleased, &userButtonLeft);
+        userButtonCenter.attachRelease(userButtonCenterReleased, &userButtonCenter);
+        userButtonRight .attachRelease(userButtonRightReleased, &userButtonRight);
+        userButtonDown  .attachRelease(userButtonDownReleased, &userButtonDown);
+
+        userButtonUp    .attachDoubleClick(userButtonCenterDoublePressed, &userButtonUp);
         /*
         userButtonLeft  .attachDoubleClick(userButtonCenterDoublePressed);
         userButtonCenter.attachDoubleClick(userButtonCenterDoublePressed);
@@ -248,75 +256,96 @@ class ButtonThread : public concurrency::OSThread
         }
     }
 
-    static void sendToPhone(meshtastic_PtdButtons *b)
+    static void sendToPhone(OneButton *oneButton)
     {
-//        ProtobufModule *protobufModule;
-//        meshtastic_MeshPacket *p = protobufModule -> allocDataProtobuf(b);
+        LOG_DEBUG("sendToPhone pin=%d state=%d\n", oneButton->pin(), oneButton->state());
+
+        meshtastic_PtdButtons b;
+        memset(&b, 0, sizeof(b));
+        b.button_pin = oneButton->pin();
+        b.button_state = oneButton->state();
+
         meshtastic_MeshPacket *p = router->allocForSending();
         p->to = p->from;
         p->decoded.portnum = meshtastic_PortNum_PTD_APP;
         p->decoded.want_response = false;
         p->decoded.payload.size = sizeof(meshtastic_PtdButtons);
-        memcpy(p->decoded.payload.bytes, b, p->decoded.payload.size);
+        memcpy(p->decoded.payload.bytes, &b, p->decoded.payload.size);
         p->priority = meshtastic_MeshPacket_Priority_MIN;
         p->hop_limit = 0;
 
         service.sendToPhone(p);
     }
 
-    static void userButtonUpPressed()
+//#define PRESS 1
+//#define RELEASE 2
+    // Pressed
+    static void userButtonUpPressed(void *oneButton)
     {
-        LOG_DEBUG("press Up!\n");
-
-        meshtastic_PtdButtons b;
-        memset(&b, 0, sizeof(b));
-        b.up = EVENT_PRESS;
-        sendToPhone(&b);
+        LOG_DEBUG("Up Pressed\n");
+        sendToPhone((OneButton *)oneButton);
     }
 
-    static void userButtonLeftPressed()
+    static void userButtonLeftPressed(void *oneButton)
     {
-        LOG_DEBUG("press Left!\n");
-
-        meshtastic_PtdButtons b;
-        memset(&b, 0, sizeof(b));
-        b.left = EVENT_PRESS;
-        sendToPhone(&b);
+        LOG_DEBUG("Left Pressed\n");
+        sendToPhone((OneButton *)oneButton);
     }
 
-    static void userButtonCenterPressed()
+    static void userButtonCenterPressed(void *oneButton)
     {
-        LOG_DEBUG("press Center!\n");
-
-        meshtastic_PtdButtons b;
-        memset(&b, 0, sizeof(b));
-        b.center = EVENT_PRESS;
-        sendToPhone(&b);
+        LOG_DEBUG("Center Pressed\n");
+        sendToPhone((OneButton *)oneButton);
     }
 
-    static void userButtonRightPressed()
+    static void userButtonRightPressed(void *oneButton)
     {
-        LOG_DEBUG("press Right!\n");
-
-        meshtastic_PtdButtons b;
-        memset(&b, 0, sizeof(b));
-        b.right = EVENT_PRESS;
-        sendToPhone(&b);
+        LOG_DEBUG("Right Pressed\n");
+        sendToPhone((OneButton *)oneButton);
     }
 
-    static void userButtonDownPressed()
+    static void userButtonDownPressed(void *oneButton)
     {
-        LOG_DEBUG("press Down!\n");
-
-        meshtastic_PtdButtons b;
-        memset(&b, 0, sizeof(b));
-        b.down = EVENT_PRESS;
-        sendToPhone(&b);
+        LOG_DEBUG("Down Pressed\n");
+        sendToPhone((OneButton *)oneButton);
     }
 
-    static void userButtonCenterDoublePressed()
+    // Released
+    static void userButtonUpReleased(void *oneButton)
     {
-        LOG_DEBUG("press Double Center 555!\n");
+        LOG_DEBUG("Up Released\n");
+        sendToPhone((OneButton *)oneButton);
+    }
+
+    static void userButtonLeftReleased(void *oneButton)
+    {
+        LOG_DEBUG("Left Released\n");
+        sendToPhone((OneButton *)oneButton);
+    }
+
+    static void userButtonCenterReleased(void *oneButton)
+    {
+        LOG_DEBUG("Center Released\n");
+        sendToPhone((OneButton *)oneButton);
+    }
+
+    static void userButtonRightReleased(void *oneButton)
+    {
+        LOG_DEBUG("Right Released\n");
+        sendToPhone((OneButton *)oneButton);
+    }
+
+    static void userButtonDownReleased(void *oneButton)
+    {
+        LOG_DEBUG("Down Released\n");
+        sendToPhone((OneButton *)oneButton);
+    }
+
+    // DoublePressed
+    static void userButtonCenterDoublePressed(void *oneButton)
+    {
+        LOG_DEBUG("Center Double Pressed\n");
+        sendToPhone((OneButton *)oneButton);
     }
 };
 
