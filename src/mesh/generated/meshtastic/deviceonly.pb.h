@@ -103,11 +103,7 @@ typedef struct _meshtastic_OEMStore {
 typedef struct _meshtastic_PtdButtons {
     uint32_t button_pin;
     uint32_t button_state;
-    uint32_t buttons_states; /* fixed32 up     = 3;
-fixed32 left   = 4;
-fixed32 center = 5;
-fixed32 right  = 6;
-fixed32 down   = 7; */
+    uint32_t buttons_states;
 } meshtastic_PtdButtons;
 
 
