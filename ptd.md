@@ -1,21 +1,30 @@
 * Upstream`s:
 
-https://github.com/meshtastic/firmware
-
 https://github.com/meshtastic/protobufs
+
+https://github.com/meshtastic/firmware
 
 https://github.com/meshtastic/Meshtastic-Android
 
 https://github.com/meshtastic/python
 
 
-* PTD ветки:
 
-https://github.com/IhorNehrutsa/firmware/tree/PTD
+* PTD ветки:
 
 https://github.com/IhorNehrutsa/protobufs/tree/ptd
 
+https://github.com/IhorNehrutsa/firmware/tree/PTD
+
 https://github.com/IhorNehrutsa/Meshtastic-Android/tree/ptd
+
+
+
+* Компилятор protobuf:
+
+https://github.com/protocolbuffers/protobuf/releases
+
+https://github.com/protocolbuffers/protobuf/releases/download/v23.0-rc2/protoc-23.0-rc-2-win64.zip -> bin\protoc.exe
 
 
 
@@ -32,87 +41,109 @@ https://meshtastic.org/docs/developers
 https://meshtastic.org/docs/development/device/module-api
 
 
-* Компилятор protobuf:
-
-https://github.com/protocolbuffers/protobuf/releases
-
-https://github.com/protocolbuffers/protobuf/releases/download/v23.0-rc2/protoc-23.0-rc-2-win64.zip -> bin\protoc.exe
-
 
 * Meshtastic protoBuf Schema Registry:
 
 https://buf.build/meshtastic/protobufs/docs/main:meshtastic
 
 
-# 1) Build Meshtastic Firmware
 
+# 0) Регенерируем Meshtastic protobufs вручную для посмотреть и сравнить
+```DOS
 md D:\LoRa\MESHTASTIC
-
+```
 WINDOWS context menu -> Git Bash Here: D:\LoRa\MESHTASTIC
 
 * Клонируем:
+```BASH
+git clone https://github.com/IhorNehrutsa/protobufs.git
+cd protobufs
+git checkout -b ptd remotes/origin/ptd --
+```
 
+* Регенерируем protobufs для C# и Python -> cmd.exe:
+```DOS
+cd D:\LoRa\MESHTASTIC\protobufs
+protoc.bat
+```
+
+
+
+# 1) Build Meshtastic Firmware
+```DOS
+md D:\LoRa\MESHTASTIC
+```
+WINDOWS context menu -> Git Bash Here: D:\LoRa\MESHTASTIC
+
+* Клонируем:
+```BASH
 git clone https://github.com/IhorNehrutsa/firmware.git
-
 cd firmware
-
 git submodule update --init
-
+```
 
 * Переключаемся:
-
+```BASH
 git checkout -b PTD remotes/origin/PTD --
+```
 
-* Ререгенерируем protobufі:
-
+* Регенерируем protobufs:
+```BASH
 ./bin/regen-protos.sh
+```
 
-* PlatformIO IDE for Microsoft's Visual Studio Code:
+* Компилируем в PlatformIO IDE for Microsoft's Visual Studio Code:
 
 https://platformio.org/platformio-ide
 
 
+
 # 2) Build Meshtastic Android Client
-
+```DOS
 md D:\LoRa\MESHTASTIC
-
+```
 WINDOWS context menu -> Git Bash Here: D:\LoRa\MESHTASTIC
 
 * Клонируем:
-
+```BASH
 git clone https://github.com/IhorNehrutsa/Meshtastic-Android.git
-
 cd Meshtastic-Android
-
 git submodule update --init
+```
 
 * Переключаемся:
-
+```BASH
 git checkout -b ptd remotes/origin/ptd --
+```
+
+* Компилируем в Android Studio, protobufs регенерируются IDE.
+
 
 
 # 3) Build Meshtastic Python Client
 
 https://python.meshtastic.org/index.html
 
+```DOS
 md D:\LoRa\MESHTASTIC
-
+```
 WINDOWS context menu -> Git Bash Here: D:\LoRa\MESHTASTIC
 
 * Клонируем:
-
+```BASH
 git clone https://github.com/IhorNehrutsa/python.git
-
 cd python
-
 git submodule update --init
+```
 
 * Переключаемся:
-
+```BASH
 git checkout -b ptd remotes/origin/ptd --
+```
 
 
-# 4) Configuring GPIO Peripherals
+
+# 4) Configuring GPIO Peripherals для справки
 
 https://meshtastic.org/docs/hardware/peripheral/
 
