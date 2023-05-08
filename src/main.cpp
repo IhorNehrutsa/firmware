@@ -155,6 +155,15 @@ bool ButtonThread::shutdown_on_long_stop = false;
 static Periodic *ledPeriodic;
 static OSThread *powerFSMthread;
 #if HAS_BUTTON
+#ifdef BUTTON_CENTER
+OneButton *userButtonUp;
+OneButton *userButtonLe;
+OneButton *userButtonCe;
+OneButton *userButtonRi;
+OneButton *userButtonDo;
+#else
+#error BUTTON_CENTER
+#endif
 static OSThread *buttonThread;
 uint32_t ButtonThread::longPressTime = 0;
 #endif
@@ -226,23 +235,6 @@ void setup()
 #endif
 
 #endif
-#endif
-
-#ifdef BUTTON_CENTER
-    /*
-    pinMode(BUTTON_UP    , INPUT_PULLUP);
-    pinMode(BUTTON_LEFT  , INPUT_PULLUP);
-    pinMode(BUTTON_CENTER, INPUT_PULLUP);
-    pinMode(BUTTON_RIGHT , INPUT_PULLUP);
-    pinMode(BUTTON_DOWN  , INPUT_PULLUP);
-
-    gpio_pullup_en((gpio_num_t)BUTTON_UP    );
-    gpio_pullup_en((gpio_num_t)BUTTON_LEFT  );
-    gpio_pullup_en((gpio_num_t)BUTTON_CENTER);
-    gpio_pullup_en((gpio_num_t)BUTTON_RIGHT );
-    gpio_pullup_en((gpio_num_t)BUTTON_DOWN  );
-    */
-    // LOG_INFO("gpio_pullup_en(BUTTON_CENTER);");
 #endif
 
     OSThread::setup();

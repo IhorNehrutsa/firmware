@@ -9,6 +9,12 @@
 //#include "MeshService.h"
 #include "ProtobufModule.h"
 
+extern OneButton *userButtonUp;
+extern OneButton *userButtonLe;
+extern OneButton *userButtonCe;
+extern OneButton *userButtonRi;
+extern OneButton *userButtonDo;
+
 namespace concurrency
 {
 /**
@@ -31,13 +37,6 @@ class ButtonThread : public concurrency::OSThread
 // Prepare for button presses
 #ifdef BUTTON_PIN
     OneButton userButton;
-#endif
-#ifdef BUTTON_CENTER
-    OneButton userButtonUp;
-    OneButton userButtonLeft;
-    OneButton userButtonCenter;
-    OneButton userButtonRight;
-    OneButton userButtonDown;
 #endif
 #ifdef BUTTON_PIN_ALT
     OneButton userButtonAlt;
@@ -69,37 +68,48 @@ class ButtonThread : public concurrency::OSThread
         wakeOnIrq(config.device.button_gpio ? config.device.button_gpio : BUTTON_PIN, FALLING);
 #endif
 #ifdef BUTTON_CENTER
-        userButtonUp     = OneButton(BUTTON_UP, true, true);
-        userButtonLeft   = OneButton(BUTTON_LEFT, true, true);
-        userButtonCenter = OneButton(BUTTON_CENTER, true, true);
-        userButtonRight  = OneButton(BUTTON_RIGHT, true, true);
-        userButtonDown   = OneButton(BUTTON_DOWN, true, true);
+        userButtonUp = new OneButton(BUTTON_UP, true, true);
+        userButtonLe = new OneButton(BUTTON_LEFT, true, true);
+        userButtonCe = new OneButton(BUTTON_CENTER, true, true);
+        userButtonRi = new OneButton(BUTTON_RIGHT, true, true);
+        userButtonDo = new OneButton(BUTTON_DOWN, true, true);
 
-        userButtonUp    .attachClick(userButtonUpPressed, &userButtonUp);
-        userButtonLeft  .attachClick(userButtonLeftPressed, &userButtonLeft);
-        userButtonCenter.attachClick(userButtonCenterPressed, &userButtonCenter);
-        userButtonRight .attachClick(userButtonRightPressed, &userButtonRight);
-        userButtonDown  .attachClick(userButtonDownPressed, &userButtonDown);
+        userButtonUp->attachClick(userButtonUpClick, userButtonUp);
+        userButtonLe->attachClick(userButtonLeClick, userButtonLe);
+        userButtonCe->attachClick(userButtonCeClick, userButtonCe);
+        userButtonRi->attachClick(userButtonRiClick, userButtonRi);
+        userButtonDo->attachClick(userButtonDoClick, userButtonDo);
 
-        userButtonUp    .attachRelease(userButtonUpReleased, &userButtonUp);
-        userButtonLeft  .attachRelease(userButtonLeftReleased, &userButtonLeft);
-        userButtonCenter.attachRelease(userButtonCenterReleased, &userButtonCenter);
-        userButtonRight .attachRelease(userButtonRightReleased, &userButtonRight);
-        userButtonDown  .attachRelease(userButtonDownReleased, &userButtonDown);
+        userButtonUp->attachDoubleClick(userButtonUpDoubleClick, userButtonUp);
+        userButtonLe->attachDoubleClick(userButtonLeDoubleClick, userButtonLe);
+        userButtonCe->attachDoubleClick(userButtonCeDoubleClick, userButtonCe);
+        userButtonRi->attachDoubleClick(userButtonRiDoubleClick, userButtonRi);
+        userButtonDo->attachDoubleClick(userButtonDoDoubleClick, userButtonDo);
 
-        userButtonUp    .attachDoubleClick(userButtonCenterDoublePressed, &userButtonUp);
-        /*
-        userButtonLeft  .attachDoubleClick(userButtonCenterDoublePressed);
-        userButtonCenter.attachDoubleClick(userButtonCenterDoublePressed);
-        userButtonRight .attachDoubleClick(userButtonCenterDoublePressed);
-        userButtonDown  .attachDoubleClick(userButtonCenterDoublePressed);
-        */
+        userButtonUp->attachMultiClick(userButtonUpMultiClick, userButtonUp);
+        userButtonLe->attachMultiClick(userButtonLeMultiClick, userButtonLe);
+        userButtonCe->attachMultiClick(userButtonCeMultiClick, userButtonCe);
+        userButtonRi->attachMultiClick(userButtonRiMultiClick, userButtonRi);
+        userButtonDo->attachMultiClick(userButtonDoMultiClick, userButtonDo);
+
+        userButtonUp->attachLongPressStart(userButtonUpLongPressStart, userButtonUp);
+        userButtonLe->attachLongPressStart(userButtonLeLongPressStart, userButtonLe);
+        userButtonCe->attachLongPressStart(userButtonCeLongPressStart, userButtonCe);
+        userButtonRi->attachLongPressStart(userButtonRiLongPressStart, userButtonRi);
+        userButtonDo->attachLongPressStart(userButtonDoLongPressStart, userButtonDo);
+
+        userButtonUp->attachLongPressStop(userButtonUpLongPressStop, userButtonUp);
+        userButtonLe->attachLongPressStop(userButtonLeLongPressStop, userButtonLe);
+        userButtonCe->attachLongPressStop(userButtonCeLongPressStop, userButtonCe);
+        userButtonRi->attachLongPressStop(userButtonRiLongPressStop, userButtonRi);
+        userButtonDo->attachLongPressStop(userButtonDoLongPressStop, userButtonDo);
+
         #define MS 300
-        userButtonUp    .setClickTicks(MS);
-        userButtonLeft  .setClickTicks(MS);
-        userButtonCenter.setClickTicks(MS);
-        userButtonRight .setClickTicks(MS);
-        userButtonDown  .setClickTicks(MS);
+        userButtonUp->setClickTicks(MS);
+        userButtonLe->setClickTicks(MS);
+        userButtonCe->setClickTicks(MS);
+        userButtonRi->setClickTicks(MS);
+        userButtonDo->setClickTicks(MS);
         wakeOnIrq(BUTTON_CENTER, FALLING);
 #endif
 #ifdef BUTTON_PIN_ALT
@@ -134,16 +144,16 @@ class ButtonThread : public concurrency::OSThread
         canSleep &= userButton.isIdle();
 #endif
 #ifdef BUTTON_CENTER
-        userButtonUp.tick();
-        userButtonLeft.tick();
-        userButtonCenter.tick();
-        userButtonRight.tick();
-        userButtonDown.tick();
-        canSleep &= userButtonUp.isIdle();
-        canSleep &= userButtonLeft.isIdle();
-        canSleep &= userButtonCenter.isIdle();
-        canSleep &= userButtonRight.isIdle();
-        canSleep &= userButtonDown.isIdle();
+        userButtonUp->tick();
+        userButtonLe->tick();
+        userButtonCe->tick();
+        userButtonRi->tick();
+        userButtonDo->tick();
+        canSleep &= userButtonUp->isIdle();
+        canSleep &= userButtonLe->isIdle();
+        canSleep &= userButtonCe->isIdle();
+        canSleep &= userButtonRi->isIdle();
+        canSleep &= userButtonDo->isIdle();
 #endif
 #ifdef BUTTON_PIN_ALT
         userButtonAlt.tick();
@@ -258,12 +268,17 @@ class ButtonThread : public concurrency::OSThread
 
     static void sendToPhone(OneButton *oneButton)
     {
-        LOG_DEBUG("sendToPhone pin=%d state=%d\n", oneButton->pin(), oneButton->state());
-
         meshtastic_PtdButtons b;
         memset(&b, 0, sizeof(b));
         b.button_pin = oneButton->pin();
-        b.button_state = oneButton->state();
+        b.button_state = oneButton->debouncedValue();
+        b.buttons_states = (userButtonUp->debouncedValue() << userButtonUp->pin())
+                         | (userButtonLe->debouncedValue() << userButtonLe->pin())
+                         | (userButtonCe->debouncedValue() << userButtonCe->pin())
+                         | (userButtonRi->debouncedValue() << userButtonRi->pin())
+                         | (userButtonDo->debouncedValue() << userButtonDo->pin());
+
+        LOG_DEBUG("sendToPhone button_pin=%u=0x%08X button_state=%u buttons_states=0x%08X\n", b.button_pin, 1 << b.button_pin, b.button_state, b.buttons_states);
 
         meshtastic_MeshPacket *p = router->allocForSending();
         p->to = p->from;
@@ -279,74 +294,161 @@ class ButtonThread : public concurrency::OSThread
 
 //#define PRESS 1
 //#define RELEASE 2
-    // Pressed
-    static void userButtonUpPressed(void *oneButton)
+    // Click
+    static void userButtonUpClick(void *oneButton)
     {
-        LOG_DEBUG("Up Pressed\n");
+        LOG_DEBUG("Up Click\n");
         sendToPhone((OneButton *)oneButton);
     }
 
-    static void userButtonLeftPressed(void *oneButton)
+    static void userButtonLeClick(void *oneButton)
     {
-        LOG_DEBUG("Left Pressed\n");
+        LOG_DEBUG("Left Click\n");
         sendToPhone((OneButton *)oneButton);
     }
 
-    static void userButtonCenterPressed(void *oneButton)
+    static void userButtonCeClick(void *oneButton)
     {
-        LOG_DEBUG("Center Pressed\n");
+        LOG_DEBUG("Center Click\n");
         sendToPhone((OneButton *)oneButton);
     }
 
-    static void userButtonRightPressed(void *oneButton)
+    static void userButtonRiClick(void *oneButton)
     {
-        LOG_DEBUG("Right Pressed\n");
+        LOG_DEBUG("Right Click\n");
         sendToPhone((OneButton *)oneButton);
     }
 
-    static void userButtonDownPressed(void *oneButton)
+    static void userButtonDoClick(void *oneButton)
     {
-        LOG_DEBUG("Down Pressed\n");
+        LOG_DEBUG("Down Click\n");
         sendToPhone((OneButton *)oneButton);
     }
 
-    // Released
-    static void userButtonUpReleased(void *oneButton)
+    // DoubleClick
+    static void userButtonUpDoubleClick(void *oneButton)
     {
-        LOG_DEBUG("Up Released\n");
+        LOG_DEBUG("Up Double Click\n");
         sendToPhone((OneButton *)oneButton);
     }
 
-    static void userButtonLeftReleased(void *oneButton)
+    static void userButtonLeDoubleClick(void *oneButton)
     {
-        LOG_DEBUG("Left Released\n");
+        LOG_DEBUG("Left Double Click\n");
         sendToPhone((OneButton *)oneButton);
     }
 
-    static void userButtonCenterReleased(void *oneButton)
+    static void userButtonCeDoubleClick(void *oneButton)
     {
-        LOG_DEBUG("Center Released\n");
+        LOG_DEBUG("Center Double Click\n");
         sendToPhone((OneButton *)oneButton);
     }
 
-    static void userButtonRightReleased(void *oneButton)
+    static void userButtonRiDoubleClick(void *oneButton)
     {
-        LOG_DEBUG("Right Released\n");
+        LOG_DEBUG("Right Double Click\n");
         sendToPhone((OneButton *)oneButton);
     }
 
-    static void userButtonDownReleased(void *oneButton)
+    static void userButtonDoDoubleClick(void *oneButton)
     {
-        LOG_DEBUG("Down Released\n");
+        LOG_DEBUG("Down Double Click\n");
         sendToPhone((OneButton *)oneButton);
     }
 
-    // DoublePressed
-    static void userButtonCenterDoublePressed(void *oneButton)
+    // MultiClick
+    static void userButtonUpMultiClick(void *oneButton)
     {
-        LOG_DEBUG("Center Double Pressed\n");
+        LOG_DEBUG("Up MultiClick\n");
         sendToPhone((OneButton *)oneButton);
     }
+
+    static void userButtonLeMultiClick(void *oneButton)
+    {
+        LOG_DEBUG("Left MultiClick\n");
+        sendToPhone((OneButton *)oneButton);
+    }
+
+    static void userButtonCeMultiClick(void *oneButton)
+    {
+        LOG_DEBUG("Center MultiClick\n");
+        sendToPhone((OneButton *)oneButton);
+    }
+
+    static void userButtonRiMultiClick(void *oneButton)
+    {
+        LOG_DEBUG("Right MultiClick\n");
+        sendToPhone((OneButton *)oneButton);
+    }
+
+    static void userButtonDoMultiClick(void *oneButton)
+    {
+        LOG_DEBUG("Down MultiClick\n");
+        sendToPhone((OneButton *)oneButton);
+    }
+
+    // LongPressStart
+    static void userButtonUpLongPressStart(void *oneButton)
+    {
+        LOG_DEBUG("Up LongPressStart\n");
+        sendToPhone((OneButton *)oneButton);
+    }
+
+    static void userButtonLeLongPressStart(void *oneButton)
+    {
+        LOG_DEBUG("Left LongPressStart\n");
+        sendToPhone((OneButton *)oneButton);
+    }
+
+    static void userButtonCeLongPressStart(void *oneButton)
+    {
+        LOG_DEBUG("Center LongPressStart\n");
+        sendToPhone((OneButton *)oneButton);
+    }
+
+    static void userButtonRiLongPressStart(void *oneButton)
+    {
+        LOG_DEBUG("Right LongPressStart\n");
+        sendToPhone((OneButton *)oneButton);
+    }
+
+    static void userButtonDoLongPressStart(void *oneButton)
+    {
+        LOG_DEBUG("Down LongPressStart\n");
+        sendToPhone((OneButton *)oneButton);
+    }
+
+    // LongPressStop
+    static void userButtonUpLongPressStop(void *oneButton)
+    {
+        LOG_DEBUG("Up LongPressStop\n");
+        sendToPhone((OneButton *)oneButton);
+    }
+
+    static void userButtonLeLongPressStop(void *oneButton)
+    {
+        LOG_DEBUG("Left LongPressStop\n");
+        sendToPhone((OneButton *)oneButton);
+    }
+
+    static void userButtonCeLongPressStop(void *oneButton)
+    {
+        LOG_DEBUG("Center LongPressStop\n");
+        sendToPhone((OneButton *)oneButton);
+    }
+
+    static void userButtonRiLongPressStop(void *oneButton)
+    {
+        LOG_DEBUG("Right LongPressStop\n");
+        sendToPhone((OneButton *)oneButton);
+    }
+
+    static void userButtonDoLongPressStop(void *oneButton)
+    {
+        LOG_DEBUG("Down LongPressStop\n");
+        sendToPhone((OneButton *)oneButton);
+    }
+
 };
 
 } // namespace concurrency
