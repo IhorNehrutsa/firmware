@@ -67,6 +67,11 @@ cd D:\LoRa\MESHTASTIC\protobufs
 protoc.bat
 ```
 
+* Смотрим protobufs для C# в папке
+```
+d:\LoRa\MESHTASTIC\protobufs\meshtastic_csharp_out
+```
+
 
 
 # 1) Build Meshtastic Firmware
@@ -90,6 +95,11 @@ git checkout -b PTD remotes/origin/PTD --
 * Регенерируем protobufs:
 ```BASH
 ./bin/regen-protos.sh
+```
+
+* Смотрим protobufs для Firmware в папке
+```
+d:\LoRa\MESHTASTIC\firmware\protobufs
 ```
 
 * Компилируем в PlatformIO IDE for Microsoft's Visual Studio Code:
@@ -117,6 +127,10 @@ git checkout -b ptd remotes/origin/ptd --
 ```
 
 * Компилируем в Android Studio, protobufs регенерируются IDE.
+* Смотрим protobufs для Android в папке
+```
+d:\LoRa\MESHTASTIC\Meshtastic-Android\app\src\main\proto
+```
 
 
 
@@ -139,6 +153,15 @@ git submodule update --init
 * Переключаемся:
 ```BASH
 git checkout -b ptd remotes/origin/ptd --
+```
+
+* Смотрим protobufs для Python в папке
+```
+d:\LoRa\MESHTASTIC\python\protobufs
+```
+* protobufs генерируются в папку
+```
+d:\LoRa\MESHTASTIC\python\meshtastic
 ```
 
 
