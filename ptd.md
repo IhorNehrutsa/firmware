@@ -329,3 +329,5 @@ Received RemoteHardware type=GPIOS_CHANGED, gpio_value=67170304 value=67170304=0
 
 https://github.com/UncleRus/esp-idf-speex
 https://github.com/whyengineer/esp32_snow/tree/master/example/speex
+https://github.com/search?q=esp32+opus&type=repositories
+
