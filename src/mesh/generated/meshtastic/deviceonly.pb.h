@@ -112,7 +112,7 @@ typedef struct _meshtastic_OEMStore {
 typedef struct _meshtastic_PtdButtons {
     uint32_t button_pin;
     meshtastic_PtdButtonEvent event;
-    uint32_t buttons_states;
+    uint64_t buttons_states;
 } meshtastic_PtdButtons;
 
 
@@ -214,7 +214,7 @@ X(a, STATIC,   OPTIONAL, MESSAGE,  oem_local_module_config,   8)
 #define meshtastic_PtdButtons_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, FIXED32,  button_pin,        1) \
 X(a, STATIC,   SINGULAR, UENUM,    event,             2) \
-X(a, STATIC,   SINGULAR, FIXED32,  buttons_states,    3)
+X(a, STATIC,   SINGULAR, FIXED64,  buttons_states,    3)
 #define meshtastic_PtdButtons_CALLBACK NULL
 #define meshtastic_PtdButtons_DEFAULT NULL
 
@@ -233,7 +233,7 @@ extern const pb_msgdesc_t meshtastic_PtdButtons_msg;
 #define meshtastic_ChannelFile_size              638
 #define meshtastic_DeviceState_size              22364
 #define meshtastic_OEMStore_size                 3041
-#define meshtastic_PtdButtons_size               12
+#define meshtastic_PtdButtons_size               16
 
 #ifdef __cplusplus
 } /* extern "C" */

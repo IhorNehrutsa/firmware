@@ -272,11 +272,11 @@ class ButtonThread : public concurrency::OSThread
         memset(&b, 0, sizeof(b));
         b.button_pin = oneButton->pin();
         b.event = event;
-        b.buttons_states = (userButtonUp->debouncedValue() << userButtonUp->pin())
-                         | (userButtonLe->debouncedValue() << userButtonLe->pin())
-                         | (userButtonCe->debouncedValue() << userButtonCe->pin())
-                         | (userButtonRi->debouncedValue() << userButtonRi->pin())
-                         | (userButtonDo->debouncedValue() << userButtonDo->pin());
+        b.buttons_states = ((uint64_t)userButtonUp->debouncedValue() << userButtonUp->pin())
+                         | ((uint64_t)userButtonLe->debouncedValue() << userButtonLe->pin())
+                         | ((uint64_t)userButtonCe->debouncedValue() << userButtonCe->pin())
+                         | ((uint64_t)userButtonRi->debouncedValue() << userButtonRi->pin())
+                         | ((uint64_t)userButtonDo->debouncedValue() << userButtonDo->pin());
 
         LOG_DEBUG("sendToPhone button_pin=%u=0x%08X event=%d buttons_states=0x%08X\n", b.button_pin, 1 << b.button_pin, b.event, b.buttons_states);
 
