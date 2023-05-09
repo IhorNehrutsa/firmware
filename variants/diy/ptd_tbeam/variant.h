@@ -6,11 +6,11 @@
  * PTD Buttons
  */
 #define BUTTON_UP     14 // 0x0004000
-#define BUTTON_LEFT   32 // 0x0001000
-#define BUTTON_CENTER  2 // 0x4000000
-#define BUTTON_RIGHT  25 // 0x0002000
-#define BUTTON_DOWN   33 // 0x0008000
-//                          0x400f000
+#define BUTTON_LEFT   25 // 0x2000000
+#define BUTTON_CENTER  2 // 0x0000004
+#define BUTTON_RIGHT  13 // 0x0002000
+#define BUTTON_DOWN   15 // 0x0008000
+//                          0x200E004
 
 #define I2C_SDA 21
 #define I2C_SCL 22
@@ -18,7 +18,7 @@
 #define BUTTON_PIN 38 // The middle button GPIO on the T-Beam
 //#define BUTTON_PIN_ALT 13 // Alternate GPIO for an external button if needed. Does anyone use this? It is not documented
 // anywhere.
-#define EXT_NOTIFY_OUT 13 // Default pin to use for Ext Notify Module.
+//#define EXT_NOTIFY_OUT 13 // Default pin to use for Ext Notify Module.
 
 #define LED_INVERTED 1
 #define LED_PIN 4 // Newer tbeams (1.1) have an extra led on GPIO4
