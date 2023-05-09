@@ -155,14 +155,22 @@ bool ButtonThread::shutdown_on_long_stop = false;
 static Periodic *ledPeriodic;
 static OSThread *powerFSMthread;
 #if HAS_BUTTON
-#ifdef BUTTON_CENTER
+#ifdef BUTTON_UP
 OneButton *userButtonUp;
+#endif
+#ifdef BUTTON_LEFT
 OneButton *userButtonLe;
+#endif
+#ifdef BUTTON_CENTER
 OneButton *userButtonCe;
-OneButton *userButtonRi;
-OneButton *userButtonDo;
 #else
 #error BUTTON_CENTER
+#endif
+#ifdef BUTTON_RIGHT
+OneButton *userButtonRi;
+#endif
+#ifdef BUTTON_DOWN
+OneButton *userButtonDo;
 #endif
 static OSThread *buttonThread;
 uint32_t ButtonThread::longPressTime = 0;

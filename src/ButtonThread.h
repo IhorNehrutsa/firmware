@@ -9,11 +9,21 @@
 //#include "MeshService.h"
 #include "ProtobufModule.h"
 
+#ifdef BUTTON_UP
 extern OneButton *userButtonUp;
+#endif
+#ifdef BUTTON_LEFT
 extern OneButton *userButtonLe;
+#endif
+#ifdef BUTTON_CENTER
 extern OneButton *userButtonCe;
+#endif
+#ifdef BUTTON_RIGHT
 extern OneButton *userButtonRi;
+#endif
+#ifdef BUTTON_DOWN
 extern OneButton *userButtonDo;
+#endif
 
 namespace concurrency
 {
@@ -67,51 +77,55 @@ class ButtonThread : public concurrency::OSThread
         userButton.attachLongPressStop(userButtonPressedLongStop);
         wakeOnIrq(config.device.button_gpio ? config.device.button_gpio : BUTTON_PIN, FALLING);
 #endif
-#ifdef BUTTON_CENTER
-        userButtonUp = new OneButton(BUTTON_UP, true, true);
-        userButtonLe = new OneButton(BUTTON_LEFT, true, true);
-        userButtonCe = new OneButton(BUTTON_CENTER, true, true);
-        userButtonRi = new OneButton(BUTTON_RIGHT, true, true);
-        userButtonDo = new OneButton(BUTTON_DOWN, true, true);
-
-        userButtonUp->attachClick(userButtonUpClick, userButtonUp);
-        userButtonLe->attachClick(userButtonLeClick, userButtonLe);
-        userButtonCe->attachClick(userButtonCeClick, userButtonCe);
-        userButtonRi->attachClick(userButtonRiClick, userButtonRi);
-        userButtonDo->attachClick(userButtonDoClick, userButtonDo);
-
-        userButtonUp->attachDoubleClick(userButtonUpDoubleClick, userButtonUp);
-        userButtonLe->attachDoubleClick(userButtonLeDoubleClick, userButtonLe);
-        userButtonCe->attachDoubleClick(userButtonCeDoubleClick, userButtonCe);
-        userButtonRi->attachDoubleClick(userButtonRiDoubleClick, userButtonRi);
-        userButtonDo->attachDoubleClick(userButtonDoDoubleClick, userButtonDo);
-
-        userButtonUp->attachMultiClick(userButtonUpMultiClick, userButtonUp);
-        userButtonLe->attachMultiClick(userButtonLeMultiClick, userButtonLe);
-        userButtonCe->attachMultiClick(userButtonCeMultiClick, userButtonCe);
-        userButtonRi->attachMultiClick(userButtonRiMultiClick, userButtonRi);
-        userButtonDo->attachMultiClick(userButtonDoMultiClick, userButtonDo);
-
-        userButtonUp->attachLongPressStart(userButtonUpLongPressStart, userButtonUp);
-        userButtonLe->attachLongPressStart(userButtonLeLongPressStart, userButtonLe);
-        userButtonCe->attachLongPressStart(userButtonCeLongPressStart, userButtonCe);
-        userButtonRi->attachLongPressStart(userButtonRiLongPressStart, userButtonRi);
-        userButtonDo->attachLongPressStart(userButtonDoLongPressStart, userButtonDo);
-
-        userButtonUp->attachLongPressStop(userButtonUpLongPressStop, userButtonUp);
-        userButtonLe->attachLongPressStop(userButtonLeLongPressStop, userButtonLe);
-        userButtonCe->attachLongPressStop(userButtonCeLongPressStop, userButtonCe);
-        userButtonRi->attachLongPressStop(userButtonRiLongPressStop, userButtonRi);
-        userButtonDo->attachLongPressStop(userButtonDoLongPressStop, userButtonDo);
 
         #define MS 300
+#ifdef BUTTON_UP
+        userButtonUp = new OneButton(BUTTON_UP, true, true);
         userButtonUp->setClickTicks(MS);
+        userButtonUp->attachClick(userButtonUpClick, userButtonUp);
+        userButtonUp->attachDoubleClick(userButtonUpDoubleClick, userButtonUp);
+        userButtonUp->attachMultiClick(userButtonUpMultiClick, userButtonUp);
+        userButtonUp->attachLongPressStart(userButtonUpLongPressStart, userButtonUp);
+        userButtonUp->attachLongPressStop(userButtonUpLongPressStop, userButtonUp);
+#endif
+#ifdef BUTTON_LEFT
+        userButtonLe = new OneButton(BUTTON_LEFT, true, true);
         userButtonLe->setClickTicks(MS);
+        userButtonLe->attachClick(userButtonLeClick, userButtonLe);
+        userButtonLe->attachDoubleClick(userButtonLeDoubleClick, userButtonLe);
+        userButtonLe->attachMultiClick(userButtonLeMultiClick, userButtonLe);
+        userButtonLe->attachLongPressStart(userButtonLeLongPressStart, userButtonLe);
+        userButtonLe->attachLongPressStop(userButtonLeLongPressStop, userButtonLe);
+#endif
+#ifdef BUTTON_CENTER
+        userButtonCe = new OneButton(BUTTON_CENTER, true, true);
         userButtonCe->setClickTicks(MS);
-        userButtonRi->setClickTicks(MS);
-        userButtonDo->setClickTicks(MS);
+        userButtonCe->attachClick(userButtonCeClick, userButtonCe);
+        userButtonCe->attachDoubleClick(userButtonCeDoubleClick, userButtonCe);
+        userButtonCe->attachMultiClick(userButtonCeMultiClick, userButtonCe);
+        userButtonCe->attachLongPressStart(userButtonCeLongPressStart, userButtonCe);
+        userButtonCe->attachLongPressStop(userButtonCeLongPressStop, userButtonCe);
         wakeOnIrq(BUTTON_CENTER, FALLING);
 #endif
+#ifdef BUTTON_RIGHT
+        userButtonRi = new OneButton(BUTTON_RIGHT, true, true);
+        userButtonRi->setClickTicks(MS);
+        userButtonRi->attachClick(userButtonRiClick, userButtonRi);
+        userButtonRi->attachDoubleClick(userButtonRiDoubleClick, userButtonRi);
+        userButtonRi->attachMultiClick(userButtonRiMultiClick, userButtonRi);
+        userButtonRi->attachLongPressStart(userButtonRiLongPressStart, userButtonRi);
+        userButtonRi->attachLongPressStop(userButtonRiLongPressStop, userButtonRi);
+#endif
+#ifdef BUTTON_DOWN
+        userButtonDo = new OneButton(BUTTON_DOWN, true, true);
+        userButtonDo->setClickTicks(MS);
+        userButtonDo->attachClick(userButtonDoClick, userButtonDo);
+        userButtonDo->attachDoubleClick(userButtonDoDoubleClick, userButtonDo);
+        userButtonDo->attachMultiClick(userButtonDoMultiClick, userButtonDo);
+        userButtonDo->attachLongPressStart(userButtonDoLongPressStart, userButtonDo);
+        userButtonDo->attachLongPressStop(userButtonDoLongPressStop, userButtonDo);
+#endif
+
 #ifdef BUTTON_PIN_ALT
         userButtonAlt = OneButton(BUTTON_PIN_ALT, true, true);
 #ifdef INPUT_PULLUP_SENSE
@@ -143,16 +157,24 @@ class ButtonThread : public concurrency::OSThread
         userButton.tick();
         canSleep &= userButton.isIdle();
 #endif
-#ifdef BUTTON_CENTER
+#ifdef BUTTON_
         userButtonUp->tick();
-        userButtonLe->tick();
-        userButtonCe->tick();
-        userButtonRi->tick();
-        userButtonDo->tick();
         canSleep &= userButtonUp->isIdle();
+#endif
+#ifdef BUTTON_
+        userButtonLe->tick();
         canSleep &= userButtonLe->isIdle();
+#endif
+#ifdef BUTTON_CENTER
+        userButtonCe->tick();
         canSleep &= userButtonCe->isIdle();
+#endif
+#ifdef BUTTON_
+        userButtonRi->tick();
         canSleep &= userButtonRi->isIdle();
+#endif
+#ifdef BUTTON_
+        userButtonDo->tick();
         canSleep &= userButtonDo->isIdle();
 #endif
 #ifdef BUTTON_PIN_ALT
@@ -272,11 +294,22 @@ class ButtonThread : public concurrency::OSThread
         memset(&b, 0, sizeof(b));
         b.button_pin = oneButton->pin();
         b.event = event;
-        b.buttons_states = ((uint64_t)userButtonUp->debouncedValue() << userButtonUp->pin())
-                         | ((uint64_t)userButtonLe->debouncedValue() << userButtonLe->pin())
-                         | ((uint64_t)userButtonCe->debouncedValue() << userButtonCe->pin())
-                         | ((uint64_t)userButtonRi->debouncedValue() << userButtonRi->pin())
-                         | ((uint64_t)userButtonDo->debouncedValue() << userButtonDo->pin());
+        b.buttons_states = 0;
+        #ifdef BUTTON_UP
+        b.buttons_states |= ((uint64_t)userButtonUp->debouncedValue() << userButtonUp->pin());
+        #endif
+        #ifdef BUTTON_LEFT
+        b.buttons_states |= ((uint64_t)userButtonLe->debouncedValue() << userButtonLe->pin());
+        #endif
+        #ifdef BUTTON_CENTER
+        b.buttons_states |= ((uint64_t)userButtonCe->debouncedValue() << userButtonCe->pin());
+        #endif
+        #ifdef BUTTON_RIGHT
+        b.buttons_states |= ((uint64_t)userButtonRi->debouncedValue() << userButtonRi->pin());
+        #endif
+        #ifdef BUTTON_DOWN
+        b.buttons_states |= ((uint64_t)userButtonDo->debouncedValue() << userButtonDo->pin());
+        #endif
 
         LOG_DEBUG("sendToPhone button_pin=%u=0x%08X event=%d buttons_states=0x%08X\n", b.button_pin, 1 << b.button_pin, b.event, b.buttons_states);
 
