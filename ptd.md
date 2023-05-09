@@ -86,12 +86,13 @@ WINDOWS context menu -> Git Bash Here: D:\LoRa\MESHTASTIC
 ```BASH
 git clone https://github.com/IhorNehrutsa/firmware.git
 cd firmware
-git submodule update --init
+git submodule update --init --remote
 ```
 
 * Переключаемся:
 ```BASH
 git checkout -b PTD remotes/origin/PTD --
+cd protobufs
 ```
 
 * Регенерируем protobufs:
@@ -120,7 +121,7 @@ WINDOWS context menu -> Git Bash Here: D:\LoRa\MESHTASTIC
 ```BASH
 git clone https://github.com/IhorNehrutsa/Meshtastic-Android.git
 cd Meshtastic-Android
-git submodule update --init
+git submodule update --init --remote
 ```
 
 * Переключаемся:
@@ -149,7 +150,7 @@ WINDOWS context menu -> Git Bash Here: D:\LoRa\MESHTASTIC
 ```BASH
 git clone https://github.com/IhorNehrutsa/python.git
 cd python
-git submodule update --init
+git submodule update --init --remote
 ```
 
 * Переключаемся:
