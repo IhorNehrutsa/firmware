@@ -1,4 +1,10 @@
 [submodule "protobufs"]
 	path = protobufs
 	url = https://github.com/IhorNehrutsa/protobufs.git
-    branch = ptd
+	branch = ptd
+[submodule "speex"]
+	path = speex
+	url = https://gitlab.xiph.org/xiph/speex.git
+[submodule "opus"]
+	path = opus
+	url = https://gitlab.xiph.org/xiph/opus.git

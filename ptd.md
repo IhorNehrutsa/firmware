@@ -82,6 +82,9 @@ md D:\LoRa\MESHTASTIC
 ```
 WINDOWS context menu -> Git Bash Here: D:\LoRa\MESHTASTIC
 
+// git submodule add https://gitlab.xiph.org/xiph/speex.git
+// git submodule add https://gitlab.xiph.org/xiph/opus.git
+
 * Клонируем:
 ```BASH
 git clone https://github.com/IhorNehrutsa/firmware.git
