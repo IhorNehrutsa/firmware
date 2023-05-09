@@ -22,6 +22,7 @@
 #endif
 #ifdef ARCH_ESP32
 #include "modules/esp32/AudioModule.h"
+#include "modules/esp32/SpeexModule.h"
 #include "modules/esp32/RangeTestModule.h"
 #include "modules/esp32/StoreForwardModule.h"
 #endif
