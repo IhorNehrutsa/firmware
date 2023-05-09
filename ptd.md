@@ -40,6 +40,8 @@ https://meshtastic.org/docs/developers
 
 https://meshtastic.org/docs/development/device/module-api
 
+https://meshtastic.org/docs/hardware/peripheral/
+
 
 
 * Meshtastic protoBuf Schema Registry:
@@ -166,7 +168,31 @@ d:\LoRa\MESHTASTIC\python\meshtastic
 
 
 
-# 4) Configuring GPIO Peripherals для справки
+# 4) PTD Buttons
+
+ * PTD Buttons Meshtastic_3c68
+```
+#define BUTTON_UP     14 // 0x0004000
+#define BUTTON_LEFT   12 // 0x0001000
+#define BUTTON_CENTER 26 // 0x4000000
+#define BUTTON_RIGHT  13 // 0x0002000
+#define BUTTON_DOWN   15 // 0x0008000
+//                          0x400f000
+```
+
+ * PTD Buttons Meshtastic_2388 & Meshtastic_a3e8
+```
+#define BUTTON_UP     14 // 0x0004000
+#define BUTTON_LEFT   25 // 0x2000000
+#define BUTTON_CENTER  2 // 0x0000004
+#define BUTTON_RIGHT  13 // 0x0002000
+#define BUTTON_DOWN   15 // 0x0008000
+//                          0x200E004
+```
+
+
+
+# 5) Configuring GPIO Peripherals для справки
 
 https://meshtastic.org/docs/hardware/peripheral/
 
