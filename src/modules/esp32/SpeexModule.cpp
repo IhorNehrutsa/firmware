@@ -17,7 +17,7 @@
 #endif
 
 /*
-    AudioModule
+    SpeexModule
         A interface to send raw speex audio data over the mesh network. Based on the example code from the ???.
         https://github.com/???
 
@@ -41,7 +41,7 @@
 ButterworthFilter hp_filter(240, 8000, ButterworthFilter::ButterworthFilter::Highpass, 1);
 
 TaskHandle_t speexHandlerTask;
-AudioModule *audioModule;
+SpeexModule *speexModule;
 
 #ifdef ARCH_ESP32
 // ESP32 doesn't use that flag
@@ -78,7 +78,7 @@ AudioModule *audioModule;
 void run_speex(void *parameter)
 {
     // 4 bytes of header in each frame hex c0 de c2 plus the bitrate
-    memcpy(audioModule->tx_encode_frame, &audioModule->tx_header, sizeof(audioModule->tx_header));
+    memcpy(speexModule->tx_encode_frame, &speexModule->tx_header, sizeof(speexModule->tx_header));
 
     LOG_INFO("Starting speex task\n");
 
@@ -86,37 +86,37 @@ void run_speex(void *parameter)
         uint32_t tcount = ulTaskNotifyTake(pdFALSE, pdMS_TO_TICKS(10000));
 
         if (tcount != 0) {
-            if (audioModule->radio_state == RadioState::tx) {
-                for (int i = 0; i < audioModule->adc_buffer_size; i++)
-                    audioModule->speech[i] = (int16_t)hp_filter.Update((float)audioModule->speech[i]);
+            if (speexModule->radio_state == SpeexRadioState::speex_tx) {
+                for (int i = 0; i < speexModule->adc_buffer_size; i++)
+                    speexModule->speech[i] = (int16_t)hp_filter.Update((float)speexModule->speech[i]);
 
-                speex_encode(audioModule->speex, audioModule->tx_encode_frame + audioModule->tx_encode_frame_index,
-                              audioModule->speech);
-                audioModule->tx_encode_frame_index += audioModule->encode_codec_size;
+                speex_encode(speexModule->speex, speexModule->tx_encode_frame + speexModule->tx_encode_frame_index,
+                              speexModule->speech);
+                speexModule->tx_encode_frame_index += speexModule->encode_codec_size;
 
-                if (audioModule->tx_encode_frame_index == (audioModule->encode_frame_size + sizeof(audioModule->tx_header))) {
-                    LOG_INFO("Sending %d speex bytes\n", audioModule->encode_frame_size);
-                    audioModule->sendPayload();
-                    audioModule->tx_encode_frame_index = sizeof(audioModule->tx_header);
+                if (speexModule->tx_encode_frame_index == (speexModule->encode_frame_size + sizeof(speexModule->tx_header))) {
+                    LOG_INFO("Sending %d speex bytes\n", speexModule->encode_frame_size);
+                    speexModule->sendPayload();
+                    speexModule->tx_encode_frame_index = sizeof(speexModule->tx_header);
                 }
             }
-            if (audioModule->radio_state == RadioState::rx) {
+            if (speexModule->radio_state == SpeexRadioState::speex_rx) {
                 size_t bytesOut = 0;
-                if (memcmp(audioModule->rx_encode_frame, &audioModule->tx_header, sizeof(audioModule->tx_header)) == 0) {
-                    for (int i = 4; i < audioModule->rx_encode_frame_index; i += audioModule->encode_codec_size) {
-                        speex_decode(audioModule->speex, audioModule->output_buffer, audioModule->rx_encode_frame + i);
-                        i2s_write(I2S_PORT, &audioModule->output_buffer, audioModule->adc_buffer_size, &bytesOut,
+                if (memcmp(speexModule->rx_encode_frame, &speexModule->tx_header, sizeof(speexModule->tx_header)) == 0) {
+                    for (int i = 4; i < speexModule->rx_encode_frame_index; i += speexModule->encode_codec_size) {
+                        speex_decode(speexModule->speex, speexModule->output_buffer, speexModule->rx_encode_frame + i);
+                        i2s_write(I2S_PORT, &speexModule->output_buffer, speexModule->adc_buffer_size, &bytesOut,
                                   pdMS_TO_TICKS(500));
                     }
                 } else {
                     // if the buffer header does not match our own codec, make a temp decoding setup.
-                    SPEEX *tmp_speex = speex_create(audioModule->rx_encode_frame[3]);
+                    SPEEX *tmp_speex = speex_create(speexModule->rx_encode_frame[3]);
                     speex_set_lpc_post_filter(tmp_speex, 1, 0, 0.8, 0.2);
                     int tmp_encode_codec_size = (speex_bits_per_frame(tmp_speex) + 7) / 8;
                     int tmp_adc_buffer_size = speex_samples_per_frame(tmp_speex);
-                    for (int i = 4; i < audioModule->rx_encode_frame_index; i += tmp_encode_codec_size) {
-                        speex_decode(tmp_speex, audioModule->output_buffer, audioModule->rx_encode_frame + i);
-                        i2s_write(I2S_PORT, &audioModule->output_buffer, tmp_adc_buffer_size, &bytesOut, pdMS_TO_TICKS(500));
+                    for (int i = 4; i < speexModule->rx_encode_frame_index; i += tmp_encode_codec_size) {
+                        speex_decode(tmp_speex, speexModule->output_buffer, speexModule->rx_encode_frame + i);
+                        i2s_write(I2S_PORT, &speexModule->output_buffer, tmp_adc_buffer_size, &bytesOut, pdMS_TO_TICKS(500));
                     }
                     speex_destroy(tmp_speex);
                 }
@@ -125,7 +125,7 @@ void run_speex(void *parameter)
     }
 }
 
-AudioModule::AudioModule() : SinglePortModule("AudioModule", meshtastic_PortNum_AUDIO_SPEEX_APP), concurrency::OSThread("AudioModule")
+SpeexModule::SpeexModule() : SinglePortModule("SpeexModule", meshtastic_PortNum_AUDIO_SPEEX_APP), concurrency::OSThread("SpeexModule")
 {
     // moduleConfig.audio.speex_enabled = true;
     // moduleConfig.audio.i2s_ws = 13;
@@ -153,7 +153,7 @@ AudioModule::AudioModule() : SinglePortModule("AudioModule", meshtastic_PortNum_
     }
 }
 
-void AudioModule::drawFrame(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x, int16_t y)
+void SpeexModule::drawFrame(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x, int16_t y)
 {
     char buffer[50];
 
@@ -167,7 +167,7 @@ void AudioModule::drawFrame(OLEDDisplay *display, OLEDDisplayUiState *state, int
     display->setFont(FONT_LARGE);
     display->setTextAlignment(TEXT_ALIGN_CENTER);
     switch (radio_state) {
-    case RadioState::tx:
+    case SpeexRadioState::speex_tx:
         display->drawString(display->getWidth() / 2 + x, (display->getHeight() - FONT_HEIGHT_SMALL) / 2 + y, "PTT");
         break;
     default:
@@ -176,7 +176,7 @@ void AudioModule::drawFrame(OLEDDisplay *display, OLEDDisplayUiState *state, int
     }
 }
 
-int32_t AudioModule::runOnce()
+int32_t SpeexModule::runOnce()
 {
     if ((moduleConfig.audio.speex_enabled) && (myRegion->audioPermitted)) {
         esp_err_t res;
@@ -213,7 +213,7 @@ int32_t AudioModule::runOnce()
             if (res != ESP_OK)
                 LOG_ERROR("Failed to start I2S: %d\n", res);
 
-            radio_state = RadioState::rx;
+            radio_state = SpeexRadioState::speex_rx;
 
             // Configure PTT input
             LOG_INFO("Initializing PTT on Pin %u\n", moduleConfig.audio.ptt_pin ? moduleConfig.audio.ptt_pin : PTT_PIN);
@@ -224,14 +224,14 @@ int32_t AudioModule::runOnce()
             UIFrameEvent e = {false, true};
             // Check if PTT is pressed. TODO hook that into Onebutton/Interrupt drive.
             if (digitalRead(moduleConfig.audio.ptt_pin ? moduleConfig.audio.ptt_pin : PTT_PIN) == HIGH) {
-                if (radio_state == RadioState::rx) {
+                if (radio_state == SpeexRadioState::speex_rx) {
                     LOG_INFO("PTT pressed, switching to TX\n");
-                    radio_state = RadioState::tx;
+                    radio_state = SpeexRadioState::speex_tx;
                     e.frameChanged = true;
                     this->notifyObservers(&e);
                 }
             } else {
-                if (radio_state == RadioState::tx) {
+                if (radio_state == SpeexRadioState::speex_tx) {
                     LOG_INFO("PTT released, switching to RX\n");
                     if (tx_encode_frame_index > sizeof(tx_header)) {
                         // Send the incomplete frame
@@ -239,12 +239,12 @@ int32_t AudioModule::runOnce()
                         sendPayload();
                     }
                     tx_encode_frame_index = sizeof(tx_header);
-                    radio_state = RadioState::rx;
+                    radio_state = SpeexRadioState::speex_rx;
                     e.frameChanged = true;
                     this->notifyObservers(&e);
                 }
             }
-            if (radio_state == RadioState::tx) {
+            if (radio_state == SpeexRadioState::speex_tx) {
                 // Get I2S data from the microphone and place in data buffer
                 size_t bytesIn = 0;
                 res = i2s_read(I2S_PORT, adc_buffer + adc_buffer_index, adc_buffer_size - adc_buffer_index, &bytesIn,
@@ -256,7 +256,7 @@ int32_t AudioModule::runOnce()
                         adc_buffer_index = 0;
                         memcpy((void *)speech, (void *)adc_buffer, 2 * adc_buffer_size);
                         // Notify run_speex task that the buffer is ready.
-                        radio_state = RadioState::tx;
+                        radio_state = SpeexRadioState::speex_tx;
                         BaseType_t xHigherPriorityTaskWoken = pdFALSE;
                         vTaskNotifyGiveFromISR(speexHandlerTask, &xHigherPriorityTaskWoken);
                         if (xHigherPriorityTaskWoken == pdTRUE)
@@ -271,21 +271,21 @@ int32_t AudioModule::runOnce()
     }
 }
 
-meshtastic_MeshPacket *AudioModule::allocReply()
+meshtastic_MeshPacket *SpeexModule::allocReply()
 {
     auto reply = allocDataPacket();
     return reply;
 }
 
-bool AudioModule::shouldDraw()
+bool SpeexModule::shouldDraw()
 {
     if (!moduleConfig.audio.speex_enabled) {
         return false;
     }
-    return (radio_state == RadioState::tx);
+    return (radio_state == SpeexRadioState::speex_tx);
 }
 
-void AudioModule::sendPayload(NodeNum dest, bool wantReplies)
+void SpeexModule::sendPayload(NodeNum dest, bool wantReplies)
 {
     meshtastic_MeshPacket *p = allocReply();
     p->to = dest;
@@ -300,13 +300,13 @@ void AudioModule::sendPayload(NodeNum dest, bool wantReplies)
     service.sendToMesh(p);
 }
 
-ProcessMessage AudioModule::handleReceived(const meshtastic_MeshPacket &mp)
+ProcessMessage SpeexModule::handleReceived(const meshtastic_MeshPacket &mp)
 {
     if ((moduleConfig.audio.speex_enabled) && (myRegion->audioPermitted)) {
         auto &p = mp.decoded;
         if (getFrom(&mp) != nodeDB.getNodeNum()) {
             memcpy(rx_encode_frame, p.payload.bytes, p.payload.size);
-            radio_state = RadioState::rx;
+            radio_state = SpeexRadioState::speex_rx;
             rx_encode_frame_index = p.payload.size;
             // Notify run_speex task that the buffer is ready.
             BaseType_t xHigherPriorityTaskWoken = pdFALSE;

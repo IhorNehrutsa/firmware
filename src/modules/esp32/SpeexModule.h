@@ -13,11 +13,11 @@
 #include <driver/i2s.h>
 #include <functional>
 
-enum RadioState { standby, rx, tx };
+enum SpeexRadioState { speex_standby, speex_rx, speex_tx };
 
-const char c2_magic[3] = {0xc0, 0xde, 0xc2}; // Magic number for speex header
+const char speex_c2_magic[3] = {0xc0, 0xde, 0xc2}; // Magic number for speex header
 
-struct c2_header {
+struct speex_c2_header {
     char magic[3];
     char mode;
 };
@@ -28,29 +28,29 @@ struct c2_header {
 #define I2S_PORT I2S_NUM_0
 
 #define AUDIO_MODULE_RX_BUFFER 128
-#define AUDIO_MODULE_MODE meshtastic_ModuleConfig_AudioConfig_Audio_Baud_SPEEX_700
+#define AUDIO_MODULE_MODE 700 // meshtastic_ModuleConfig_AudioConfig_Audio_Baud_SPEEX_700
 
-class AudioModule : public SinglePortModule, public Observable<const UIFrameEvent *>, private concurrency::OSThread
+class SpeexModule : public SinglePortModule, public Observable<const UIFrameEvent *>, private concurrency::OSThread
 {
   public:
     unsigned char rx_encode_frame[meshtastic_Constants_DATA_PAYLOAD_LEN] = {};
     unsigned char tx_encode_frame[meshtastic_Constants_DATA_PAYLOAD_LEN] = {};
-    c2_header tx_header = {};
+    speex_c2_header tx_header = {};
     int16_t speech[ADC_BUFFER_SIZE_MAX] = {};
     int16_t output_buffer[ADC_BUFFER_SIZE_MAX] = {};
     uint16_t adc_buffer[ADC_BUFFER_SIZE_MAX] = {};
     int adc_buffer_size = 0;
     uint16_t adc_buffer_index = 0;
-    int tx_encode_frame_index = sizeof(c2_header); // leave room for header
+    int tx_encode_frame_index = sizeof(speex_c2_header); // leave room for header
     int rx_encode_frame_index = 0;
     int encode_codec_size = 0;
     int encode_frame_size = 0;
-    volatile RadioState radio_state = RadioState::rx;
+    volatile SpeexRadioState radio_state = SpeexRadioState::speex_rx;
 
     struct SPEEX *speex = NULL;
     // int16_t sample;
 
-    AudioModule();
+    SpeexModule();
 
     bool shouldDraw();
 
@@ -82,6 +82,6 @@ class AudioModule : public SinglePortModule, public Observable<const UIFrameEven
     virtual ProcessMessage handleReceived(const meshtastic_MeshPacket &mp) override;
 };
 
-extern AudioModule *audioModule;
+extern SpeexModule *speexModule;
 
 #endif
