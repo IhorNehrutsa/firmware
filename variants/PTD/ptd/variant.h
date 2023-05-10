@@ -1,10 +1,37 @@
 #define HAS_SCREEN 0
 #define HAS_GPS 0
-#define HAS_BUTTON 0
+#define HAS_BUTTON 1
 #define HAS_WIRE 0
-//#define HAS_TELEMETRY 0
-//#define HAS_BLUETOOTH 0
-//#define HAS_WIFI 0
+#define HAS_TELEMETRY 0
+#define HAS_SENSOR 0
+
+/*
+ * PTD Buttons
+ */
+//#define BUTTON_UP     -1 // 0x
+//#define BUTTON_LEFT   -1 // 0x
+#define BUTTON_CENTER  0 // 0x PTT on BOOT
+//#define BUTTON_RIGHT  -1 // 0x
+//#define BUTTON_DOWN   -1 // 0x
+//                          0x
+
+/*
+ *INMP441 Microphone Module
+ */
+// 3.3V                             VDD - The Input voltage, from 1.62 to 3.63 volts.
+// GND                              GND - Ground.
+// GND                              L/R - Channel selection.
+//     /* I2S Word Select */
+// moduleConfig.audio.i2s_ws =   21; WS - Word Select.
+//     /* I2S Data IN */
+// moduleConfig.audio.i2s_sd =   23; SD - The I2S Serial Data connection.
+//     /* I2S Data OUT */
+// moduleConfig.audio.i2s_din =  4;
+//     /* I2S Clock */
+// moduleConfig.audio.i2s_sck =  22; SCK - Serial Clock.
+//
+//     /* PTT Pin */
+// moduleConfig.audio.ptt_pin = BUTTON_CENTER;
 
 //#define BUTTON_PIN 39 // The middle button GPIO on the T-Beam
 //#define BATTERY_PIN 35 // A battery voltage measurement pin, voltage divider connected here to measure battery voltage
@@ -28,7 +55,7 @@
 #define RF95_NSS LORA_NSS
 
 // supported modules list
-#define USE_SX1262
+//#define USE_SX1262
 /*
  DO NOT USE USE_SX1268 !
  firmware\src\mesh\SX1268Interface.h
@@ -36,8 +63,8 @@
     /// override frequency of the SX1268 module regardless of the region (use EU433 value)
     virtual float getFreq() override { return 433.175f; }
  ...
-#define USE_SX1268
 */
+#define USE_SX1268
 
 // common pinouts for SX126X modules
 #define SX126X_CS LORA_NSS // NSS for SX126X

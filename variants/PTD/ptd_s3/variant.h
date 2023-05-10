@@ -15,6 +15,24 @@
 //#define BUTTON_DOWN   -1 // 0x
 //                          0x
 
+/*
+ *INMP441 Microphone Module
+ */
+// 3.3V                             VDD - The Input voltage, from 1.62 to 3.63 volts.
+// GND                              GND - Ground.
+// GND                              L/R - Channel selection.
+//     /* I2S Word Select */
+// moduleConfig.audio.i2s_ws =   5; WS - Word Select.
+//     /* I2S Data IN */
+// moduleConfig.audio.i2s_sd =   4; SD - The I2S Serial Data connection.
+//     /* I2S Data OUT */
+// moduleConfig.audio.i2s_din =  7;
+//     /* I2S Clock */
+// moduleConfig.audio.i2s_sck =  6; SCK - Serial Clock.
+//
+//     /* PTT Pin */
+// moduleConfig.audio.ptt_pin = BUTTON_CENTER;
+
 //#define BUTTON_PIN 39 // The middle button GPIO on the T-Beam
 //#define BATTERY_PIN 35 // A battery voltage measurement pin, voltage divider connected here to measure battery voltage
 //#define ADC_MULTIPLIER 1.85 // (R1 = 470k, R2 = 680k)
