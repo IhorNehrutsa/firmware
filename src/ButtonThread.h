@@ -69,7 +69,7 @@ class ButtonThread : public concurrency::OSThread
         pinMode(config.device.button_gpio ? config.device.button_gpio : BUTTON_PIN, INPUT_PULLUP_SENSE);
 #endif
         userButton.attachClick(userButtonPressed);
-        userButton.setClickTicks(300);
+        userButton.setClickMs(300);
         userButton.attachDuringLongPress(userButtonPressedLong);
         userButton.attachDoubleClick(userButtonDoublePressed);
         userButton.attachMultiClick(userButtonMultiPressed);
@@ -81,7 +81,7 @@ class ButtonThread : public concurrency::OSThread
         #define MS 300
 #ifdef BUTTON_UP
         userButtonUp = new OneButton(BUTTON_UP, true, true);
-        userButtonUp->setClickTicks(MS);
+        userButtonUp->setClickMs(MS);
         userButtonUp->attachClick(userButtonUpClick, userButtonUp);
         userButtonUp->attachDoubleClick(userButtonUpDoubleClick, userButtonUp);
         userButtonUp->attachMultiClick(userButtonUpMultiClick, userButtonUp);
@@ -90,7 +90,7 @@ class ButtonThread : public concurrency::OSThread
 #endif
 #ifdef BUTTON_LEFT
         userButtonLe = new OneButton(BUTTON_LEFT, true, true);
-        userButtonLe->setClickTicks(MS);
+        userButtonLe->setClickMs(MS);
         userButtonLe->attachClick(userButtonLeClick, userButtonLe);
         userButtonLe->attachDoubleClick(userButtonLeDoubleClick, userButtonLe);
         userButtonLe->attachMultiClick(userButtonLeMultiClick, userButtonLe);
@@ -99,7 +99,7 @@ class ButtonThread : public concurrency::OSThread
 #endif
 #ifdef BUTTON_CENTER
         userButtonCe = new OneButton(BUTTON_CENTER, true, true);
-        userButtonCe->setClickTicks(MS);
+        userButtonCe->setClickMs(MS);
         userButtonCe->attachClick(userButtonCeClick, userButtonCe);
         userButtonCe->attachDoubleClick(userButtonCeDoubleClick, userButtonCe);
         userButtonCe->attachMultiClick(userButtonCeMultiClick, userButtonCe);
@@ -109,7 +109,7 @@ class ButtonThread : public concurrency::OSThread
 #endif
 #ifdef BUTTON_RIGHT
         userButtonRi = new OneButton(BUTTON_RIGHT, true, true);
-        userButtonRi->setClickTicks(MS);
+        userButtonRi->setClickMs(MS);
         userButtonRi->attachClick(userButtonRiClick, userButtonRi);
         userButtonRi->attachDoubleClick(userButtonRiDoubleClick, userButtonRi);
         userButtonRi->attachMultiClick(userButtonRiMultiClick, userButtonRi);
@@ -118,7 +118,7 @@ class ButtonThread : public concurrency::OSThread
 #endif
 #ifdef BUTTON_DOWN
         userButtonDo = new OneButton(BUTTON_DOWN, true, true);
-        userButtonDo->setClickTicks(MS);
+        userButtonDo->setClickMs(MS);
         userButtonDo->attachClick(userButtonDoClick, userButtonDo);
         userButtonDo->attachDoubleClick(userButtonDoDoubleClick, userButtonDo);
         userButtonDo->attachMultiClick(userButtonDoMultiClick, userButtonDo);
