@@ -95,6 +95,12 @@ typedef enum _meshtastic_PortNum {
     meshtastic_PortNum_ATAK_FORWARDER = 257,
     /* PTD */
     meshtastic_PortNum_PTD_APP = 258,
+    /* Audio Payloads.
+ Encapsulated Speex packets. */
+    meshtastic_PortNum_AUDIO_SPEEX_APP = 259,
+    /* Audio Payloads.
+ Encapsulated Opus packets. */
+    meshtastic_PortNum_AUDIO_OPUS_APP = 260,
     /* Currently we limit port nums to no higher than this value */
     meshtastic_PortNum_MAX = 511
 } meshtastic_PortNum;
