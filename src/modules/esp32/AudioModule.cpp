@@ -221,7 +221,7 @@ int32_t AudioModule::runOnce()
         } else {
             UIFrameEvent e = {false, true};
             // Check if PTT is pressed. TODO hook that into Onebutton/Interrupt drive.
-            if (digitalRead(moduleConfig.audio.ptt_pin ? moduleConfig.audio.ptt_pin : PTT_PIN) == HIGH) {
+            if (digitalRead(moduleConfig.audio.ptt_pin ? moduleConfig.audio.ptt_pin : PTT_PIN) == LOW) {
                 if (radio_state == RadioState::rx) {
                     LOG_INFO("PTT pressed, switching to TX\n");
                     radio_state = RadioState::tx;

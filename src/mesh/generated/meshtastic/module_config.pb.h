@@ -23,6 +23,50 @@ typedef enum _meshtastic_ModuleConfig_AudioConfig_Audio_Baud {
     meshtastic_ModuleConfig_AudioConfig_Audio_Baud_CODEC2_700B = 8
 } meshtastic_ModuleConfig_AudioConfig_Audio_Baud;
 
+typedef enum _meshtastic_ModuleConfig_Audio_Config_Audio_Codec {
+    meshtastic_ModuleConfig_Audio_Config_Audio_Codec_CODEC_NO = 0,
+    meshtastic_ModuleConfig_Audio_Config_Audio_Codec_CODEC_CODEC2 = 1,
+    meshtastic_ModuleConfig_Audio_Config_Audio_Codec_CODEC_SPEEX = 2,
+    meshtastic_ModuleConfig_Audio_Config_Audio_Codec_CODEC_OPUS = 3
+} meshtastic_ModuleConfig_Audio_Config_Audio_Codec;
+
+/* Baudrate for codec2 voice */
+typedef enum _meshtastic_ModuleConfig_Audio_Config_Codec2_Baud {
+    meshtastic_ModuleConfig_Audio_Config_Codec2_Baud_CODEC2_DEFAULT = 0,
+    meshtastic_ModuleConfig_Audio_Config_Codec2_Baud_CODEC2_3200 = 1,
+    meshtastic_ModuleConfig_Audio_Config_Codec2_Baud_CODEC2_2400 = 2,
+    meshtastic_ModuleConfig_Audio_Config_Codec2_Baud_CODEC2_1600 = 3,
+    meshtastic_ModuleConfig_Audio_Config_Codec2_Baud_CODEC2_1400 = 4,
+    meshtastic_ModuleConfig_Audio_Config_Codec2_Baud_CODEC2_1300 = 5,
+    meshtastic_ModuleConfig_Audio_Config_Codec2_Baud_CODEC2_1200 = 6,
+    meshtastic_ModuleConfig_Audio_Config_Codec2_Baud_CODEC2_700 = 7,
+    meshtastic_ModuleConfig_Audio_Config_Codec2_Baud_CODEC2_700B = 8
+} meshtastic_ModuleConfig_Audio_Config_Codec2_Baud;
+
+/* Baudrate for Speex voice */
+typedef enum _meshtastic_ModuleConfig_Audio_Config_Speex_Baud {
+    meshtastic_ModuleConfig_Audio_Config_Speex_Baud_SPEEX_DEFAULT = 0 /* SPEEX_3200 = 1;
+SPEEX_2400 = 2;
+CODEC2_1600 = 3;
+CODEC2_1400 = 4;
+CODEC2_1300 = 5;
+CODEC2_1200 = 6;
+CODEC2_700 = 7;
+CODEC2_700B = 8; */
+} meshtastic_ModuleConfig_Audio_Config_Speex_Baud;
+
+/* Baudrate for Opus voice */
+typedef enum _meshtastic_ModuleConfig_Audio_Config_Opus_Baud {
+    meshtastic_ModuleConfig_Audio_Config_Opus_Baud_OPUS_DEFAULT = 0 /* OPUS_3200 = 1;
+OPUS_2400 = 2;
+CODEC2_1600 = 3;
+CODEC2_1400 = 4;
+CODEC2_1300 = 5;
+CODEC2_1200 = 6;
+CODEC2_700 = 7;
+CODEC2_700B = 8; */
+} meshtastic_ModuleConfig_Audio_Config_Opus_Baud;
+
 /* TODO: REPLACE */
 typedef enum _meshtastic_ModuleConfig_SerialConfig_Serial_Baud {
     meshtastic_ModuleConfig_SerialConfig_Serial_Baud_BAUD_DEFAULT = 0,
@@ -126,6 +170,28 @@ typedef struct _meshtastic_ModuleConfig_AudioConfig {
     /* I2S Clock */
     uint8_t i2s_sck;
 } meshtastic_ModuleConfig_AudioConfig;
+
+/* Audio Config for Codec2, Speex, Opus voice */
+typedef struct _meshtastic_ModuleConfig_Audio_Config {
+    /* PTT Pin */
+    uint32_t ptt_pin;
+    /* I2S Word Select */
+    uint32_t i2s_ws;
+    /* I2S Data IN */
+    uint32_t i2s_sd;
+    /* I2S Data OUT */
+    uint32_t i2s_din;
+    /* I2S Clock */
+    uint32_t i2s_sck;
+    /* Whether Audio is enabled */
+    meshtastic_ModuleConfig_Audio_Config_Audio_Codec codec;
+    pb_size_t which_bitrate;
+    union {
+        meshtastic_ModuleConfig_Audio_Config_Codec2_Baud codec2_bitrate;
+        meshtastic_ModuleConfig_Audio_Config_Speex_Baud speex_bitrate;
+        meshtastic_ModuleConfig_Audio_Config_Opus_Baud opus_bitrate;
+    } bitrate;
+} meshtastic_ModuleConfig_Audio_Config;
 
 /* Serial Config */
 typedef struct _meshtastic_ModuleConfig_SerialConfig {
@@ -284,6 +350,8 @@ typedef struct _meshtastic_ModuleConfig {
         meshtastic_ModuleConfig_AudioConfig audio;
         /* TODO: REPLACE */
         meshtastic_ModuleConfig_RemoteHardwareConfig remote_hardware;
+        /* TODO: REPLACE */
+        meshtastic_ModuleConfig_Audio_Config audio_config;
     } payload_variant;
 } meshtastic_ModuleConfig;
 
@@ -296,6 +364,22 @@ extern "C" {
 #define _meshtastic_ModuleConfig_AudioConfig_Audio_Baud_MIN meshtastic_ModuleConfig_AudioConfig_Audio_Baud_CODEC2_DEFAULT
 #define _meshtastic_ModuleConfig_AudioConfig_Audio_Baud_MAX meshtastic_ModuleConfig_AudioConfig_Audio_Baud_CODEC2_700B
 #define _meshtastic_ModuleConfig_AudioConfig_Audio_Baud_ARRAYSIZE ((meshtastic_ModuleConfig_AudioConfig_Audio_Baud)(meshtastic_ModuleConfig_AudioConfig_Audio_Baud_CODEC2_700B+1))
+
+#define _meshtastic_ModuleConfig_Audio_Config_Audio_Codec_MIN meshtastic_ModuleConfig_Audio_Config_Audio_Codec_CODEC_NO
+#define _meshtastic_ModuleConfig_Audio_Config_Audio_Codec_MAX meshtastic_ModuleConfig_Audio_Config_Audio_Codec_CODEC_OPUS
+#define _meshtastic_ModuleConfig_Audio_Config_Audio_Codec_ARRAYSIZE ((meshtastic_ModuleConfig_Audio_Config_Audio_Codec)(meshtastic_ModuleConfig_Audio_Config_Audio_Codec_CODEC_OPUS+1))
+
+#define _meshtastic_ModuleConfig_Audio_Config_Codec2_Baud_MIN meshtastic_ModuleConfig_Audio_Config_Codec2_Baud_CODEC2_DEFAULT
+#define _meshtastic_ModuleConfig_Audio_Config_Codec2_Baud_MAX meshtastic_ModuleConfig_Audio_Config_Codec2_Baud_CODEC2_700B
+#define _meshtastic_ModuleConfig_Audio_Config_Codec2_Baud_ARRAYSIZE ((meshtastic_ModuleConfig_Audio_Config_Codec2_Baud)(meshtastic_ModuleConfig_Audio_Config_Codec2_Baud_CODEC2_700B+1))
+
+#define _meshtastic_ModuleConfig_Audio_Config_Speex_Baud_MIN meshtastic_ModuleConfig_Audio_Config_Speex_Baud_SPEEX_DEFAULT
+#define _meshtastic_ModuleConfig_Audio_Config_Speex_Baud_MAX meshtastic_ModuleConfig_Audio_Config_Speex_Baud_SPEEX_DEFAULT
+#define _meshtastic_ModuleConfig_Audio_Config_Speex_Baud_ARRAYSIZE ((meshtastic_ModuleConfig_Audio_Config_Speex_Baud)(meshtastic_ModuleConfig_Audio_Config_Speex_Baud_SPEEX_DEFAULT+1))
+
+#define _meshtastic_ModuleConfig_Audio_Config_Opus_Baud_MIN meshtastic_ModuleConfig_Audio_Config_Opus_Baud_OPUS_DEFAULT
+#define _meshtastic_ModuleConfig_Audio_Config_Opus_Baud_MAX meshtastic_ModuleConfig_Audio_Config_Opus_Baud_OPUS_DEFAULT
+#define _meshtastic_ModuleConfig_Audio_Config_Opus_Baud_ARRAYSIZE ((meshtastic_ModuleConfig_Audio_Config_Opus_Baud)(meshtastic_ModuleConfig_Audio_Config_Opus_Baud_OPUS_DEFAULT+1))
 
 #define _meshtastic_ModuleConfig_SerialConfig_Serial_Baud_MIN meshtastic_ModuleConfig_SerialConfig_Serial_Baud_BAUD_DEFAULT
 #define _meshtastic_ModuleConfig_SerialConfig_Serial_Baud_MAX meshtastic_ModuleConfig_SerialConfig_Serial_Baud_BAUD_921600
@@ -314,6 +398,11 @@ extern "C" {
 
 #define meshtastic_ModuleConfig_AudioConfig_bitrate_ENUMTYPE meshtastic_ModuleConfig_AudioConfig_Audio_Baud
 
+#define meshtastic_ModuleConfig_Audio_Config_codec_ENUMTYPE meshtastic_ModuleConfig_Audio_Config_Audio_Codec
+#define meshtastic_ModuleConfig_Audio_Config_bitrate_codec2_bitrate_ENUMTYPE meshtastic_ModuleConfig_Audio_Config_Codec2_Baud
+#define meshtastic_ModuleConfig_Audio_Config_bitrate_speex_bitrate_ENUMTYPE meshtastic_ModuleConfig_Audio_Config_Speex_Baud
+#define meshtastic_ModuleConfig_Audio_Config_bitrate_opus_bitrate_ENUMTYPE meshtastic_ModuleConfig_Audio_Config_Opus_Baud
+
 #define meshtastic_ModuleConfig_SerialConfig_baud_ENUMTYPE meshtastic_ModuleConfig_SerialConfig_Serial_Baud
 #define meshtastic_ModuleConfig_SerialConfig_mode_ENUMTYPE meshtastic_ModuleConfig_SerialConfig_Serial_Mode
 
@@ -331,6 +420,7 @@ extern "C" {
 #define meshtastic_ModuleConfig_MQTTConfig_init_default {0, "", "", "", 0, 0, 0, ""}
 #define meshtastic_ModuleConfig_RemoteHardwareConfig_init_default {0}
 #define meshtastic_ModuleConfig_AudioConfig_init_default {0, 0, _meshtastic_ModuleConfig_AudioConfig_Audio_Baud_MIN, 0, 0, 0, 0}
+#define meshtastic_ModuleConfig_Audio_Config_init_default {0, 0, 0, 0, 0, _meshtastic_ModuleConfig_Audio_Config_Audio_Codec_MIN, 0, {_meshtastic_ModuleConfig_Audio_Config_Codec2_Baud_MIN}}
 #define meshtastic_ModuleConfig_SerialConfig_init_default {0, 0, 0, 0, _meshtastic_ModuleConfig_SerialConfig_Serial_Baud_MIN, 0, _meshtastic_ModuleConfig_SerialConfig_Serial_Mode_MIN}
 #define meshtastic_ModuleConfig_ExternalNotificationConfig_init_default {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 #define meshtastic_ModuleConfig_StoreForwardConfig_init_default {0, 0, 0, 0, 0}
@@ -341,6 +431,7 @@ extern "C" {
 #define meshtastic_ModuleConfig_MQTTConfig_init_zero {0, "", "", "", 0, 0, 0, ""}
 #define meshtastic_ModuleConfig_RemoteHardwareConfig_init_zero {0}
 #define meshtastic_ModuleConfig_AudioConfig_init_zero {0, 0, _meshtastic_ModuleConfig_AudioConfig_Audio_Baud_MIN, 0, 0, 0, 0}
+#define meshtastic_ModuleConfig_Audio_Config_init_zero {0, 0, 0, 0, 0, _meshtastic_ModuleConfig_Audio_Config_Audio_Codec_MIN, 0, {_meshtastic_ModuleConfig_Audio_Config_Codec2_Baud_MIN}}
 #define meshtastic_ModuleConfig_SerialConfig_init_zero {0, 0, 0, 0, _meshtastic_ModuleConfig_SerialConfig_Serial_Baud_MIN, 0, _meshtastic_ModuleConfig_SerialConfig_Serial_Mode_MIN}
 #define meshtastic_ModuleConfig_ExternalNotificationConfig_init_zero {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 #define meshtastic_ModuleConfig_StoreForwardConfig_init_zero {0, 0, 0, 0, 0}
@@ -365,6 +456,15 @@ extern "C" {
 #define meshtastic_ModuleConfig_AudioConfig_i2s_sd_tag 5
 #define meshtastic_ModuleConfig_AudioConfig_i2s_din_tag 6
 #define meshtastic_ModuleConfig_AudioConfig_i2s_sck_tag 7
+#define meshtastic_ModuleConfig_Audio_Config_ptt_pin_tag 2
+#define meshtastic_ModuleConfig_Audio_Config_i2s_ws_tag 4
+#define meshtastic_ModuleConfig_Audio_Config_i2s_sd_tag 5
+#define meshtastic_ModuleConfig_Audio_Config_i2s_din_tag 6
+#define meshtastic_ModuleConfig_Audio_Config_i2s_sck_tag 7
+#define meshtastic_ModuleConfig_Audio_Config_codec_tag 11
+#define meshtastic_ModuleConfig_Audio_Config_codec2_bitrate_tag 21
+#define meshtastic_ModuleConfig_Audio_Config_speex_bitrate_tag 22
+#define meshtastic_ModuleConfig_Audio_Config_opus_bitrate_tag 23
 #define meshtastic_ModuleConfig_SerialConfig_enabled_tag 1
 #define meshtastic_ModuleConfig_SerialConfig_echo_tag 2
 #define meshtastic_ModuleConfig_SerialConfig_rxd_tag 3
@@ -421,6 +521,7 @@ extern "C" {
 #define meshtastic_ModuleConfig_canned_message_tag 7
 #define meshtastic_ModuleConfig_audio_tag        8
 #define meshtastic_ModuleConfig_remote_hardware_tag 9
+#define meshtastic_ModuleConfig_audio_config_tag 10
 
 /* Struct field encoding specification for nanopb */
 #define meshtastic_ModuleConfig_FIELDLIST(X, a) \
@@ -432,7 +533,8 @@ X(a, STATIC,   ONEOF,    MESSAGE,  (payload_variant,range_test,payload_variant.r
 X(a, STATIC,   ONEOF,    MESSAGE,  (payload_variant,telemetry,payload_variant.telemetry),   6) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (payload_variant,canned_message,payload_variant.canned_message),   7) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (payload_variant,audio,payload_variant.audio),   8) \
-X(a, STATIC,   ONEOF,    MESSAGE,  (payload_variant,remote_hardware,payload_variant.remote_hardware),   9)
+X(a, STATIC,   ONEOF,    MESSAGE,  (payload_variant,remote_hardware,payload_variant.remote_hardware),   9) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (payload_variant,audio_config,payload_variant.audio_config),  10)
 #define meshtastic_ModuleConfig_CALLBACK NULL
 #define meshtastic_ModuleConfig_DEFAULT NULL
 #define meshtastic_ModuleConfig_payload_variant_mqtt_MSGTYPE meshtastic_ModuleConfig_MQTTConfig
@@ -444,6 +546,7 @@ X(a, STATIC,   ONEOF,    MESSAGE,  (payload_variant,remote_hardware,payload_vari
 #define meshtastic_ModuleConfig_payload_variant_canned_message_MSGTYPE meshtastic_ModuleConfig_CannedMessageConfig
 #define meshtastic_ModuleConfig_payload_variant_audio_MSGTYPE meshtastic_ModuleConfig_AudioConfig
 #define meshtastic_ModuleConfig_payload_variant_remote_hardware_MSGTYPE meshtastic_ModuleConfig_RemoteHardwareConfig
+#define meshtastic_ModuleConfig_payload_variant_audio_config_MSGTYPE meshtastic_ModuleConfig_Audio_Config
 
 #define meshtastic_ModuleConfig_MQTTConfig_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, BOOL,     enabled,           1) \
@@ -472,6 +575,19 @@ X(a, STATIC,   SINGULAR, UINT32,   i2s_din,           6) \
 X(a, STATIC,   SINGULAR, UINT32,   i2s_sck,           7)
 #define meshtastic_ModuleConfig_AudioConfig_CALLBACK NULL
 #define meshtastic_ModuleConfig_AudioConfig_DEFAULT NULL
+
+#define meshtastic_ModuleConfig_Audio_Config_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT32,   ptt_pin,           2) \
+X(a, STATIC,   SINGULAR, UINT32,   i2s_ws,            4) \
+X(a, STATIC,   SINGULAR, UINT32,   i2s_sd,            5) \
+X(a, STATIC,   SINGULAR, UINT32,   i2s_din,           6) \
+X(a, STATIC,   SINGULAR, UINT32,   i2s_sck,           7) \
+X(a, STATIC,   SINGULAR, UENUM,    codec,            11) \
+X(a, STATIC,   ONEOF,    UENUM,    (bitrate,codec2_bitrate,bitrate.codec2_bitrate),  21) \
+X(a, STATIC,   ONEOF,    UENUM,    (bitrate,speex_bitrate,bitrate.speex_bitrate),  22) \
+X(a, STATIC,   ONEOF,    UENUM,    (bitrate,opus_bitrate,bitrate.opus_bitrate),  23)
+#define meshtastic_ModuleConfig_Audio_Config_CALLBACK NULL
+#define meshtastic_ModuleConfig_Audio_Config_DEFAULT NULL
 
 #define meshtastic_ModuleConfig_SerialConfig_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, BOOL,     enabled,           1) \
@@ -548,6 +664,7 @@ extern const pb_msgdesc_t meshtastic_ModuleConfig_msg;
 extern const pb_msgdesc_t meshtastic_ModuleConfig_MQTTConfig_msg;
 extern const pb_msgdesc_t meshtastic_ModuleConfig_RemoteHardwareConfig_msg;
 extern const pb_msgdesc_t meshtastic_ModuleConfig_AudioConfig_msg;
+extern const pb_msgdesc_t meshtastic_ModuleConfig_Audio_Config_msg;
 extern const pb_msgdesc_t meshtastic_ModuleConfig_SerialConfig_msg;
 extern const pb_msgdesc_t meshtastic_ModuleConfig_ExternalNotificationConfig_msg;
 extern const pb_msgdesc_t meshtastic_ModuleConfig_StoreForwardConfig_msg;
@@ -560,6 +677,7 @@ extern const pb_msgdesc_t meshtastic_ModuleConfig_CannedMessageConfig_msg;
 #define meshtastic_ModuleConfig_MQTTConfig_fields &meshtastic_ModuleConfig_MQTTConfig_msg
 #define meshtastic_ModuleConfig_RemoteHardwareConfig_fields &meshtastic_ModuleConfig_RemoteHardwareConfig_msg
 #define meshtastic_ModuleConfig_AudioConfig_fields &meshtastic_ModuleConfig_AudioConfig_msg
+#define meshtastic_ModuleConfig_Audio_Config_fields &meshtastic_ModuleConfig_Audio_Config_msg
 #define meshtastic_ModuleConfig_SerialConfig_fields &meshtastic_ModuleConfig_SerialConfig_msg
 #define meshtastic_ModuleConfig_ExternalNotificationConfig_fields &meshtastic_ModuleConfig_ExternalNotificationConfig_msg
 #define meshtastic_ModuleConfig_StoreForwardConfig_fields &meshtastic_ModuleConfig_StoreForwardConfig_msg
@@ -569,6 +687,7 @@ extern const pb_msgdesc_t meshtastic_ModuleConfig_CannedMessageConfig_msg;
 
 /* Maximum encoded size of messages (where known) */
 #define meshtastic_ModuleConfig_AudioConfig_size 19
+#define meshtastic_ModuleConfig_Audio_Config_size 35
 #define meshtastic_ModuleConfig_CannedMessageConfig_size 49
 #define meshtastic_ModuleConfig_ExternalNotificationConfig_size 40
 #define meshtastic_ModuleConfig_MQTTConfig_size  220

@@ -1,6 +1,6 @@
 #define HAS_SCREEN 0
 #define HAS_GPS 0
-#define HAS_BUTTON 1
+#define HAS_BUTTON 0 // 1
 #define HAS_WIRE 0
 #define HAS_TELEMETRY 0
 #define HAS_SENSOR 0

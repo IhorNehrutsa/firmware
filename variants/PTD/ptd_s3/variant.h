@@ -16,22 +16,30 @@
 //                          0x
 
 /*
- *INMP441 Microphone Module
+ *                                  INMP441 Microphone Module                     MAX98357A Mono Amplifier Module
  */
-// 3.3V                             VDD - The Input voltage, from 1.62 to 3.63 volts.
-// GND                              GND - Ground.
-// GND                              L/R - Channel selection.
+// 3.3V                             VDD - The Input voltage, from 1.62-3.63V      Vin=2.5-5.5V
+// GND                              GND - Ground                                  GND - Ground
+// GND                              L/R - Channel selection                       LRC - Left-Right Channel
+// Not/Connected                                                                  GANE
+// Not/Connected                                                                  SD
 //     /* I2S Word Select */
-// moduleConfig.audio.i2s_ws =   5; WS - Word Select.
+// moduleConfig.audio.i2s_ws =   6; WS - Word Select                              WS - Word Select(FS - Frame Select)
 //     /* I2S Data IN */
-// moduleConfig.audio.i2s_sd =   4; SD - The I2S Serial Data connection.
+// moduleConfig.audio.i2s_sd =   4; SD - The I2S Serial Data connection
 //     /* I2S Data OUT */
-// moduleConfig.audio.i2s_din =  7;
+// moduleConfig.audio.i2s_din =  5;                                               DIN - Serial Data Input
 //     /* I2S Clock */
-// moduleConfig.audio.i2s_sck =  6; SCK - Serial Clock.
+// moduleConfig.audio.i2s_sck =  7; SCK - Serial Clock                            BCLK - Bit Clock Line
 //
 //     /* PTT Pin */
-// moduleConfig.audio.ptt_pin = BUTTON_CENTER;
+// moduleConfig.audio.ptt_pin =  0;
+
+//       3.5 jack
+// 1 R - microphone
+// 4 - GND
+// 2 - Left
+// 3 - Right
 
 //#define BUTTON_PIN 39 // The middle button GPIO on the T-Beam
 //#define BATTERY_PIN 35 // A battery voltage measurement pin, voltage divider connected here to measure battery voltage

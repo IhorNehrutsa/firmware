@@ -23,7 +23,7 @@ struct c2_header {
 };
 
 #define ADC_BUFFER_SIZE_MAX 320
-#define PTT_PIN 39
+#define PTT_PIN 0
 
 #define I2S_PORT I2S_NUM_0
 

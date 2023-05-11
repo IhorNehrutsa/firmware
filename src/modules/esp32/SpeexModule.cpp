@@ -1,4 +1,4 @@
-
+#if 0
 #include "configuration.h"
 #if defined(ARCH_ESP32)
 #include "SpeexModule.h"
@@ -28,7 +28,7 @@
         ???
 
     Basic Usage:
-        1) Enable the module by setting audio.speex_enabled to 1.
+        1) Enable the module by setting audio.speex_enabled to CODEC_SPEEX.
         2) Set the pins for the I2S interface. Recommended on TLora is I2S_WS 13/I2S_SD 15/I2S_SIN 2/I2S_SCK 14
         3) Set audio.bitrate to the desired speex rate (SPEEX_3200, SPEEX_2400, SPEEX_1600, SPEEX_1400, SPEEX_1300,
    SPEEX_1200, SPEEX_700, SPEEX_700B)
@@ -77,6 +77,18 @@ SpeexModule *speexModule;
 
 void run_speex(void *parameter)
 {
+    //vvv
+    // Initialization of the structure that holds the bits
+    SpeexBits bits;
+    speex_bits_init(&bits);
+
+    // Set quality to 8 (15 kbps)
+    spx_int32_t quality = 8;
+    speex_encoder_ctl(speexModule->speex, SPEEX_SET_QUALITY, &quality);
+
+    spx_int32_t frame_size; // expressed in samples, notbytes
+    speex_encoder_ctl(speexModule->speex,SPEEX_GET_FRAME_SIZE,&frame_size);
+    //^^^
     // 4 bytes of header in each frame hex c0 de c2 plus the bitrate
     memcpy(speexModule->tx_encode_frame, &speexModule->tx_header, sizeof(speexModule->tx_header));
 
@@ -90,8 +102,18 @@ void run_speex(void *parameter)
                 for (int i = 0; i < speexModule->adc_buffer_size; i++)
                     speexModule->speech[i] = (int16_t)hp_filter.Update((float)speexModule->speech[i]);
 
-                speex_encode(speexModule->speex, speexModule->tx_encode_frame + speexModule->tx_encode_frame_index,
+                speex_encode_int(speexModule->speex, speexModule->tx_encode_frame + speexModule->tx_encode_frame_index,
                               speexModule->speech);
+
+                // Flush all the bits in the struct so we can encode a new frame
+                speex_bits_reset(&bits);
+                // Encode frame
+                speex_encode_int(speexModule->speex, input_frame, &bits);
+                // Get number of bytes that need to be written
+                nbBytes = speex_bits_nbytes(&bits);
+                // Copy the bits to an array of char that can be written
+                nbBytes = speex_bits_write(&bits, buf, MAX_NB_BYTES);
+
                 speexModule->tx_encode_frame_index += speexModule->encode_codec_size;
 
                 if (speexModule->tx_encode_frame_index == (speexModule->encode_frame_size + sizeof(speexModule->tx_header))) {
@@ -99,8 +121,7 @@ void run_speex(void *parameter)
                     speexModule->sendPayload();
                     speexModule->tx_encode_frame_index = sizeof(speexModule->tx_header);
                 }
-            }
-            if (speexModule->radio_state == SpeexRadioState::speex_rx) {
+            } else if (speexModule->radio_state == SpeexRadioState::speex_rx) {
                 size_t bytesOut = 0;
                 if (memcmp(speexModule->rx_encode_frame, &speexModule->tx_header, sizeof(speexModule->tx_header)) == 0) {
                     for (int i = 4; i < speexModule->rx_encode_frame_index; i += speexModule->encode_codec_size) {
@@ -123,23 +144,31 @@ void run_speex(void *parameter)
             }
         }
     }
+    // Destroy the decoder state
+    speex_encoder_destroy(speexModule->speex);
+    // Destroy the bit-stream struct
+    speex_bits_destroy(&bits);
 }
 
 SpeexModule::SpeexModule() : SinglePortModule("SpeexModule", meshtastic_PortNum_AUDIO_SPEEX_APP), concurrency::OSThread("SpeexModule")
 {
-    // moduleConfig.audio.speex_enabled = true;
-    // moduleConfig.audio.i2s_ws = 13;
-    // moduleConfig.audio.i2s_sd = 15;
-    // moduleConfig.audio.i2s_din = 22;
-    // moduleConfig.audio.i2s_sck = 14;
-    // moduleConfig.audio.ptt_pin = 39;
+    // moduleConfig.audio_config.speex_enabled = meshtastic_ModuleConfig_Audio_Config_Audio_Codec_CODEC_SPEEX;
+    // moduleConfig.audio_config.i2s_ws = 13;
+    // moduleConfig.audio_config.i2s_sd = 15;
+    // moduleConfig.audio_config.i2s_din = 22;
+    // moduleConfig.audio_config.i2s_sck = 14;
+    // moduleConfig.audio_config.ptt_pin = 39;
 
-    if ((moduleConfig.audio.speex_enabled) && (myRegion->audioPermitted)) {
+    if ((moduleConfig.audio_config.codec == meshtastic_ModuleConfig_Audio_Config_Audio_Codec_CODEC_SPEEX) && (myRegion->audioPermitted)) {
         LOG_INFO("Setting up speex in mode %u",
-                 (moduleConfig.audio.bitrate ? moduleConfig.audio.bitrate : AUDIO_MODULE_MODE) - 1);
-        speex = speex_create((moduleConfig.audio.bitrate ? moduleConfig.audio.bitrate : AUDIO_MODULE_MODE) - 1);
-        memcpy(tx_header.magic, c2_magic, sizeof(c2_magic));
-        tx_header.mode = (moduleConfig.audio.bitrate ? moduleConfig.audio.bitrate : AUDIO_MODULE_MODE) - 1;
+                 (moduleConfig.audio_config.bitrate ? moduleConfig.audio_config.bitrate : AUDIO_MODULE_MODE) - 1);
+        speex = speex_create((moduleConfig.audio_config.bitrate ? moduleConfig.audio_config.bitrate : AUDIO_MODULE_MODE) - 1);
+        // Create a new encoder state in narrowband mode
+        speex = speex_encoder_init(&speex_nb_mode);
+
+
+        memcpy(tx_header.magic, speex_c2_magic, sizeof(speex_c2_magic));
+        tx_header.mode = (moduleConfig.audio_config.bitrate ? moduleConfig.audio_config.bitrate : AUDIO_MODULE_MODE) - 1;
         speex_set_lpc_post_filter(speex, 1, 0, 0.8, 0.2);
         encode_codec_size = (speex_bits_per_frame(speex) + 7) / 8;
         encode_frame_num = (meshtastic_Constants_DATA_PAYLOAD_LEN - sizeof(tx_header)) / encode_codec_size;
@@ -162,7 +191,7 @@ void SpeexModule::drawFrame(OLEDDisplay *display, OLEDDisplayUiState *state, int
     display->fillRect(0 + x, 0 + y, x + display->getWidth(), y + FONT_HEIGHT_SMALL);
     display->setColor(BLACK);
     display->drawStringf(0 + x, 0 + y, buffer, "Speex Mode %d Audio",
-                         (moduleConfig.audio.bitrate ? moduleConfig.audio.bitrate : AUDIO_MODULE_MODE) - 1);
+                         (moduleConfig.audio_config.bitrate ? moduleConfig.audio_config.bitrate : AUDIO_MODULE_MODE) - 1);
     display->setColor(WHITE);
     display->setFont(FONT_LARGE);
     display->setTextAlignment(TEXT_ALIGN_CENTER);
@@ -178,14 +207,14 @@ void SpeexModule::drawFrame(OLEDDisplay *display, OLEDDisplayUiState *state, int
 
 int32_t SpeexModule::runOnce()
 {
-    if ((moduleConfig.audio.speex_enabled) && (myRegion->audioPermitted)) {
+    if ((moduleConfig.audio_config.codec == meshtastic_ModuleConfig_Audio_Config_Audio_Codec_CODEC_SPEEX) && (myRegion->audioPermitted)) {
         esp_err_t res;
         if (firstTime) {
             // Set up I2S Processor configuration. This will produce 16bit samples at 8 kHz instead of 12 from the ADC
-            LOG_INFO("Initializing I2S SD: %d DIN: %d WS: %d SCK: %d\n", moduleConfig.audio.i2s_sd, moduleConfig.audio.i2s_din,
-                     moduleConfig.audio.i2s_ws, moduleConfig.audio.i2s_sck);
-            i2s_config_t i2s_config = {.mode = (i2s_mode_t)(I2S_MODE_MASTER | (moduleConfig.audio.i2s_sd ? I2S_MODE_RX : 0) |
-                                                            (moduleConfig.audio.i2s_din ? I2S_MODE_TX : 0)),
+            LOG_INFO("Initializing I2S SD: %d DIN: %d WS: %d SCK: %d\n", moduleConfig.audio_config.i2s_sd, moduleConfig.audio_config.i2s_din,
+                     moduleConfig.audio_config.i2s_ws, moduleConfig.audio_config.i2s_sck);
+            i2s_config_t i2s_config = {.mode = (i2s_mode_t)(I2S_MODE_MASTER | (moduleConfig.audio_config.i2s_sd ? I2S_MODE_RX : 0) |
+                                                            (moduleConfig.audio_config.i2s_din ? I2S_MODE_TX : 0)),
                                        .sample_rate = 8000,
                                        .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT,
                                        .channel_format = I2S_CHANNEL_FMT_ONLY_LEFT,
@@ -201,10 +230,10 @@ int32_t SpeexModule::runOnce()
                 LOG_ERROR("Failed to install I2S driver: %d\n", res);
 
             const i2s_pin_config_t pin_config = {
-                .bck_io_num = moduleConfig.audio.i2s_sck,
-                .ws_io_num = moduleConfig.audio.i2s_ws,
-                .data_out_num = moduleConfig.audio.i2s_din ? moduleConfig.audio.i2s_din : I2S_PIN_NO_CHANGE,
-                .data_in_num = moduleConfig.audio.i2s_sd ? moduleConfig.audio.i2s_sd : I2S_PIN_NO_CHANGE};
+                .bck_io_num = moduleConfig.audio_config.i2s_sck,
+                .ws_io_num = moduleConfig.audio_config.i2s_ws,
+                .data_out_num = moduleConfig.audio_config.i2s_din ? moduleConfig.audio_config.i2s_din : I2S_PIN_NO_CHANGE,
+                .data_in_num = moduleConfig.audio_config.i2s_sd ? moduleConfig.audio_config.i2s_sd : I2S_PIN_NO_CHANGE};
             res = i2s_set_pin(I2S_PORT, &pin_config);
             if (res != ESP_OK)
                 LOG_ERROR("Failed to set I2S pin config: %d\n", res);
@@ -216,14 +245,14 @@ int32_t SpeexModule::runOnce()
             radio_state = SpeexRadioState::speex_rx;
 
             // Configure PTT input
-            LOG_INFO("Initializing PTT on Pin %u\n", moduleConfig.audio.ptt_pin ? moduleConfig.audio.ptt_pin : PTT_PIN);
-            pinMode(moduleConfig.audio.ptt_pin ? moduleConfig.audio.ptt_pin : PTT_PIN, INPUT);
+            LOG_INFO("Initializing PTT on Pin %u\n", moduleConfig.audio_config.ptt_pin ? moduleConfig.audio_config.ptt_pin : PTT_PIN);
+            pinMode(moduleConfig.audio_config.ptt_pin ? moduleConfig.audio_config.ptt_pin : PTT_PIN, INPUT);
 
             firstTime = false;
         } else {
             UIFrameEvent e = {false, true};
             // Check if PTT is pressed. TODO hook that into Onebutton/Interrupt drive.
-            if (digitalRead(moduleConfig.audio.ptt_pin ? moduleConfig.audio.ptt_pin : PTT_PIN) == HIGH) {
+            if (digitalRead(moduleConfig.audio_config.ptt_pin ? moduleConfig.audio_config.ptt_pin : PTT_PIN) == HIGH) {
                 if (radio_state == SpeexRadioState::speex_rx) {
                     LOG_INFO("PTT pressed, switching to TX\n");
                     radio_state = SpeexRadioState::speex_tx;
@@ -279,7 +308,7 @@ meshtastic_MeshPacket *SpeexModule::allocReply()
 
 bool SpeexModule::shouldDraw()
 {
-    if (!moduleConfig.audio.speex_enabled) {
+    if (moduleConfig.audio_config.codec != meshtastic_ModuleConfig_Audio_Config_Audio_Codec_CODEC_SPEEX) {
         return false;
     }
     return (radio_state == SpeexRadioState::speex_tx);
@@ -302,7 +331,7 @@ void SpeexModule::sendPayload(NodeNum dest, bool wantReplies)
 
 ProcessMessage SpeexModule::handleReceived(const meshtastic_MeshPacket &mp)
 {
-    if ((moduleConfig.audio.speex_enabled) && (myRegion->audioPermitted)) {
+    if ((moduleConfig.audio_config.codec == meshtastic_ModuleConfig_Audio_Config_Audio_Codec_CODEC_SPEEX) && (myRegion->audioPermitted)) {
         auto &p = mp.decoded;
         if (getFrom(&mp) != nodeDB.getNodeNum()) {
             memcpy(rx_encode_frame, p.payload.bytes, p.payload.size);
@@ -319,4 +348,5 @@ ProcessMessage SpeexModule::handleReceived(const meshtastic_MeshPacket &mp)
     return ProcessMessage::CONTINUE;
 }
 
+#endif
 #endif

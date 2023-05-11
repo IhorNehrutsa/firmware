@@ -18,6 +18,9 @@ PB_BIND(meshtastic_ModuleConfig_RemoteHardwareConfig, meshtastic_ModuleConfig_Re
 PB_BIND(meshtastic_ModuleConfig_AudioConfig, meshtastic_ModuleConfig_AudioConfig, AUTO)
 
 
+PB_BIND(meshtastic_ModuleConfig_Audio_Config, meshtastic_ModuleConfig_Audio_Config, AUTO)
+
+
 PB_BIND(meshtastic_ModuleConfig_SerialConfig, meshtastic_ModuleConfig_SerialConfig, AUTO)
 
 
@@ -34,6 +37,10 @@ PB_BIND(meshtastic_ModuleConfig_TelemetryConfig, meshtastic_ModuleConfig_Telemet
 
 
 PB_BIND(meshtastic_ModuleConfig_CannedMessageConfig, meshtastic_ModuleConfig_CannedMessageConfig, AUTO)
+
+
+
+
 
 
 

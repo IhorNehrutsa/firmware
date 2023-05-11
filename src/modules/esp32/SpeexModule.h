@@ -1,5 +1,7 @@
 #pragma once
 
+#if 0
+aaa
 #include "SinglePortModule.h"
 #include "concurrency/NotifiedWorkerThread.h"
 #include "configuration.h"
@@ -47,8 +49,7 @@ class SpeexModule : public SinglePortModule, public Observable<const UIFrameEven
     int encode_frame_size = 0;
     volatile SpeexRadioState radio_state = SpeexRadioState::speex_rx;
 
-    struct SPEEX *speex = NULL;
-    // int16_t sample;
+    void *speex = NULL; // speex encoder state
 
     SpeexModule();
 
@@ -84,4 +85,5 @@ class SpeexModule : public SinglePortModule, public Observable<const UIFrameEven
 
 extern SpeexModule *speexModule;
 
+#endif
 #endif
