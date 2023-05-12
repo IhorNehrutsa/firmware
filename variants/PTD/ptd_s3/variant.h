@@ -33,7 +33,7 @@
 // moduleConfig.audio.i2s_sck =  7; SCK - Serial Clock                            BCLK - Bit Clock Line
 //
 //     /* PTT Pin */
-// moduleConfig.audio.ptt_pin =  0;
+// moduleConfig.audio.ptt_pin =  15;
 
 //       3.5 jack
 // 1 R - microphone
