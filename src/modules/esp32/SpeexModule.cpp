@@ -150,6 +150,13 @@ void run_speex(void *parameter)
     speex_bits_destroy(&bits);
 }
 
+#ifdef DEBUG_PORT
+spx_int32_t value;
+#define LOG_SPEEX_GET(CMD) \
+    speex_encoder_ctl(speex, CMD, &value); \
+    LOG_INFO("##CMD =%d", value);
+#endif
+
 SpeexModule::SpeexModule() : SinglePortModule("SpeexModule", meshtastic_PortNum_AUDIO_SPEEX_APP), concurrency::OSThread("SpeexModule")
 {
     // moduleConfig.audio_config.speex_enabled = meshtastic_ModuleConfig_Audio_Config_Audio_Codec_CODEC_SPEEX;
@@ -160,9 +167,11 @@ SpeexModule::SpeexModule() : SinglePortModule("SpeexModule", meshtastic_PortNum_
     // moduleConfig.audio_config.ptt_pin = 39;
 
     if ((moduleConfig.audio_config.codec == meshtastic_ModuleConfig_Audio_Config_Audio_Codec_CODEC_SPEEX) && (myRegion->audioPermitted)) {
-        LOG_INFO("Setting up speex in mode %u",
-                 (moduleConfig.audio_config.bitrate ? moduleConfig.audio_config.bitrate : AUDIO_MODULE_MODE) - 1);
-        speex = speex_create((moduleConfig.audio_config.bitrate ? moduleConfig.audio_config.bitrate : AUDIO_MODULE_MODE) - 1);
+        memcpy(tx_header.magic, speex_c2_magic, sizeof(speex_c2_magic));
+        tx_header.mode = (moduleConfig.audio_config.bitrate ? moduleConfig.audio_config.bitrate : AUDIO_MODULE_MODE) - 1;
+
+        LOG_INFO("Setting up speex in mode %u", tx_header.mode);
+        speex = speex_create(tx_header.mode);
         // Create a new encoder state in narrowband mode
         speex = speex_encoder_init(&speex_nb_mode);
 /*
@@ -183,13 +192,29 @@ SPEEX_GET_PLC_TUNING       Get the current tuning of the encoder for PLC (spx_in
 SPEEX_GET_VBR_MAX_BITRATE  Get the current maximum bit-rate allowed in VBR operation (spx_int32_t in
 SPEEX_GET_HIGHPASS         Get the current high-pass filter status (spx_int32_t)
 */
-        memcpy(tx_header.magic, speex_c2_magic, sizeof(speex_c2_magic));
-        tx_header.mode = (moduleConfig.audio_config.bitrate ? moduleConfig.audio_config.bitrate : AUDIO_MODULE_MODE) - 1;
+        LOG_SPEEX_GET(SPEEX_GET_ENH);
+        LOG_SPEEX_GET(SPEEX_GET_FRAME_SIZE);
+        LOG_SPEEX_GET(5);
+        LOG_SPEEX_GET(SPEEX_GET_MODE);
+        LOG_SPEEX_GET(SPEEX_GET_VBR);
+        LOG_SPEEX_GET(SPEEX_GET_VBR_QUALITY);
+        LOG_SPEEX_GET(SPEEX_GET_COMPLEXITY);
+        LOG_SPEEX_GET(SPEEX_GET_BITRATE);
+        LOG_SPEEX_GET(SPEEX_GET_SAMPLING_RATE);
+        LOG_SPEEX_GET(SPEEX_RESET_STATE);
+        LOG_SPEEX_GET(SPEEX_GET_VAD);
+        LOG_SPEEX_GET(SPEEX_GET_DTX);
+        LOG_SPEEX_GET(SPEEX_GET_ABR);
+        LOG_SPEEX_GET(SPEEX_GET_PLC_TUNING);
+        LOG_SPEEX_GET(SPEEX_GET_VBR_MAX_BITRATE);
+        LOG_SPEEX_GET(SPEEX_GET_HIGHPASS);
+
         speex_set_lpc_post_filter(speex, 1, 0, 0.8, 0.2);
         encode_codec_size = (speex_bits_per_frame(speex) + 7) / 8;
         encode_frame_num = (meshtastic_Constants_DATA_PAYLOAD_LEN - sizeof(tx_header)) / encode_codec_size;
         encode_frame_size = encode_frame_num * encode_codec_size; // max 233 bytes + 4 header bytes
-        adc_buffer_size = speex_samples_per_frame(speex);
+        // adc_buffer_size = speex_samples_per_frame(speex);
+        speex_encoder_ctl(speex, SPEEX_GET_FRAME_SIZE, &adc_buffer_size); // Get the number of samples per frame for the current mode (spx_int32_t)
         LOG_INFO(" using %d frames of %d bytes for a total payload length of %d bytes\n", encode_frame_num, encode_codec_size,
                  encode_frame_size);
         xTaskCreate(&run_speex, "speex_task", 30000, NULL, 5, &speexHandlerTask);
@@ -206,8 +231,7 @@ void SpeexModule::drawFrame(OLEDDisplay *display, OLEDDisplayUiState *state, int
     display->setFont(FONT_SMALL);
     display->fillRect(0 + x, 0 + y, x + display->getWidth(), y + FONT_HEIGHT_SMALL);
     display->setColor(BLACK);
-    display->drawStringf(0 + x, 0 + y, buffer, "Speex Mode %d Audio",
-                         (moduleConfig.audio_config.bitrate ? moduleConfig.audio_config.bitrate : AUDIO_MODULE_MODE) - 1);
+    display->drawStringf(0 + x, 0 + y, buffer, "Speex Mode %d Audio", tx_header.mode);
     display->setColor(WHITE);
     display->setFont(FONT_LARGE);
     display->setTextAlignment(TEXT_ALIGN_CENTER);
@@ -238,7 +262,7 @@ int32_t SpeexModule::runOnce()
                                        .communication_format = I2S_COMM_FORMAT_STAND_I2S,
                                        .intr_alloc_flags = 0,
                                        .dma_buf_count = 8,
-                                       .dma_buf_len = adc_buffer_size, // 320 * 2 bytes
+                  ???                     .dma_buf_len = adc_buffer_size, // 320 * 2 bytes
                                        .use_apll = false,
                                        .tx_desc_auto_clear = true,
                                        .fixed_mclk = 0};
