@@ -20,7 +20,8 @@
  */
 // 3.3V                             VDD - The Input voltage, from 1.62-3.63V      Vin=2.5-5.5V
 // GND                              GND - Ground                                  GND - Ground
-// GND                              L/R - Channel selection                       LRC - Left-Right Channel
+// Connect to WS                    L/R - Channel selection
+// GND                                                                            LRC - Left-Right Channel
 // Not/Connected                                                                  GANE
 // Not/Connected                                                                  SD
 //     /* I2S Word Select */

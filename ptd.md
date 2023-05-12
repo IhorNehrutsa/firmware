@@ -333,3 +333,5 @@ https://github.com/whyengineer/esp32_snow/tree/master/example/speex
 
 https://github.com/search?q=esp32+opus&type=repositories
 
+regex:
+\si2s_\S*\(

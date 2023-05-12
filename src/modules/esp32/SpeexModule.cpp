@@ -1,4 +1,4 @@
-#if 0
+#if 1
 #include "configuration.h"
 #if defined(ARCH_ESP32)
 #include "SpeexModule.h"
@@ -165,8 +165,24 @@ SpeexModule::SpeexModule() : SinglePortModule("SpeexModule", meshtastic_PortNum_
         speex = speex_create((moduleConfig.audio_config.bitrate ? moduleConfig.audio_config.bitrate : AUDIO_MODULE_MODE) - 1);
         // Create a new encoder state in narrowband mode
         speex = speex_encoder_init(&speex_nb_mode);
-
-
+/*
+SPEEX_GET_ENH              Get perceptual enhancer status (spx_int32_t)
+SPEEX_GET_FRAME_SIZE       Get the number of samples per frame for the current mode (spx_int32_t)
+SPEEX_GET_QUALITY          Get the current encoder speech quality (spx_int32_t from 0 to 10)
+SPEEX_GET_MODE             Get the current mode number, as specified in the RTP spec (spx_int32_t)
+SPEEX_GET_VBR              Get variable bit-rate (VBR) status (spx_int32_t)
+SPEEX_GET_VBR_QUALITY      Get the current encoder VBR speech quality (float 0 to 10)
+SPEEX_GET_COMPLEXITY       Get the CPU resources allowed for the encoder (spx_int32_t from 1 to 10, default is
+SPEEX_GET_BITRATE          Get the current bit-rate in use (spx_int32_t in bits per second)
+SPEEX_GET_SAMPLING_RATE    Get real sampling rate (spx_int32_t in Hz)
+SPEEX_RESET_STATE          Reset the encoder/decoder state to its original state, clearing all memories (no argument)
+SPEEX_GET_VAD              Get voice activity detection (VAD) status (spx_int32_t)
+SPEEX_GET_DTX              Get discontinuous transmission (DTX) status (spx_int32_t)
+SPEEX_GET_ABR              Get average bit-rate (ABR) setting (spx_int32_t in bits per second)
+SPEEX_GET_PLC_TUNING       Get the current tuning of the encoder for PLC (spx_int32_t in percent)
+SPEEX_GET_VBR_MAX_BITRATE  Get the current maximum bit-rate allowed in VBR operation (spx_int32_t in
+SPEEX_GET_HIGHPASS         Get the current high-pass filter status (spx_int32_t)
+*/
         memcpy(tx_header.magic, speex_c2_magic, sizeof(speex_c2_magic));
         tx_header.mode = (moduleConfig.audio_config.bitrate ? moduleConfig.audio_config.bitrate : AUDIO_MODULE_MODE) - 1;
         speex_set_lpc_post_filter(speex, 1, 0, 0.8, 0.2);
@@ -218,7 +234,8 @@ int32_t SpeexModule::runOnce()
                                        .sample_rate = 8000,
                                        .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT,
                                        .channel_format = I2S_CHANNEL_FMT_ONLY_LEFT,
-                                       .communication_format = (i2s_comm_format_t)(I2S_COMM_FORMAT_STAND_I2S),
+                                       //.communication_format = (i2s_comm_format_t)(I2S_COMM_FORMAT_STAND_I2S),
+                                       .communication_format = I2S_COMM_FORMAT_STAND_I2S,
                                        .intr_alloc_flags = 0,
                                        .dma_buf_count = 8,
                                        .dma_buf_len = adc_buffer_size, // 320 * 2 bytes
@@ -226,8 +243,9 @@ int32_t SpeexModule::runOnce()
                                        .tx_desc_auto_clear = true,
                                        .fixed_mclk = 0};
             res = i2s_driver_install(I2S_PORT, &i2s_config, 0, NULL);
-            if (res != ESP_OK)
+            if (res != ESP_OK) {
                 LOG_ERROR("Failed to install I2S driver: %d\n", res);
+            }
 
             const i2s_pin_config_t pin_config = {
                 .mck_io_num = I2S_PIN_NO_CHANGE,
@@ -236,12 +254,14 @@ int32_t SpeexModule::runOnce()
                 .data_out_num = moduleConfig.audio_config.i2s_din ? moduleConfig.audio_config.i2s_din : I2S_PIN_NO_CHANGE,
                 .data_in_num = moduleConfig.audio_config.i2s_sd ? moduleConfig.audio_config.i2s_sd : I2S_PIN_NO_CHANGE};
             res = i2s_set_pin(I2S_PORT, &pin_config);
-            if (res != ESP_OK)
+            if (res != ESP_OK) {
                 LOG_ERROR("Failed to set I2S pin config: %d\n", res);
+            }
 
             res = i2s_start(I2S_PORT);
-            if (res != ESP_OK)
+            if (res != ESP_OK) {
                 LOG_ERROR("Failed to start I2S: %d\n", res);
+            }
 
             radio_state = SpeexRadioState::speex_rx;
 
@@ -292,6 +312,8 @@ int32_t SpeexModule::runOnce()
                         if (xHigherPriorityTaskWoken == pdTRUE)
                             YIELD_FROM_ISR(xHigherPriorityTaskWoken);
                     }
+                } else {
+                    LOG_ERROR("i2s_read result %d\n", res);
                 }
             }
         }
