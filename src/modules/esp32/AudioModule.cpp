@@ -199,6 +199,7 @@ int32_t AudioModule::runOnce()
                 LOG_ERROR("Failed to install I2S driver: %d\n", res);
 
             const i2s_pin_config_t pin_config = {
+                .mck_io_num = I2S_PIN_NO_CHANGE,
                 .bck_io_num = moduleConfig.audio.i2s_sck,
                 .ws_io_num = moduleConfig.audio.i2s_ws,
                 .data_out_num = moduleConfig.audio.i2s_din ? moduleConfig.audio.i2s_din : I2S_PIN_NO_CHANGE,
