@@ -232,7 +232,7 @@ extern const pb_msgdesc_t meshtastic_PtdButtons_msg;
 /* Maximum encoded size of messages (where known) */
 #define meshtastic_ChannelFile_size              638
 #define meshtastic_DeviceState_size              22364
-#define meshtastic_OEMStore_size                 3078
+#define meshtastic_OEMStore_size                 3143
 #define meshtastic_PtdButtons_size               16
 
 #ifdef __cplusplus

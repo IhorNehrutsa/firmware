@@ -43,17 +43,28 @@ typedef enum _meshtastic_ModuleConfig_Audio_Config_Codec2_Baud {
     meshtastic_ModuleConfig_Audio_Config_Codec2_Baud_CODEC2_700B = 8
 } meshtastic_ModuleConfig_Audio_Config_Codec2_Baud;
 
-/* Baudrate for Speex voice */
-typedef enum _meshtastic_ModuleConfig_Audio_Config_Speex_Baud {
-    meshtastic_ModuleConfig_Audio_Config_Speex_Baud_SPEEX_DEFAULT = 0 /* SPEEX_3200 = 1;
-SPEEX_2400 = 2;
-CODEC2_1600 = 3;
-CODEC2_1400 = 4;
-CODEC2_1300 = 5;
-CODEC2_1200 = 6;
-CODEC2_700 = 7;
-CODEC2_700B = 8; */
-} meshtastic_ModuleConfig_Audio_Config_Speex_Baud;
+/* Speex narrowband mode (Table 9.2)
+ Bit-rate for Speex voice
+ Use enum from 1 to 8 in user interface */
+typedef enum _meshtastic_ModuleConfig_Audio_Config_Speex_Bit_Rate {
+    /* bps                       // Quality | Description */
+    meshtastic_ModuleConfig_Audio_Config_Speex_Bit_Rate_SPEEX_DEFAULT_250 = 0, /* | No transmission (DTX) */
+    meshtastic_ModuleConfig_Audio_Config_Speex_Bit_Rate_SPEEX_2150 = 1, /* 0  | Vocoder (mostly for comfort noise) */
+    meshtastic_ModuleConfig_Audio_Config_Speex_Bit_Rate_SPEEX_5950 = 2, /* 2  | Very noticeable artifacts/noise, good intelligibility */
+    meshtastic_ModuleConfig_Audio_Config_Speex_Bit_Rate_SPEEX_8000 = 3, /* 3-4  | Artifacts/noise sometimes noticeable */
+    meshtastic_ModuleConfig_Audio_Config_Speex_Bit_Rate_SPEEX_11000 = 4, /* 5-6  | Artifacts usually noticeable only with headphones */
+    meshtastic_ModuleConfig_Audio_Config_Speex_Bit_Rate_SPEEX_15000 = 5, /* 7-8  | Need good headphones to tell the difference */
+    meshtastic_ModuleConfig_Audio_Config_Speex_Bit_Rate_SPEEX_18200 = 6, /* 9  | Hard to tell the difference even with good headphones */
+    meshtastic_ModuleConfig_Audio_Config_Speex_Bit_Rate_SPEEX_24600 = 7, /* 10  | Completely transparent for voice, good quality music */
+    meshtastic_ModuleConfig_Audio_Config_Speex_Bit_Rate_SPEEX_3950 = 8, /* 1  | Very noticeable artifacts/noise, good intelligibility */
+    meshtastic_ModuleConfig_Audio_Config_Speex_Bit_Rate_SPEEX_RESERVED9 = 9, /* | reserved */
+    meshtastic_ModuleConfig_Audio_Config_Speex_Bit_Rate_SPEEX_RESERVED10 = 10, /* | reserved */
+    meshtastic_ModuleConfig_Audio_Config_Speex_Bit_Rate_SPEEX_RESERVED11 = 11, /* | reserved */
+    meshtastic_ModuleConfig_Audio_Config_Speex_Bit_Rate_SPEEX_RESERVED12 = 12, /* | reserved */
+    meshtastic_ModuleConfig_Audio_Config_Speex_Bit_Rate_SPEEX_APPLICATION_DEFINED = 13, /* | Application-defined, interpreted by callback or skipped */
+    meshtastic_ModuleConfig_Audio_Config_Speex_Bit_Rate_SPEEX_IN_BAND_SIGNALING = 14, /* | Speex in-band signaling */
+    meshtastic_ModuleConfig_Audio_Config_Speex_Bit_Rate_SPEEX_TERMINATOR_CODE = 15 /* | Terminator code */
+} meshtastic_ModuleConfig_Audio_Config_Speex_Bit_Rate;
 
 /* Baudrate for Opus voice */
 typedef enum _meshtastic_ModuleConfig_Audio_Config_Opus_Baud {
@@ -158,37 +169,37 @@ typedef struct _meshtastic_ModuleConfig_AudioConfig {
     /* Whether Audio is enabled */
     bool codec2_enabled;
     /* PTT Pin */
-    uint8_t ptt_pin;
+    int8_t ptt_pin;
     /* The audio sample rate to use for codec2 */
     meshtastic_ModuleConfig_AudioConfig_Audio_Baud bitrate;
     /* I2S Word Select */
-    uint8_t i2s_ws;
+    int8_t i2s_ws;
     /* I2S Data IN */
-    uint8_t i2s_sd;
+    int8_t i2s_sd;
     /* I2S Data OUT */
-    uint8_t i2s_din;
+    int8_t i2s_din;
     /* I2S Clock */
-    uint8_t i2s_sck;
+    int8_t i2s_sck;
 } meshtastic_ModuleConfig_AudioConfig;
 
 /* Audio Config for Codec2, Speex, Opus voice */
 typedef struct _meshtastic_ModuleConfig_Audio_Config {
     /* PTT Pin */
-    uint32_t ptt_pin;
+    int32_t ptt_pin;
     /* I2S Word Select */
-    uint32_t i2s_ws;
+    int32_t i2s_ws;
     /* I2S Data IN */
-    uint32_t i2s_sd;
+    int32_t i2s_sd;
     /* I2S Data OUT */
-    uint32_t i2s_din;
+    int32_t i2s_din;
     /* I2S Clock */
-    uint32_t i2s_sck;
+    int32_t i2s_sck;
     /* Whether Audio is enabled */
     meshtastic_ModuleConfig_Audio_Config_Audio_Codec codec;
     pb_size_t which_bitrate;
     union {
         meshtastic_ModuleConfig_Audio_Config_Codec2_Baud codec2_bitrate;
-        meshtastic_ModuleConfig_Audio_Config_Speex_Baud speex_bitrate;
+        meshtastic_ModuleConfig_Audio_Config_Speex_Bit_Rate speex_bitrate;
         meshtastic_ModuleConfig_Audio_Config_Opus_Baud opus_bitrate;
     } bitrate;
 } meshtastic_ModuleConfig_Audio_Config;
@@ -373,9 +384,9 @@ extern "C" {
 #define _meshtastic_ModuleConfig_Audio_Config_Codec2_Baud_MAX meshtastic_ModuleConfig_Audio_Config_Codec2_Baud_CODEC2_700B
 #define _meshtastic_ModuleConfig_Audio_Config_Codec2_Baud_ARRAYSIZE ((meshtastic_ModuleConfig_Audio_Config_Codec2_Baud)(meshtastic_ModuleConfig_Audio_Config_Codec2_Baud_CODEC2_700B+1))
 
-#define _meshtastic_ModuleConfig_Audio_Config_Speex_Baud_MIN meshtastic_ModuleConfig_Audio_Config_Speex_Baud_SPEEX_DEFAULT
-#define _meshtastic_ModuleConfig_Audio_Config_Speex_Baud_MAX meshtastic_ModuleConfig_Audio_Config_Speex_Baud_SPEEX_DEFAULT
-#define _meshtastic_ModuleConfig_Audio_Config_Speex_Baud_ARRAYSIZE ((meshtastic_ModuleConfig_Audio_Config_Speex_Baud)(meshtastic_ModuleConfig_Audio_Config_Speex_Baud_SPEEX_DEFAULT+1))
+#define _meshtastic_ModuleConfig_Audio_Config_Speex_Bit_Rate_MIN meshtastic_ModuleConfig_Audio_Config_Speex_Bit_Rate_SPEEX_DEFAULT_250
+#define _meshtastic_ModuleConfig_Audio_Config_Speex_Bit_Rate_MAX meshtastic_ModuleConfig_Audio_Config_Speex_Bit_Rate_SPEEX_TERMINATOR_CODE
+#define _meshtastic_ModuleConfig_Audio_Config_Speex_Bit_Rate_ARRAYSIZE ((meshtastic_ModuleConfig_Audio_Config_Speex_Bit_Rate)(meshtastic_ModuleConfig_Audio_Config_Speex_Bit_Rate_SPEEX_TERMINATOR_CODE+1))
 
 #define _meshtastic_ModuleConfig_Audio_Config_Opus_Baud_MIN meshtastic_ModuleConfig_Audio_Config_Opus_Baud_OPUS_DEFAULT
 #define _meshtastic_ModuleConfig_Audio_Config_Opus_Baud_MAX meshtastic_ModuleConfig_Audio_Config_Opus_Baud_OPUS_DEFAULT
@@ -400,7 +411,7 @@ extern "C" {
 
 #define meshtastic_ModuleConfig_Audio_Config_codec_ENUMTYPE meshtastic_ModuleConfig_Audio_Config_Audio_Codec
 #define meshtastic_ModuleConfig_Audio_Config_bitrate_codec2_bitrate_ENUMTYPE meshtastic_ModuleConfig_Audio_Config_Codec2_Baud
-#define meshtastic_ModuleConfig_Audio_Config_bitrate_speex_bitrate_ENUMTYPE meshtastic_ModuleConfig_Audio_Config_Speex_Baud
+#define meshtastic_ModuleConfig_Audio_Config_bitrate_speex_bitrate_ENUMTYPE meshtastic_ModuleConfig_Audio_Config_Speex_Bit_Rate
 #define meshtastic_ModuleConfig_Audio_Config_bitrate_opus_bitrate_ENUMTYPE meshtastic_ModuleConfig_Audio_Config_Opus_Baud
 
 #define meshtastic_ModuleConfig_SerialConfig_baud_ENUMTYPE meshtastic_ModuleConfig_SerialConfig_Serial_Baud
@@ -567,21 +578,21 @@ X(a, STATIC,   SINGULAR, BOOL,     enabled,           1)
 
 #define meshtastic_ModuleConfig_AudioConfig_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, BOOL,     codec2_enabled,    1) \
-X(a, STATIC,   SINGULAR, UINT32,   ptt_pin,           2) \
+X(a, STATIC,   SINGULAR, INT32,    ptt_pin,           2) \
 X(a, STATIC,   SINGULAR, UENUM,    bitrate,           3) \
-X(a, STATIC,   SINGULAR, UINT32,   i2s_ws,            4) \
-X(a, STATIC,   SINGULAR, UINT32,   i2s_sd,            5) \
-X(a, STATIC,   SINGULAR, UINT32,   i2s_din,           6) \
-X(a, STATIC,   SINGULAR, UINT32,   i2s_sck,           7)
+X(a, STATIC,   SINGULAR, INT32,    i2s_ws,            4) \
+X(a, STATIC,   SINGULAR, INT32,    i2s_sd,            5) \
+X(a, STATIC,   SINGULAR, INT32,    i2s_din,           6) \
+X(a, STATIC,   SINGULAR, INT32,    i2s_sck,           7)
 #define meshtastic_ModuleConfig_AudioConfig_CALLBACK NULL
 #define meshtastic_ModuleConfig_AudioConfig_DEFAULT NULL
 
 #define meshtastic_ModuleConfig_Audio_Config_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, UINT32,   ptt_pin,           2) \
-X(a, STATIC,   SINGULAR, UINT32,   i2s_ws,            4) \
-X(a, STATIC,   SINGULAR, UINT32,   i2s_sd,            5) \
-X(a, STATIC,   SINGULAR, UINT32,   i2s_din,           6) \
-X(a, STATIC,   SINGULAR, UINT32,   i2s_sck,           7) \
+X(a, STATIC,   SINGULAR, INT32,    ptt_pin,           2) \
+X(a, STATIC,   SINGULAR, INT32,    i2s_ws,            4) \
+X(a, STATIC,   SINGULAR, INT32,    i2s_sd,            5) \
+X(a, STATIC,   SINGULAR, INT32,    i2s_din,           6) \
+X(a, STATIC,   SINGULAR, INT32,    i2s_sck,           7) \
 X(a, STATIC,   SINGULAR, UENUM,    codec,            11) \
 X(a, STATIC,   ONEOF,    UENUM,    (bitrate,codec2_bitrate,bitrate.codec2_bitrate),  21) \
 X(a, STATIC,   ONEOF,    UENUM,    (bitrate,speex_bitrate,bitrate.speex_bitrate),  22) \
@@ -686,8 +697,8 @@ extern const pb_msgdesc_t meshtastic_ModuleConfig_CannedMessageConfig_msg;
 #define meshtastic_ModuleConfig_CannedMessageConfig_fields &meshtastic_ModuleConfig_CannedMessageConfig_msg
 
 /* Maximum encoded size of messages (where known) */
-#define meshtastic_ModuleConfig_AudioConfig_size 19
-#define meshtastic_ModuleConfig_Audio_Config_size 35
+#define meshtastic_ModuleConfig_AudioConfig_size 59
+#define meshtastic_ModuleConfig_Audio_Config_size 60
 #define meshtastic_ModuleConfig_CannedMessageConfig_size 49
 #define meshtastic_ModuleConfig_ExternalNotificationConfig_size 40
 #define meshtastic_ModuleConfig_MQTTConfig_size  220

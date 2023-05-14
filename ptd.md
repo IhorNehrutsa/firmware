@@ -335,3 +335,6 @@ https://github.com/search?q=esp32+opus&type=repositories
 
 regex:
 \si2s_\S*\(
+pio run -v >txt_.txt
+https://github.com/XasWorks/esp-libopus
+https://github.com/atomic14/esp32-walkie-talkie

@@ -1,5 +1,7 @@
 #pragma once
 
+#if 0
+
 #include "SinglePortModule.h"
 #include "concurrency/NotifiedWorkerThread.h"
 #include "configuration.h"
@@ -23,7 +25,9 @@ struct c2_header {
 };
 
 #define ADC_BUFFER_SIZE_MAX 320
-#define PTT_PIN 0
+#ifndef PTT_PIN
+#define PTT_PIN 39
+#endif
 
 #define I2S_PORT I2S_NUM_0
 
@@ -84,4 +88,5 @@ class AudioModule : public SinglePortModule, public Observable<const UIFrameEven
 
 extern AudioModule *audioModule;
 
+#endif
 #endif

@@ -26,15 +26,20 @@
 // Not/Connected                                                                  SD
 //     /* I2S Word Select */
 // moduleConfig.audio.i2s_ws =   6; WS - Word Select                              WS - Word Select(FS - Frame Select)
+#define I2S_WS                   6
 //     /* I2S Data IN */
 // moduleConfig.audio.i2s_sd =   4; SD - The I2S Serial Data connection
+#define I2S_SD                   4
 //     /* I2S Data OUT */
 // moduleConfig.audio.i2s_din =  5;                                               DIN - Serial Data Input
+#define I2S_DIN                  5
 //     /* I2S Clock */
 // moduleConfig.audio.i2s_sck =  7; SCK - Serial Clock                            BCLK - Bit Clock Line
+#define I2S_SCK                  7
 //
 //     /* PTT Pin */
-// moduleConfig.audio.ptt_pin =  15;
+// moduleConfig.audio.ptt_pin = 15;
+#define PTT_PIN                 15
 
 //       3.5 jack
 // 1 R - microphone

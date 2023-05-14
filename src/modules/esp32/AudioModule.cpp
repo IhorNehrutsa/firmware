@@ -1,3 +1,4 @@
+#if 0
 
 #include "configuration.h"
 #if defined(ARCH_ESP32)
@@ -321,4 +322,5 @@ ProcessMessage AudioModule::handleReceived(const meshtastic_MeshPacket &mp)
     return ProcessMessage::CONTINUE;
 }
 
+#endif
 #endif
