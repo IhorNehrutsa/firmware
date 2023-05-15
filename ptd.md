@@ -335,6 +335,13 @@ https://github.com/search?q=esp32+opus&type=repositories
 
 regex:
 \si2s_\S*\(
+
 pio run -v >txt_.txt
+
 https://github.com/XasWorks/esp-libopus
 https://github.com/atomic14/esp32-walkie-talkie
+https://blog.infrasonicaudio.com/real-time-audio-synthesis-on-esp-32
+https://blog.atomic14.com/2021/04/20/esp32-i2s-dma-buf-len-buf-count.html
+
+#define tskIDLE_PRIORITY 0
+#define configMAX_PRIORITIES 10 // Highest priority level
