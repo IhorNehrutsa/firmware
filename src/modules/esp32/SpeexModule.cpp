@@ -290,7 +290,7 @@ int32_t SpeexModule::runOnce()
             i2s_config_t i2s_config = {.mode = (i2s_mode_t)(I2S_MODE_MASTER | (moduleConfig.audio_config.i2s_sd ? I2S_MODE_RX : 0) |
                                                             (moduleConfig.audio_config.i2s_din ? I2S_MODE_TX : 0)),
                                        .sample_rate = 8000,
-                                       .bits_per_sample = I2S_BITS_PER_SAMPLE_32BIT,
+                                       .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT,
                                        .channel_format = I2S_CHANNEL_FMT_ONLY_LEFT,
                                        .communication_format = I2S_COMM_FORMAT_STAND_I2S,
                                        .intr_alloc_flags = 0,

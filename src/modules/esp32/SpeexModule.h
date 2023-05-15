@@ -92,7 +92,7 @@
 #define I2S_PORT I2S_NUM_0
 
 // #define AUDIO_MODULE_RX_BUFFER 128
-#define AUDIO_MODULE_MODE meshtastic_ModuleConfig_Audio_Config_Speex_Bit_Rate_SPEEX_5950
+#define AUDIO_MODULE_MODE 3 // meshtastic_ModuleConfig_Audio_Config_Speex_Bit_Rate_SPEEX_5950
 
 enum SpeexRadioState { speex_standby, speex_rx, speex_tx };
 

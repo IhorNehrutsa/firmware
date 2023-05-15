@@ -1,6 +1,6 @@
 #define HAS_SCREEN 0
 #define HAS_GPS 0
-#define HAS_BUTTON 0 // 1
+#define HAS_BUTTON 1
 #define HAS_WIRE 0
 #define HAS_TELEMETRY 0
 #define HAS_SENSOR 0
@@ -8,30 +8,44 @@
 /*
  * PTD Buttons
  */
-//#define BUTTON_UP     -1 // 0x
-//#define BUTTON_LEFT   -1 // 0x
-#define BUTTON_CENTER  0 // 0x PTT on BOOT
-//#define BUTTON_RIGHT  -1 // 0x
-//#define BUTTON_DOWN   -1 // 0x
-//                          0x
+//#define BUTTON_UP    -1 // 0x
+//#define BUTTON_LEFT  -1 // 0x
+#define BUTTON_CENTER  25 // 0x PTT
+//#define BUTTON_RIGHT -1 // 0x
+//#define BUTTON_DOWN  -1 // 0x
+//                           0x
 
 /*
- *INMP441 Microphone Module
+ *                                  INMP441 Microphone Module                     MAX98357A Mono Amplifier Module
  */
-// 3.3V                             VDD - The Input voltage, from 1.62 to 3.63 volts.
-// GND                              GND - Ground.
-// GND                              L/R - Channel selection.
+// 3.3V                             VDD - The Input voltage, from 1.62-3.63V      Vin=2.5-5.5V
+// GND                              GND - Ground                                  GND - Ground
+// Connect to WS                    L/R - Channel selection
+// GND                                                                            LRC - Left-Right Channel
+// Not/Connected                                                                  GANE
+// Not/Connected                                                                  SD
 //     /* I2S Word Select */
-// moduleConfig.audio.i2s_ws =   21; WS - Word Select.
+// moduleConfig.audio.i2s_ws =   21; WS - Word Select                             WS - Word Select(FS - Frame Select)
+#define I2S_WS          GPIO_NUM_21
 //     /* I2S Data IN */
-// moduleConfig.audio.i2s_sd =   23; SD - The I2S Serial Data connection.
+// moduleConfig.audio.i2s_sd =   23; SD - The I2S Serial Data connection
+#define I2S_SD          GPIO_NUM_23
 //     /* I2S Data OUT */
-// moduleConfig.audio.i2s_din =  4;
+// moduleConfig.audio.i2s_din =  4;                                               DIN - Serial Data Input
+#define I2S_DIN         GPIO_NUM_4
 //     /* I2S Clock */
-// moduleConfig.audio.i2s_sck =  22; SCK - Serial Clock.
+// moduleConfig.audio.i2s_sck = 22; SCK - Serial Clock                            BCLK - Bit Clock Line
+#define I2S_SCK        GPIO_NUM_22
 //
 //     /* PTT Pin */
-// moduleConfig.audio.ptt_pin = BUTTON_CENTER;
+// moduleConfig.audio.ptt_pin = 25;
+#define PTT_PIN        GPIO_NUM_25
+
+//       3.5 jack
+// 1 R - microphone
+// 4 - GND
+// 2 - Left
+// 3 - Right
 
 //#define BUTTON_PIN 39 // The middle button GPIO on the T-Beam
 //#define BATTERY_PIN 35 // A battery voltage measurement pin, voltage divider connected here to measure battery voltage
