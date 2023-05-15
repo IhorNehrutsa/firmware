@@ -294,7 +294,7 @@ int32_t SpeexModule::runOnce()
                                        .channel_format = I2S_CHANNEL_FMT_ONLY_LEFT,
                                        .communication_format = I2S_COMM_FORMAT_STAND_I2S,
                                        .intr_alloc_flags = 0,
-                                       .dma_buf_count = 2, // 8,
+                                       .dma_buf_count = 32, // 8,
                                        .dma_buf_len = adc_buffer_size,
                                        //.dma_buf_len = DMA_BUF_LEN_IN_I2S_FRAMES;
                                        .use_apll = false,
@@ -375,7 +375,7 @@ int32_t SpeexModule::runOnce()
                         size_t bytesOut = 0;
                         memcpy(output_buffer, speech, 2 * adc_buffer_size);
                         //res = i2s_write(I2S_PORT, &output_buffer, adc_buffer_size, &bytesOut, pdMS_TO_TICKS(500));
-                        res = i2s_write(I2S_PORT, adc_buffer, adc_buffer_size, &bytesOut, pdMS_TO_TICKS(500));
+                        res = i2s_write(I2S_PORT, adc_buffer, adc_buffer_size, &bytesOut, pdMS_TO_TICKS(50));
                         millis_wr = millis();
                         LOG_ERROR("i2s_write() res=%d, bytesOut=%d, adc_buffer_index=%d, adc_buffer_size=%d, millis()=%ul dt_millis()=%ul\n", res, bytesOut, speexModule->adc_buffer_index, speexModule->adc_buffer_size, millis_wr, millis_wr - _millis_wr);
                         _millis_wr = millis_wr;
@@ -383,13 +383,14 @@ int32_t SpeexModule::runOnce()
                             LOG_ERROR("i2s_write() result %d\n", res);
                         }
                         #endif
-
+/*
                         // Notify run_speex task that the buffer is ready.
                         radio_state = SpeexRadioState::speex_tx;
                         BaseType_t xHigherPriorityTaskWoken = pdFALSE;
                         vTaskNotifyGiveFromISR(speexHandlerTask, &xHigherPriorityTaskWoken);
                         if (xHigherPriorityTaskWoken == pdTRUE)
                             YIELD_FROM_ISR(xHigherPriorityTaskWoken);
+*/
                     }
                 } else {
                     LOG_ERROR("i2s_read result %d\n", res);
