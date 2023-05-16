@@ -38,6 +38,9 @@
         * Will not work on NRF and the Linux device targets (yet?).
 */
 
+#define xTaskGetMs() (xTaskGetTickCount() * 1000 / configTICK_RATE_HZ)
+#define esp_millis() ((esp_timer_get_time() + 500ULL) / 1000ULL)
+
 static ButterworthFilter hp_filter(240, 8000, ButterworthFilter::ButterworthFilter::Highpass, 1);
 
 TaskHandle_t speexHandlerTask;
@@ -79,6 +82,42 @@ void run_speex(void *parameter)
 {
     esp_err_t res;
     LOG_INFO("Starting speex task\n");
+    LOG_INFO("portTICK_PERIOD_MS :  %d\n", portTICK_PERIOD_MS);
+    LOG_INFO("portTICK_RATE_MS : %d\n", portTICK_RATE_MS);
+    LOG_INFO("uxTaskGetNumberOfTasks() : %d\n", uxTaskGetNumberOfTasks());
+
+    long long int Timer1, Timer2;
+    Timer1 = esp_timer_get_time();
+    vTaskDelay(pdMS_TO_TICKS(1));
+    Timer2 = esp_timer_get_time();
+    LOG_INFO("esp_timer_get_time()\n");
+    LOG_INFO("Timer1: %lld μs\n", Timer1);
+    LOG_INFO("Timer2: %lld μs\n", Timer2);
+    LOG_INFO("Difference: %lld μs\n", Timer2 - Timer1);
+
+    Timer1 = portGET_RUN_TIME_COUNTER_VALUE();
+    vTaskDelay(pdMS_TO_TICKS(1));
+    Timer2 = portGET_RUN_TIME_COUNTER_VALUE();
+    LOG_INFO("portGET_RUN_TIME_COUNTER_VALUE()\n");
+    LOG_INFO("Timer1: %lld μs\n", Timer1);
+    LOG_INFO("Timer2: %lld μs\n", Timer2);
+    LOG_INFO("Difference: %lld μs\n", Timer2 - Timer1);
+
+    Timer1 = millis();
+    vTaskDelay(pdMS_TO_TICKS(1));
+    Timer2 = millis();
+    LOG_INFO("millis()\n");
+    LOG_INFO("Timer1: %lld ms\n", Timer1);
+    LOG_INFO("Timer2: %lld ms\n", Timer2);
+    LOG_INFO("Difference: %lld ms\n", Timer2 - Timer1);
+
+    Timer1 = xTaskGetMs();
+    vTaskDelay(pdMS_TO_TICKS(1));
+    Timer2 = xTaskGetMs();
+    LOG_INFO("xTaskGetMs()\n");
+    LOG_INFO("Timer1: %lld ms\n", Timer1);
+    LOG_INFO("Timer2: %lld ms\n", Timer2);
+    LOG_INFO("Difference: %lld ms\n", Timer2 - Timer1);
 
 #ifdef RUN_ENCODE_DECODE
     // Initialization of the structure that holds the bits
@@ -249,7 +288,7 @@ SPEEX_GET_HIGHPASS         Get the current high-pass filter status (spx_int32_t)
 #endif
         adc_buffer_size = ADC_BUFFER_SIZE_MAX / 2; // ??
         adc_buffer_size = ADC_BUFFER_SIZE_MAX;
-        xTaskCreate(&run_speex, "speex_task", 30000, NULL, 5, &speexHandlerTask);
+        xTaskCreate(&run_speex, "speex_task", 32768, NULL, configMAX_PRIORITIES, &speexHandlerTask);
     } else {
         disable();
     }
@@ -294,7 +333,7 @@ int32_t SpeexModule::runOnce()
                                        .channel_format = I2S_CHANNEL_FMT_ONLY_LEFT,
                                        .communication_format = I2S_COMM_FORMAT_STAND_I2S,
                                        .intr_alloc_flags = 0,
-                                       .dma_buf_count = 32, // 8,
+                                       .dma_buf_count = 64, //32, // 8,
                                        .dma_buf_len = adc_buffer_size,
                                        //.dma_buf_len = DMA_BUF_LEN_IN_I2S_FRAMES;
                                        .use_apll = false,
@@ -360,29 +399,31 @@ int32_t SpeexModule::runOnce()
             if (radio_state == SpeexRadioState::speex_tx) {
                 // Get I2S data from the microphone and place in data buffer
                 size_t bytesIn = 0;
-                millis_rd = millis();
                 res = i2s_read(I2S_PORT, adc_buffer + adc_buffer_index, adc_buffer_size - adc_buffer_index, &bytesIn,
                                pdMS_TO_TICKS(40)); // wait 40ms(2 of 20ms frame time) for audio to arrive.
-                LOG_ERROR("i2s_read() res=%d, bytesIn=%d, adc_buffer_index=%d, adc_buffer_size=%d, millis()=%ul, dt_millis()=%ul\n", res, bytesIn, adc_buffer_index, adc_buffer_size, millis_rd, millis_rd-_millis_rd);
+                millis_rd = esp_millis();
+                LOG_ERROR("i2s_read()  res=%d, bytesIn=%d, adc_buffer_index=%d, adc_buffer_size=%d, esp_millis()=%ul, dt_millis()=%ul\n", res, bytesIn, adc_buffer_index, adc_buffer_size, millis_rd, millis_rd-_millis_rd);
                 _millis_rd = millis_rd;
                 if (res == ESP_OK) {
                     adc_buffer_index += bytesIn;
                     if (adc_buffer_index == adc_buffer_size) {
-                        adc_buffer_index = 0;
-                        memcpy((void *)speech, (void *)adc_buffer, 2 * adc_buffer_size);
 
                         #if !defined(RUN_ENCODE_DECODE)
                         size_t bytesOut = 0;
-                        memcpy(output_buffer, speech, 2 * adc_buffer_size);
+                        // memcpy(output_buffer, speech, 2 * adc_buffer_size);
                         //res = i2s_write(I2S_PORT, &output_buffer, adc_buffer_size, &bytesOut, pdMS_TO_TICKS(500));
-                        res = i2s_write(I2S_PORT, adc_buffer, adc_buffer_size, &bytesOut, pdMS_TO_TICKS(50));
-                        millis_wr = millis();
-                        LOG_ERROR("i2s_write() res=%d, bytesOut=%d, adc_buffer_index=%d, adc_buffer_size=%d, millis()=%ul dt_millis()=%ul\n", res, bytesOut, speexModule->adc_buffer_index, speexModule->adc_buffer_size, millis_wr, millis_wr - _millis_wr);
+                        res = i2s_write(I2S_PORT, adc_buffer, adc_buffer_size, &bytesOut, pdMS_TO_TICKS(40));
+                        millis_wr = esp_millis();
+                        LOG_ERROR("i2s_write() res=%d, bytesOut=%d, adc_buffer_index=%d, adc_buffer_size=%d, esp_millis()=%ul dt_millis()=%ul\n", res, bytesOut, speexModule->adc_buffer_index, speexModule->adc_buffer_size, millis_wr, millis_wr - _millis_wr);
                         _millis_wr = millis_wr;
                         if (res != ESP_OK) {
                             LOG_ERROR("i2s_write() result %d\n", res);
                         }
                         #endif
+
+                        adc_buffer_index = 0;
+                        memcpy((void *)speech, (void *)adc_buffer, 2 * adc_buffer_size);
+
 /*
                         // Notify run_speex task that the buffer is ready.
                         radio_state = SpeexRadioState::speex_tx;

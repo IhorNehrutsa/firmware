@@ -25,7 +25,7 @@
 
 #include "SerialConsole.h"
 
-#define DEBUG_PORT (*console) // Serial debug port
+//#define DEBUG_PORT (*console) // Serial debug port
 
 #ifdef USE_SEGGER
 #define DEBUG_PORT
