@@ -86,6 +86,79 @@ void run_speex(void *parameter)
     LOG_INFO("portTICK_RATE_MS : %d\n", portTICK_RATE_MS);
     LOG_INFO("uxTaskGetNumberOfTasks() : %d\n", uxTaskGetNumberOfTasks());
 
+    LOG_INFO("pcTaskGetName=%s\n",pcTaskGetName(0));
+    LOG_INFO("uxTaskPriorityGet=%d\n",(int)uxTaskPriorityGet(0));
+
+    TaskStatus_t *pxTaskStatusArray;
+    volatile UBaseType_t uxArraySize, x;
+    //unsigned long ulTotalRunTime, ulStatsAsPercentage;
+    uint32_t ulTotalRunTime, ulStatsAsPercentage;
+
+    /* Take a snapshot of the number of tasks in case it changes while this
+    function is executing. */
+    uxArraySize = uxTaskGetNumberOfTasks();
+    //uxArraySize = uxCurrentNumberOfTasks();
+    LOG_INFO("uxArraySize=%d\n",(int)uxArraySize);
+
+    /* Allocate a TaskStatus_t structure for each task.  An array could be
+    allocated statically at compile time. */
+    pxTaskStatusArray = (TaskStatus_t *)pvPortMalloc( uxArraySize * sizeof( TaskStatus_t ) );
+    //LOG_INFO("pxTaskStatusArray=%x\n",(int)pxTaskStatusArray);
+
+    if( pxTaskStatusArray != NULL )
+    {
+       /* Generate raw status information about each task. */
+       uxArraySize = uxTaskGetSystemState( pxTaskStatusArray,
+                                 uxArraySize,
+                                 &ulTotalRunTime );
+
+       /* For percentage calculations. */
+       LOG_INFO("ulTotalRunTime=%d\n",(int)ulTotalRunTime);
+       ulTotalRunTime /= 100UL;
+
+       /* For each populated position in the pxTaskStatusArray array,
+       format the raw data as human readable ASCII data. */
+       for( x = 0; x < uxArraySize; x++ ) {
+         /* What percentage of the total run time has the task used?
+         This will always be rounded down to the nearest integer.
+         ulTotalRunTimeDiv100 has already been divided by 100. */
+
+         ulStatsAsPercentage = 0;
+         if ( ulTotalRunTime > 0)
+           ulStatsAsPercentage =
+              pxTaskStatusArray[ x ].ulRunTimeCounter / ulTotalRunTime;
+
+         UBaseType_t HighWaterMark =
+              uxTaskGetStackHighWaterMark ( pxTaskStatusArray[ x ].xHandle );
+
+
+         if( ulStatsAsPercentage > 0UL ) {
+            LOG_INFO( "%-20s\t%d\t%lu\t%lu\t%lu\t%lu\t%lu%%\r\n",
+                   pxTaskStatusArray[ x ].pcTaskName,
+                   pxTaskStatusArray[ x ].eCurrentState,
+                   (unsigned long)pxTaskStatusArray[ x ].xTaskNumber,
+                   (unsigned long)pxTaskStatusArray[ x ].uxCurrentPriority,
+                   (unsigned long)HighWaterMark,
+                   (unsigned long)pxTaskStatusArray[ x ].ulRunTimeCounter,
+                   (unsigned long)ulStatsAsPercentage );
+         } else {
+            /* If the percentage is zero here then the task has
+            consumed less than 1% of the total run time. */
+            LOG_INFO("%-20s\t%d\t%lu\t%lu\t%lu\t%lu\t<1%%\r\n",
+                   pxTaskStatusArray[ x ].pcTaskName,
+                   pxTaskStatusArray[ x ].eCurrentState,
+                   (unsigned long)pxTaskStatusArray[ x ].xTaskNumber,
+                   (unsigned long)pxTaskStatusArray[ x ].uxCurrentPriority,
+                   (unsigned long)HighWaterMark,
+                   (unsigned long)pxTaskStatusArray[ x ].ulRunTimeCounter );
+         }
+
+       } // end for
+
+       /* The array is no longer needed, free the memory it consumes. */
+       vPortFree( pxTaskStatusArray );
+    }
+
     long long int Timer1, Timer2;
     Timer1 = esp_timer_get_time();
     vTaskDelay(pdMS_TO_TICKS(1));
@@ -337,7 +410,7 @@ int32_t SpeexModule::runOnce()
                                        .communication_format = I2S_COMM_FORMAT_STAND_I2S,
                                        .intr_alloc_flags = 0,
                                        .dma_buf_count = 3, //2, //48, //64-bad, //32, // 8,
-                                       .dma_buf_len = DMA_BUF_LEN_IN_I2S_FRAMES,
+                                       .dma_buf_len = 1024, // DMA_BUF_LEN_IN_I2S_FRAMES,
                                        .use_apll = false,
                                        .tx_desc_auto_clear = true,
                                        .fixed_mclk = 0};
