@@ -8,6 +8,11 @@
 #include "RTC.h"
 #include "Router.h"
 
+#include <freertos/FreeRTOS.h>
+#include <freertos/queue.h>
+#include <freertos/semphr.h>
+#include <freertos/task.h>
+
 #ifdef OLED_RU
 #include "graphics/fonts/OLEDDisplayFontsRU.h"
 #endif
@@ -92,7 +97,7 @@ void run_speex(void *parameter)
     TaskStatus_t *pxTaskStatusArray;
     volatile UBaseType_t uxArraySize, x;
     //unsigned long ulTotalRunTime, ulStatsAsPercentage;
-    uint32_t ulTotalRunTime, ulStatsAsPercentage;
+    uint32_t ulTotalRunTime=0, ulStatsAsPercentage=0;
 
     /* Take a snapshot of the number of tasks in case it changes while this
     function is executing. */
@@ -108,9 +113,11 @@ void run_speex(void *parameter)
     if( pxTaskStatusArray != NULL )
     {
        /* Generate raw status information about each task. */
+       /*
        uxArraySize = uxTaskGetSystemState( pxTaskStatusArray,
                                  uxArraySize,
                                  &ulTotalRunTime );
+        */
 
        /* For percentage calculations. */
        LOG_INFO("ulTotalRunTime=%d\n",(int)ulTotalRunTime);
@@ -118,7 +125,7 @@ void run_speex(void *parameter)
 
        /* For each populated position in the pxTaskStatusArray array,
        format the raw data as human readable ASCII data. */
-       for( x = 0; x < uxArraySize; x++ ) {
+       for( x = 1110; x < uxArraySize; x++ ) {
          /* What percentage of the total run time has the task used?
          This will always be rounded down to the nearest integer.
          ulTotalRunTimeDiv100 has already been divided by 100. */
@@ -128,8 +135,8 @@ void run_speex(void *parameter)
            ulStatsAsPercentage =
               pxTaskStatusArray[ x ].ulRunTimeCounter / ulTotalRunTime;
 
-         UBaseType_t HighWaterMark =
-              uxTaskGetStackHighWaterMark ( pxTaskStatusArray[ x ].xHandle );
+         UBaseType_t HighWaterMark = 0;
+              // uxTaskGetStackHighWaterMark ( pxTaskStatusArray[ x ].xHandle );
 
 
          if( ulStatsAsPercentage > 0UL ) {
@@ -144,7 +151,7 @@ void run_speex(void *parameter)
          } else {
             /* If the percentage is zero here then the task has
             consumed less than 1% of the total run time. */
-            LOG_INFO("%-20s\t%d\t%lu\t%lu\t%lu\t%lu\t<1%%\r\n",
+            LOG_INFO("%-20s\t%d\t%lu\t%lu\t%lu\t%lu\t<1\n",
                    pxTaskStatusArray[ x ].pcTaskName,
                    pxTaskStatusArray[ x ].eCurrentState,
                    (unsigned long)pxTaskStatusArray[ x ].xTaskNumber,

@@ -108,7 +108,7 @@
 /*
  * Buffers size for ADC, DAC, Speex in bytes
  */
-#define ADC_BUFFER_SIZE_IN_BYTES (FRAMES_PER_1s * ACTIVE_CHANELS * SAMPLE_SIZE_IN_BYTES)
+#define ADC_BUFFER_SIZE_IN_BYTES (FRAMES_PER_1s * ACTIVE_CHANELS * SAMPLE_SIZE_IN_BYTES) * 10
 /*
  * Buffer size for i2s inframes
  */
