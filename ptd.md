@@ -345,3 +345,5 @@ https://blog.atomic14.com/2021/04/20/esp32-i2s-dma-buf-len-buf-count.html
 
 #define tskIDLE_PRIORITY 0
 #define configMAX_PRIORITIES 10 // Highest priority level
+
+https://www.mouser.com/datasheet/2/737/adafruit_max98357_i2s_class_d_mono_amp-1396489.pdf

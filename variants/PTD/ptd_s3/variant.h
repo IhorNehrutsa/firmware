@@ -20,12 +20,11 @@
  */
 // 3.3V                             VDD - The Input voltage, from 1.62-3.63V      Vin=2.5-5.5V
 // GND                              GND - Ground                                  GND - Ground
-// Connect to WS                    L/R - Channel selection
-// GND                                                                            LRC - Left-Right Channel
-// Not/Connected                                                                  GANE
-// Not/Connected                                                                  SD
+// GND                              L/R - Channel selection
+// 3.3V                                                                           SD - Left Channel
+// Not/Connected                                                                  GANE 9dB
 //     /* I2S Word Select */
-// moduleConfig.audio.i2s_ws =   6; WS - Word Select                              WS - Word Select(FS - Frame Select)
+// moduleConfig.audio.i2s_ws =   6; WS - Word Select                             LRC - Left-Right Channel
 #define I2S_WS          GPIO_NUM_6
 //     /* I2S Data IN */
 // moduleConfig.audio.i2s_sd =   4; SD - The I2S Serial Data connection
