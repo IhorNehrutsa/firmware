@@ -27,22 +27,14 @@
 //#include <driver/i2s_std.h>
 #include <functional>
 
-#define DMA_BUF_LEN_IN_I2S_FRAMES 256
+#define CHANNEL_FORMAT I2S_CHANNEL_FMT_ONLY_LEFT
 
 /*
  * Samlpe size in bits, ADC/DAC resolution
  */
-#define SAMPLE_SIZE_16bit I2S_BITS_PER_SAMPLE_16BIT
-#define SAMPLE_SIZE_24bit I2S_BITS_PER_SAMPLE_24BIT
-#define SAMPLE_SIZE       SAMPLE_SIZE_16bit
+#define SAMPLE_SIZE_IN_BITS (I2S_BITS_PER_SAMPLE_16BIT)
 
-#if SAMPLE_SIZE == SAMPLE_SIZE_16bit
-  #define SAMPLE_SIZE_IN_BYTES 2
-#elif SAMPLE_SIZE == SAMPLE_SIZE_24bit
-  #define SAMPLE_SIZE_IN_BYTES 4
-#else
-  #error SAMPLE_SIZE_IN_BYTES
-#endif
+#define SAMPLE_SIZE_IN_BYTES (((SAMPLE_SIZE_IN_BITS + 15) / 16) * 2)
 
 /*
  * Samlpe rate in Hz
@@ -50,49 +42,82 @@
 #define SAMPLE_RATE_8kHz   8000 // narrowband     // Speex delay is 30 ms
 #define SAMPLE_RATE_16kHz 16000 // wideband       // Speex delay is 34 ms
 #define SAMPLE_RATE_32kHz 32000 // ultra-wideband // Speex delay is ??? ms
-#define SAMPLE_RATE       SAMPLE_RATE_8kHz
+#define SAMPLE_RATE_HZ (SAMPLE_RATE_8kHz)
 
-#define F_WS (SAMPLE_RATE) // 8kHz for samlpe rate 8kHz
-#define F_CLK (F_WS * SAMPLE_SIZE * 2) // 256kHz for 2 channels, 8kHz samlpe rate and 16bit sample size
+/*
+ * WORD SELECT = SAMPLE_RATE_HZ
+ */
+#define F_WS (SAMPLE_RATE_HZ) // 8kHz for samlpe rate 8kHz
+/*
+ * bit_clock = rate * (number of channels) * bits_per_sample
+ *     256k  =   8k *          2           *      16
+ */
+#define F_CLK (F_WS * SAMPLE_SIZE_IN_BITS * 2) // 256kHz for 2 channels(Left & Right), 8kHz samlpe rate and 16bit per sample
+
 /*
  * At a frame rate of 50 the frames are 20 milliseconds long.
  * 20ms (50 frames por second).
  */
 
 /*
- * Frame size in samples
- * 20ms / (1 / SAMPLE_RATE) == 20ms * SAMPLE_RATE == 20 * SAMPLE_RATE / 1000
+ * Frames in 1 seconds with 20ms frame
+ * 20ms / (1 / SAMPLE_RATE_HZ) == 20ms * SAMPLE_RATE_HZ == 20 * SAMPLE_RATE_HZ / 1000
  */
-#define FRAME_SIZE  (20 * SAMPLE_RATE / 1000) // in samples
-#define FRAME_SIZE_8kHz  160 // 20 * 8000 / 1000
-#define FRAME_SIZE_16kHz 320 // 20 * 16000 / 1000
-#define FRAME_SIZE_32kHz 640 // 20 * 32000 / 1000
+#define FRAMES_PER_1s  (20 * SAMPLE_RATE_HZ / 1000)
+#define FRAMES_PER_1s_8kHz  160 // narrowband     // 20 * 8000 / 1000
+#define FRAMES_PER_1s_16kHz 320 // wideband       // 20 * 16000 / 1000
+#define FRAMES_PER_1s_32kHz 640 // ultra-wideband // 20 * 32000 / 1000
 
-#if SAMPLE_RATE == SAMPLE_RATE_8kHz
-  #if FRAME_SIZE != FRAME_SIZE_8kHz
-    #error FRAME_SIZE 8kHz
-  #endif
-#elif SAMPLE_RATE == SAMPLE_RATE_16kHz
-  #if FRAME_SIZE != FRAME_SIZE_16kHz
-    #error FRAME_SIZE 16kHz
-  #endif
-#elif SAMPLE_RATE == SAMPLE_RATE_32kHz
-  #if FRAME_SIZE != FRAME_SIZE_32kHz
-    #error FRAME_SIZE 32kHz
-  #endif
+/*
+ *        |<-----   FRAME  ----->|
+ *    _____            __________
+ *         \__________/          \_____
+ *               L          R
+ *            SAMPLE     SAMPLE
+ */
+
+/*
+  Get active channel number according to channel format
+    switch (chan_fmt)
+    case I2S_CHANNEL_FMT_RIGHT_LEFT: //fall through
+    case I2S_CHANNEL_FMT_ALL_RIGHT:  //fall through
+    case I2S_CHANNEL_FMT_ALL_LEFT:
+        active_chan = 2;
+    case I2S_CHANNEL_FMT_ONLY_RIGHT: //fall through
+    case I2S_CHANNEL_FMT_ONLY_LEFT:
+        active_chan = 1;
+ */
+/*
+#if (CHANNEL_FORMAT == I2S_CHANNEL_FMT_RIGHT_LEFT) || (CHANNEL_FORMAT == I2S_CHANNEL_FMT_ALL_RIGHT) || (CHANNEL_FORMAT == I2S_CHANNEL_FMT_ALL_LEFT)
+    #de_fine ACTIVE_CHANELS 2
+#elif (CHANNEL_FORMAT == I2S_CHANNEL_FMT_ONLY_RIGHT) || (CHANNEL_FORMAT == I2S_CHANNEL_FMT_ONLY_LEFT)
+    #define ACTIVE_CHANELS 1
 #else
-  #error FRAME_SIZE
+    #error ACTIVE_CHANELS
 #endif
+*/
+#define ACTIVE_CHANELS ((CHANNEL_FORMAT == I2S_CHANNEL_FMT_RIGHT_LEFT) || (CHANNEL_FORMAT == I2S_CHANNEL_FMT_ALL_RIGHT) || (CHANNEL_FORMAT == I2S_CHANNEL_FMT_ALL_LEFT) ? 2 : 1)
 
+/**
+ * I2S DMA buffer size in bytes
+ *
+ *   bytes_per_sample - bytes per sample, align to 16 bit
+ *   bytes_per_frame = bytes_per_sample * active_chanels
+ *   DMA buffer size in bytes = dma_buf_len * bytes_per_frame;
+ */
 /*
  * Buffers size for ADC, DAC, Speex in bytes
  */
-#define ADC_BUFFER_SIZE_MAX (FRAME_SIZE * SAMPLE_SIZE_IN_BYTES) // in bytes !!!
+#define ADC_BUFFER_SIZE_IN_BYTES (FRAMES_PER_1s * ACTIVE_CHANELS * SAMPLE_SIZE_IN_BYTES)
+/*
+ * Buffer size for i2s inframes
+ */
+#define DMA_BUF_LEN_IN_I2S_FRAMES (FRAMES_PER_1s * ACTIVE_CHANELS)
 
 #define I2S_PORT I2S_NUM_0
 
 // #define AUDIO_MODULE_RX_BUFFER 128
-#define AUDIO_MODULE_MODE 3 // meshtastic_ModuleConfig_Audio_Config_Speex_Bit_Rate_SPEEX_5950
+#define AUDIO_MODULE_MODE meshtastic_ModuleConfig_Audio_Config_Speex_Bit_Rate_SPEEX_5950
 
 enum SpeexRadioState { speex_standby, speex_rx, speex_tx };
 
@@ -109,9 +134,9 @@ class SpeexModule : public SinglePortModule, public Observable<const UIFrameEven
     unsigned char rx_encode_frame[meshtastic_Constants_DATA_PAYLOAD_LEN] = {};
     unsigned char tx_encode_frame[meshtastic_Constants_DATA_PAYLOAD_LEN] = {};
     speex_c2_header tx_header = {};
-    int16_t speech[ADC_BUFFER_SIZE_MAX] = {};
-    int16_t output_buffer[ADC_BUFFER_SIZE_MAX] = {};
-    uint16_t adc_buffer[ADC_BUFFER_SIZE_MAX] = {};
+    int16_t speech[ADC_BUFFER_SIZE_IN_BYTES] = {};
+    int16_t output_buffer[ADC_BUFFER_SIZE_IN_BYTES] = {};
+    uint8_t adc_buffer[ADC_BUFFER_SIZE_IN_BYTES] = {};
     int adc_buffer_size = 0;
     uint16_t adc_buffer_index = 0;
     int tx_encode_frame_index = sizeof(speex_c2_header); // leave room for header
