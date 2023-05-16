@@ -4,6 +4,7 @@
 /*
  * i2s.read() -> speex.encode() -> lora-tx() -> lora->rx() -> speex.decode() -> i2s.write()
  */
+#define SELF_LISTENING_I2S
 //#define RUN_ENCODE_DECODE
 #ifdef RUN_ENCODE_DECODE
 #define RUN_TX_RX
@@ -27,22 +28,16 @@
 //#include <driver/i2s_std.h>
 #include <functional>
 
-#define CHANNEL_FORMAT I2S_CHANNEL_FMT_ONLY_LEFT
-
-/*
- * Samlpe size in bits, ADC/DAC resolution
- */
-#define SAMPLE_SIZE_IN_BITS (I2S_BITS_PER_SAMPLE_16BIT)
-
-#define SAMPLE_SIZE_IN_BYTES (((SAMPLE_SIZE_IN_BITS + 15) / 16) * 2)
+#define CHANNEL_FORMAT (I2S_CHANNEL_FMT_ONLY_LEFT)
 
 /*
  * Samlpe rate in Hz
  */
-#define SAMPLE_RATE_8kHz   8000 // narrowband     // Speex delay is 30 ms
-#define SAMPLE_RATE_16kHz 16000 // wideband       // Speex delay is 34 ms
-#define SAMPLE_RATE_32kHz 32000 // ultra-wideband // Speex delay is ??? ms
-#define SAMPLE_RATE_HZ (SAMPLE_RATE_8kHz)
+#define SAMPLE_RATE_HZ  8000 // narrowband     // Speex delay is 30 ms
+/*
+#define SAMPLE_RATE_HZ 16000 // wideband       // Speex delay is 34 ms
+#define SAMPLE_RATE_HZ 32000 // ultra-wideband // Speex delay is ??? ms
+*/
 
 /*
  * WORD SELECT = SAMPLE_RATE_HZ
@@ -53,6 +48,14 @@
  *     256k  =   8k *          2           *      16
  */
 #define F_CLK (F_WS * SAMPLE_SIZE_IN_BITS * 2) // 256kHz for 2 channels(Left & Right), 8kHz samlpe rate and 16bit per sample
+
+/*
+ * Samlpe size in bits, ADC/DAC resolution
+ */
+#define SAMPLE_SIZE_IN_BITS (I2S_BITS_PER_SAMPLE_16BIT)
+//#define SAMPLE_SIZE_IN_BITS (I2S_BITS_PER_SAMPLE_24BIT)
+
+#define SAMPLE_SIZE_IN_BYTES (((SAMPLE_SIZE_IN_BITS + 15) / 16) * 2)
 
 /*
  * At a frame rate of 50 the frames are 20 milliseconds long.
@@ -101,7 +104,7 @@
 /**
  * I2S DMA buffer size in bytes
  *
- *   bytes_per_sample - bytes per sample, align to 16 bit
+ *   bytes_per_sample is bytes per sample, align to 16 bit
  *   bytes_per_frame = bytes_per_sample * active_chanels
  *   DMA buffer size in bytes = dma_buf_len * bytes_per_frame;
  */
@@ -110,7 +113,7 @@
  */
 #define ADC_BUFFER_SIZE_IN_BYTES (FRAMES_PER_1s * ACTIVE_CHANELS * SAMPLE_SIZE_IN_BYTES) * 10
 /*
- * Buffer size for i2s inframes
+ * Buffer size for i2s in frames
  */
 #define DMA_BUF_LEN_IN_I2S_FRAMES (FRAMES_PER_1s * ACTIVE_CHANELS)
 
