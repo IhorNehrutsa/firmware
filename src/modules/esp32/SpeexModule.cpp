@@ -344,8 +344,8 @@ int32_t SpeexModule::runOnce()
                                        .channel_format = CHANNEL_FORMAT,
                                        .communication_format = I2S_COMM_FORMAT_STAND_I2S,
                                        .intr_alloc_flags = 0,
-                                       .dma_buf_count = 4, // 2-4
-                                       .dma_buf_len = DMA_BUF_LEN_IN_I2S_FRAMES * 4, // 1024, //
+                                       .dma_buf_count = 8, // 4, // 2-4
+                                       .dma_buf_len = DMA_BUF_LEN_IN_I2S_FRAMES*4/3,// * 4, //
                                        .use_apll = false,
                                        .tx_desc_auto_clear = true,
                                        .fixed_mclk = 0};

@@ -32,13 +32,12 @@
 
 /*
  * Samlpe rate in Hz
+ *
+ *  8000 // narrowband     // Speex delay is 30 ms
+ * 16000 // wideband       // Speex delay is 34 ms
+ * 32000 // ultra-wideband // Speex delay is ??? ms
  */
-#define SAMPLE_RATE_HZ  8000 // narrowband     // Speex delay is 30 ms
-/*
-#define SAMPLE_RATE_HZ 16000 // wideband       // Speex delay is 34 ms
-#define SAMPLE_RATE_HZ 32000 // ultra-wideband // Speex delay is ??? ms
-*/
-
+#define SAMPLE_RATE_HZ 16000
 /*
  * WORD SELECT = SAMPLE_RATE_HZ
  */
