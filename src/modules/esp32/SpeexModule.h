@@ -37,7 +37,7 @@
  * 16000 // wideband       // Speex delay is 34 ms
  * 32000 // ultra-wideband // Speex delay is ??? ms
  */
-#define SAMPLE_RATE_HZ 32000
+#define SAMPLE_RATE_HZ 8000
 /*
  * WORD SELECT = SAMPLE_RATE_HZ
  */
