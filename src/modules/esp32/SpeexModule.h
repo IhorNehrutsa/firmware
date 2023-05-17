@@ -4,10 +4,12 @@
 /*
  * i2s.read() -> speex.encode() -> lora-tx() -> lora->rx() -> speex.decode() -> i2s.write()
  */
-#define SELF_LISTENING_I2S
-//#define RUN_ENCODE_DECODE
-#ifdef RUN_ENCODE_DECODE
-#define RUN_TX_RX
+// #define SELF_LISTENING_I2S
+#ifndef SELF_LISTENING_I2S
+  #define RUN_ENCODE_DECODE
+  #ifdef RUN_ENCODE_DECODE
+  // #define RUN_TX_RX
+  #endif
 #endif
 
 // #define USE_BUTTERWORTH_FILTER
@@ -22,11 +24,19 @@
 #include <OLEDDisplay.h>
 #include <OLEDDisplayUi.h>
 #ifdef RUN_ENCODE_DECODE
-#include "speex/speex.h"
+extern "C" {
+#include <speex.h>
+}
 #endif
 #include <driver/i2s.h>
-//#include <driver/i2s_std.h>
 #include <functional>
+
+/*
+ * Time interval between samples (8 kbps) = 1s/8000 = 0.125ms = 125μs (16 bits per sample)
+ * Frame is 20ms.
+ * Frame length = 160 samples (16 bit) x 125μs = 20 ms
+ * One frame will compress to 20 bytes (8 kbps). Time per byte = 20 ms / 20 bytes = 1 ms / byte
+*/
 
 #define CHANNEL_FORMAT (I2S_CHANNEL_FMT_ONLY_LEFT)
 
