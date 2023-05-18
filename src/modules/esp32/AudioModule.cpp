@@ -1,8 +1,11 @@
-#if 0
-
 #include "configuration.h"
 #if defined(ARCH_ESP32)
 #include "AudioModule.h"
+#endif
+
+#ifdef USE_AUDIO_MODULE
+
+#if defined(ARCH_ESP32)
 #include "FSCommon.h"
 #include "MeshService.h"
 #include "NodeDB.h"
@@ -226,7 +229,7 @@ int32_t AudioModule::runOnce()
         } else {
             UIFrameEvent e = {false, true};
             // Check if PTT is pressed. TODO hook that into Onebutton/Interrupt drive.
-            if (digitalRead(moduleConfig.audio.ptt_pin ? moduleConfig.audio.ptt_pin : PTT_PIN) == LOW) {
+            if (digitalRead(moduleConfig.audio.ptt_pin ? moduleConfig.audio.ptt_pin : PTT_PIN) == HIGH) {
                 if (radio_state == RadioState::rx) {
                     LOG_INFO("PTT pressed, switching to TX\n");
                     radio_state = RadioState::tx;

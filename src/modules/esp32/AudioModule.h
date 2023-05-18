@@ -1,6 +1,8 @@
 #pragma once
 
-#if 0
+// #define USE_AUDIO_MODULE
+
+#ifdef USE_AUDIO_MODULE
 
 #include "SinglePortModule.h"
 #include "concurrency/NotifiedWorkerThread.h"
