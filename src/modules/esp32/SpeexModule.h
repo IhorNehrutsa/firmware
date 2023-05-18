@@ -1,18 +1,19 @@
 #pragma once
 
-#if 1
-/*
- * i2s.read() -> speex.encode() -> lora-tx() -> lora->rx() -> speex.decode() -> i2s.write()
- */
-// #define SELF_LISTENING_I2S
-#ifndef SELF_LISTENING_I2S
-  #define RUN_ENCODE_DECODE
-  #ifdef RUN_ENCODE_DECODE
-  // #define RUN_TX_RX
-  #endif
-#endif
+#define USE_SPEEX_MODULE
 
-// #define USE_BUTTERWORTH_FILTER
+#ifdef USE_SPEEX_MODULE
+/*
+ * DMA_BUF_LEN_IN_FRAMES -> adc_buffer -> speech->bits->tx_encode_frame ->           ->            ->   rx_encode_frame->bits->output_buffer -> output_buffer -> DMA_BUF_LEN_IN_FRAMES
+ * i2s.driver()          -> i2s.read() ->      speex.encode()           -> lora-tx() -> lora->rx() ->         speex.decode()                 -> i2s.write()   -> i2s.driver()
+ */
+#define RUN_ENCODE_DECODE /// +
+#ifdef RUN_ENCODE_DECODE
+  // #define RUN_TX_RX /// +
+#endif
+#define SELF_LISTENING_I2S /// -
+
+#define USE_BUTTERWORTH_FILTER
 
 #include "SinglePortModule.h"
 #include "concurrency/NotifiedWorkerThread.h"
@@ -23,69 +24,59 @@
 #include <ButterworthFilter.h>
 #include <OLEDDisplay.h>
 #include <OLEDDisplayUi.h>
-#ifdef RUN_ENCODE_DECODE
-extern "C" {
+//#ifdef RUN_ENCODE_DECODE
+// extern "C" {
+//#include <lsp.h>
+//#include <lpc.h>
 #include <speex.h>
-}
-#endif
+//}
+//#endif
 #include <driver/i2s.h>
 #include <functional>
 
 /*
- * Time interval between samples (8 kbps) = 1s/8000 = 0.125ms = 125μs (16 bits per sample)
- * Frame is 20ms.
- * Frame length = 160 samples (16 bit) x 125μs = 20 ms
- * One frame will compress to 20 bytes (8 kbps). Time per byte = 20 ms / 20 bytes = 1 ms / byte
-*/
-
-#define CHANNEL_FORMAT (I2S_CHANNEL_FMT_ONLY_LEFT)
-
-/*
  * Samlpe rate in Hz
- *
  *  8000 // narrowband     // Speex delay is 30 ms
  * 16000 // wideband       // Speex delay is 34 ms
- * 32000 // ultra-wideband // Speex delay is ??? ms
+ * 32000 // ultra-wideband // Speex delay is ?? ms
  */
 #define SAMPLE_RATE_HZ 8000
+
 /*
- * WORD SELECT = SAMPLE_RATE_HZ
- */
-#define F_WS (SAMPLE_RATE_HZ) // 8kHz for samlpe rate 8kHz
+ * Frame time is 20ms (50 frames por second).
+ * Time interval between samples (8 kbps) = 1s/8000 = 0.125ms = 125μs (16 bits per sample)
+ * Frame length = 160 samples (16 bit) x 125μs = 20 ms
+ * In narrowband, Speex frames are 20 ms long (160 samples)
+*/
+#define FRAME_TIME_IN_MS 20
+
 /*
- * bit_clock = rate * (number of channels) * bits_per_sample
- *     256k  =   8k *          2           *      16
+ * Frame length in samples
+ * 20ms / (1 / SAMPLE_RATE_HZ) == 20ms * SAMPLE_RATE_HZ == 20 * SAMPLE_RATE_HZ / 1000
+ * 160 // narrowband     // 20 *  8000 / 1000
+ * 320 // wideband       // 20 * 16000 / 1000
+ * 640 // ultra-wideband // 20 * 32000 / 1000
  */
-#define F_CLK (F_WS * SAMPLE_SIZE_IN_BITS * 2) // 256kHz for 2 channels(Left & Right), 8kHz samlpe rate and 16bit per sample
+#define FRAME_LENGTH_IN_SAMPLES (FRAME_TIME_IN_MS * SAMPLE_RATE_HZ / 1000)
 
 /*
  * Samlpe size in bits, ADC/DAC resolution
  */
+//#define SAMPLE_SIZE_IN_BITS (I2S_BITS_PER_SAMPLE_8BIT)
 #define SAMPLE_SIZE_IN_BITS (I2S_BITS_PER_SAMPLE_16BIT)
 //#define SAMPLE_SIZE_IN_BITS (I2S_BITS_PER_SAMPLE_24BIT)
 
 #define SAMPLE_SIZE_IN_BYTES (((SAMPLE_SIZE_IN_BITS + 15) / 16) * 2)
 
-/*
- * At a frame rate of 50 the frames are 20 milliseconds long.
- * 20ms (50 frames por second).
- */
+#define FRAME_SIZE_IN_BITS (FRAME_LENGTH_IN_SAMPLES * SAMPLE_SIZE_IN_BITS)
+#define FRAME_SIZE_IN_BYTES (FRAME_LENGTH_IN_SAMPLES * SAMPLE_SIZE_IN_BYTES)
 
 /*
- * Frames in 1 seconds with 20ms frame
- * 20ms / (1 / SAMPLE_RATE_HZ) == 20ms * SAMPLE_RATE_HZ == 20 * SAMPLE_RATE_HZ / 1000
- */
-#define FRAMES_PER_1s  (20 * SAMPLE_RATE_HZ / 1000)
-#define FRAMES_PER_1s_8kHz  160 // narrowband     // 20 * 8000 / 1000
-#define FRAMES_PER_1s_16kHz 320 // wideband       // 20 * 16000 / 1000
-#define FRAMES_PER_1s_32kHz 640 // ultra-wideband // 20 * 32000 / 1000
-
-/*
- *        |<-----   FRAME  ----->|
- *    _____            __________
- *         \__________/          \_____
- *               L          R
- *            SAMPLE     SAMPLE
+ *      |<-----                     20 ms FRAME                             ----->|
+ * _____            __________            __________
+ *      \__________/          \__________/          \_____
+ *            L          R
+ *         SAMPLE     SAMPLE
  */
 
 /*
@@ -99,6 +90,7 @@ extern "C" {
     case I2S_CHANNEL_FMT_ONLY_LEFT:
         active_chan = 1;
  */
+#define CHANNEL_FORMAT (I2S_CHANNEL_FMT_ONLY_LEFT)
 #define ACTIVE_CHANELS ((CHANNEL_FORMAT == I2S_CHANNEL_FMT_RIGHT_LEFT) || (CHANNEL_FORMAT == I2S_CHANNEL_FMT_ALL_RIGHT) || (CHANNEL_FORMAT == I2S_CHANNEL_FMT_ALL_LEFT) ? 2 : (CHANNEL_FORMAT == I2S_CHANNEL_FMT_ONLY_RIGHT) || (CHANNEL_FORMAT == I2S_CHANNEL_FMT_ONLY_LEFT) ? 1 : -1)
 
 /**
@@ -111,22 +103,35 @@ extern "C" {
 /*
  * Buffers size for ADC, DAC, Speex in bytes
  */
-#define ADC_BUFFER_SIZE_IN_BYTES (FRAMES_PER_1s * ACTIVE_CHANELS * SAMPLE_SIZE_IN_BYTES) * 10
+#define ADC_BUFFER_SIZE_IN_BYTES ((FRAME_LENGTH_IN_SAMPLES * ACTIVE_CHANELS * SAMPLE_SIZE_IN_BYTES) * 10)
 /*
  * Buffer size for i2s in frames
  */
-#define DMA_BUF_LEN_IN_I2S_FRAMES (FRAMES_PER_1s * ACTIVE_CHANELS)
+#define DMA_BUF_LEN_IN_FRAMES ((FRAME_LENGTH_IN_SAMPLES * ACTIVE_CHANELS) * 4)
+#define DMA_BUF_COUNT 2
+// SAMPLE_RATE_HZ  16k // 32k
+//                  2, //  4, //  8, //
+
+/*
+ * WORD SELECT = SAMPLE_RATE_HZ
+ */
+#define F_WS (SAMPLE_RATE_HZ) // 8kHz for samlpe rate 8kHz
+/*
+ * bit_clock = rate * (number of channels) * bits_per_sample
+ *     256k  =   8k *          2           *      16
+ */
+#define F_CLK (F_WS * SAMPLE_SIZE_IN_BITS * 2) // 256kHz for 2 channels(Left & Right), 8kHz samlpe rate and 16bit per sample
 
 #define I2S_PORT I2S_NUM_0
 
 // #define AUDIO_MODULE_RX_BUFFER 128
-#define AUDIO_MODULE_MODE meshtastic_ModuleConfig_Audio_Config_Speex_Bit_Rate_SPEEX_5950
+#define SPEEX_MODE meshtastic_ModuleConfig_Audio_Config_Speex_Bit_Rate_SPEEX_3950
 
 enum SpeexRadioState { speex_standby, speex_rx, speex_tx };
 
-const char speex_c2_magic[3] = {0xc0, 0xde, 0xc2}; // Magic number for speex header
+const char speex_magic[3] = {0xc0, 0xde, 0xc2}; // Magic number for speex header
 
-struct speex_c2_header {
+struct speex_header {
     char magic[3];
     char mode;
 };
@@ -136,19 +141,20 @@ class SpeexModule : public SinglePortModule, public Observable<const UIFrameEven
   public:
     unsigned char rx_encode_frame[meshtastic_Constants_DATA_PAYLOAD_LEN] = {};
     unsigned char tx_encode_frame[meshtastic_Constants_DATA_PAYLOAD_LEN] = {};
-    speex_c2_header tx_header = {};
-    int16_t speech[ADC_BUFFER_SIZE_IN_BYTES] = {};
-    int16_t output_buffer[ADC_BUFFER_SIZE_IN_BYTES] = {};
-    uint8_t adc_buffer[ADC_BUFFER_SIZE_IN_BYTES] = {};
-    int adc_buffer_size = 0;
-    uint16_t adc_buffer_index = 0;
-    int tx_encode_frame_index = sizeof(speex_c2_header); // leave room for header
-    int rx_encode_frame_index = 0;
-    int encode_codec_size = 0; // codec2_bits_per_frame
-    int encode_frame_size = 0;
+    speex_header tx_header = {};
+    spx_int16_t speech[ADC_BUFFER_SIZE_IN_BYTES] = {};
+    spx_int16_t output_buffer[ADC_BUFFER_SIZE_IN_BYTES] = {};
+    unsigned char adc_buffer[ADC_BUFFER_SIZE_IN_BYTES] = {};
+    unsigned int adc_buffer_size = 0; // in bytes
+    unsigned int adc_buffer_index = 0;
+    unsigned int tx_encode_frame_index = sizeof(speex_header); // leave room for header
+    unsigned int rx_encode_frame_index = 0;
+    unsigned int encode_codec_size = 0; // speex_bits_per_frame ???
+    unsigned int encode_frame_size = 0;
     volatile SpeexRadioState radio_state = SpeexRadioState::speex_rx;
 
-    void *speex = NULL; // speex encoder state
+    void *speex_enc = NULL; // speex encoder state
+    void *speex_dec = NULL; // speex decoder state
 
     SpeexModule();
 
