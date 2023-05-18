@@ -79,8 +79,12 @@ void setupModules()
 #endif
 #ifdef ARCH_ESP32
         // Only run on an esp32 based device.
-        //audioModule = new AudioModule();
+#ifdef USE_AUDIO_MODULE
+        audioModule = new AudioModule();
+#endif
+#ifdef USE_SPEEX_MODULE
         speexModule = new  SpeexModule();
+#endif
 
         externalNotificationModule = new ExternalNotificationModule();
 
