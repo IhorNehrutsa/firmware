@@ -7,15 +7,17 @@
  * DMA_BUF_LEN_IN_FRAMES -> adc_buffer -> speech -> bits -> tx_encode_frame -> tx_encode_frame->payload ->
  * i2s.driver()          -> i2s.read() ->        speex.encode()             ->         lora-tx()        ->
  *
- *              payload->rx_encode_frame -> rx_encode_frame -> bits -> output_buffer -> output_buffer -> DMA_BUF_LEN_IN_FRAMES
- *                    lora->rx()         ->              speex.decode()              ->  i2s.write()  -> i2s.driver()
+ *            payload->rx_encode_frame -> rx_encode_frame -> bits -> output_buffer -> output_buffer -> DMA_BUF_LEN_IN_FRAMES
+ *                  lora->rx()         ->              speex.decode()              ->  i2s.write()  -> i2s.driver()
  */
-#define RUN_ENCODE_DECODE /// +
-#ifdef RUN_ENCODE_DECODE
+
+//#define DO_ENCODE_DECODE /// +
+#ifdef DO_ENCODE_DECODE
   //#define SELF_LISTENING_ENCODE
   // #define RUN_TX_RX /// +
 #endif
-#define SELF_LISTENING_I2S /// -
+// #define SELF_LISTENING_I2S /// -
+#define SELF_LISTENING_TX_RX /// -
 
 // #define USE_BUTTERWORTH_FILTER
 
@@ -28,7 +30,7 @@
 #include <ButterworthFilter.h>
 #include <OLEDDisplay.h>
 #include <OLEDDisplayUi.h>
-//#ifdef RUN_ENCODE_DECODE
+//#ifdef DO_ENCODE_DECODE
 // extern "C" {
 //#include <lsp.h>
 //#include <lpc.h>
@@ -131,7 +133,7 @@
 // #define AUDIO_MODULE_RX_BUFFER 128
 #define SPEEX_MODE meshtastic_ModuleConfig_Audio_Config_Speex_Bit_Rate_SPEEX_3950
 
-enum SpeexRadioState { speex_standby, speex_rx, speex_tx };
+enum SpeexRadioState { speex_rx = 1, speex_tx = 2 };
 
 struct tx_header_t {
     char magic[3];
