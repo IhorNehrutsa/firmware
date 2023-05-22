@@ -166,7 +166,7 @@ void run_speex(void *parameter)
                     speexModule->tx_encode_frame_index += nbBytes; // speexModule->encode_codec_size;
 
                     if (speexModule->tx_encode_frame_index == (ENCODE_FRAME_SIZE + sizeof(tx_header_t))) {
-#ifdef SELF_LISTENING_I2S
+#ifdef SELF_LISTENING_ENCODE
                         speexModule->rx_encode_frame_index = speexModule->tx_encode_frame_index;
                         memcpy(speexModule->rx_encode_frame, speexModule->tx_encode_frame, speexModule->rx_encode_frame_index);
 
@@ -176,7 +176,6 @@ void run_speex(void *parameter)
                         vTaskNotifyGiveFromISR(speexHandlerTask, &xHigherPriorityTaskWoken);
                         if (xHigherPriorityTaskWoken == pdTRUE)
                             YIELD_FROM_ISR(xHigherPriorityTaskWoken);
-#else
 #endif
                         LOG_INFO("Sending %d speex bytes\n", ENCODE_FRAME_SIZE);
                         speexModule->sendPayload();
@@ -197,7 +196,7 @@ void run_speex(void *parameter)
                     if (status) {
                         LOG_ERROR("speex_decode_int: status %d\n", status);
                     }
-                    #ifndef SELF_LISTENING_I2S
+                    // #ifndef SELF_LISTENING_I2S
                     res = i2s_write(I2S_PORT, &speexModule->output_buffer, ADC_BUF_SIZE_IN_BYTES, &bytesOut, pdMS_TO_TICKS(500));
                     if (res == ESP_OK) {
                         LOG_INFO("i2s_write: res=%d, bytesOut=%d, ADC_BUF_SIZE_IN_BYTES=%d\n", res, bytesOut, ADC_BUF_SIZE_IN_BYTES);
@@ -207,7 +206,7 @@ void run_speex(void *parameter)
                     } else {
                         LOG_ERROR("i2s_write: result %d\n", res);
                     }
-                    #endif
+                    // #endif
                 }
             }
         #endif

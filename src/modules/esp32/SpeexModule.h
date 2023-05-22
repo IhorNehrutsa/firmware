@@ -4,16 +4,20 @@
 
 #ifdef USE_SPEEX_MODULE
 /*
- * DMA_BUF_LEN_IN_FRAMES -> adc_buffer -> speech->bits->tx_encode_frame -> tx_encode_frame->payload ->            ->   rx_encode_frame->bits->output_buffer -> output_buffer -> DMA_BUF_LEN_IN_FRAMES
- * i2s.driver()          -> i2s.read() ->      speex.encode()           ->         lora-tx()        -> lora->rx() ->         speex.decode()                 -> i2s.write()   -> i2s.driver()
+ * DMA_BUF_LEN_IN_FRAMES -> adc_buffer -> speech -> bits -> tx_encode_frame -> tx_encode_frame->payload ->
+ * i2s.driver()          -> i2s.read() ->        speex.encode()             ->         lora-tx()        ->
+ *
+ *              payload->rx_encode_frame -> rx_encode_frame -> bits -> output_buffer -> output_buffer -> DMA_BUF_LEN_IN_FRAMES
+ *                    lora->rx()         ->              speex.decode()              ->  i2s.write()  -> i2s.driver()
  */
 #define RUN_ENCODE_DECODE /// +
 #ifdef RUN_ENCODE_DECODE
-  #define RUN_TX_RX /// +
+  //#define SELF_LISTENING_ENCODE
+  // #define RUN_TX_RX /// +
 #endif
-// #define SELF_LISTENING_I2S /// -
+#define SELF_LISTENING_I2S /// -
 
-#define USE_BUTTERWORTH_FILTER
+// #define USE_BUTTERWORTH_FILTER
 
 #include "SinglePortModule.h"
 #include "concurrency/NotifiedWorkerThread.h"
@@ -103,12 +107,12 @@
 /*
  * Buffers size for ADC, DAC, Speex in bytes
  */
-#define ADC_BUF_SIZE_IN_BYTES ((FRAME_LENGTH_IN_SAMPLES * ACTIVE_CHANELS * SAMPLE_SIZE_IN_BYTES) * 10)
+#define ADC_BUF_SIZE_IN_BYTES ((FRAME_LENGTH_IN_SAMPLES * ACTIVE_CHANELS * SAMPLE_SIZE_IN_BYTES) * 6) // 1024*2 //
 /*
  * Buffer size for i2s in frames
  */
-#define DMA_BUF_LEN_IN_FRAMES ((FRAME_LENGTH_IN_SAMPLES * ACTIVE_CHANELS) * 4)
-#define DMA_BUF_COUNT 2
+#define DMA_BUF_LEN_IN_FRAMES ((FRAME_LENGTH_IN_SAMPLES * ACTIVE_CHANELS) * 6) // 1024 //
+#define DMA_BUF_COUNT 4
 // SAMPLE_RATE_HZ  16k // 32k
 //                  2, //  4, //  8, //
 
