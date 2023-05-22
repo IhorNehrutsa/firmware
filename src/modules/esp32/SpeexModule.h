@@ -4,14 +4,14 @@
 
 #ifdef USE_SPEEX_MODULE
 /*
- * DMA_BUF_LEN_IN_FRAMES -> adc_buffer -> speech->bits->tx_encode_frame ->           ->            ->   rx_encode_frame->bits->output_buffer -> output_buffer -> DMA_BUF_LEN_IN_FRAMES
- * i2s.driver()          -> i2s.read() ->      speex.encode()           -> lora-tx() -> lora->rx() ->         speex.decode()                 -> i2s.write()   -> i2s.driver()
+ * DMA_BUF_LEN_IN_FRAMES -> adc_buffer -> speech->bits->tx_encode_frame -> tx_encode_frame->payload ->            ->   rx_encode_frame->bits->output_buffer -> output_buffer -> DMA_BUF_LEN_IN_FRAMES
+ * i2s.driver()          -> i2s.read() ->      speex.encode()           ->         lora-tx()        -> lora->rx() ->         speex.decode()                 -> i2s.write()   -> i2s.driver()
  */
 #define RUN_ENCODE_DECODE /// +
 #ifdef RUN_ENCODE_DECODE
-  // #define RUN_TX_RX /// +
+  #define RUN_TX_RX /// +
 #endif
-#define SELF_LISTENING_I2S /// -
+// #define SELF_LISTENING_I2S /// -
 
 #define USE_BUTTERWORTH_FILTER
 
@@ -103,7 +103,7 @@
 /*
  * Buffers size for ADC, DAC, Speex in bytes
  */
-#define ADC_BUFFER_SIZE_IN_BYTES ((FRAME_LENGTH_IN_SAMPLES * ACTIVE_CHANELS * SAMPLE_SIZE_IN_BYTES) * 10)
+#define ADC_BUF_SIZE_IN_BYTES ((FRAME_LENGTH_IN_SAMPLES * ACTIVE_CHANELS * SAMPLE_SIZE_IN_BYTES) * 10)
 /*
  * Buffer size for i2s in frames
  */
@@ -129,28 +129,25 @@
 
 enum SpeexRadioState { speex_standby, speex_rx, speex_tx };
 
-const char speex_magic[3] = {0xc0, 0xde, 0xc2}; // Magic number for speex header
-
-struct speex_header {
+struct tx_header_t {
     char magic[3];
     char mode;
 };
+
+#define ENCODE_FRAME_SIZE (meshtastic_Constants_DATA_PAYLOAD_LEN - sizeof(tx_header_t))
 
 class SpeexModule : public SinglePortModule, public Observable<const UIFrameEvent *>, private concurrency::OSThread
 {
   public:
     unsigned char rx_encode_frame[meshtastic_Constants_DATA_PAYLOAD_LEN] = {};
+    unsigned int rx_encode_frame_index = 0; // actual incoming data length
     unsigned char tx_encode_frame[meshtastic_Constants_DATA_PAYLOAD_LEN] = {};
-    speex_header tx_header = {};
-    spx_int16_t speech[ADC_BUFFER_SIZE_IN_BYTES] = {};
-    spx_int16_t output_buffer[ADC_BUFFER_SIZE_IN_BYTES] = {};
-    unsigned char adc_buffer[ADC_BUFFER_SIZE_IN_BYTES] = {};
-    unsigned int adc_buffer_size = 0; // in bytes
+    unsigned int tx_encode_frame_index = sizeof(tx_header_t); // actual outgoing data length, leave room for header
+    spx_int16_t speech[ADC_BUF_SIZE_IN_BYTES] = {};
+    spx_int16_t output_buffer[ADC_BUF_SIZE_IN_BYTES] = {};
+    unsigned char adc_buffer[ADC_BUF_SIZE_IN_BYTES] = {}; // i2s.read() to the adc_buffer
     unsigned int adc_buffer_index = 0;
-    unsigned int tx_encode_frame_index = sizeof(speex_header); // leave room for header
-    unsigned int rx_encode_frame_index = 0;
     unsigned int encode_codec_size = 0; // speex_bits_per_frame ???
-    unsigned int encode_frame_size = 0;
     volatile SpeexRadioState radio_state = SpeexRadioState::speex_rx;
 
     void *speex_enc = NULL; // speex encoder state

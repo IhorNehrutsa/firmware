@@ -50,6 +50,11 @@
 #define xTaskGetMs() (xTaskGetTickCount() * 1000 / configTICK_RATE_HZ)
 #define esp_millis() ((esp_timer_get_time() + 500ULL) / 1000ULL)
 
+tx_header_t tx_header = {
+    .magic = {0xc0, 0xde, 0xc2}, // Magic number for speex header
+    .mode =0
+};
+
 static ButterworthFilter hp_filter(240, 8000, ButterworthFilter::ButterworthFilter::Highpass, 1);
 
 TaskHandle_t speexHandlerTask;
@@ -144,7 +149,7 @@ void run_speex(void *parameter)
         #ifdef RUN_ENCODE_DECODE
             if (speexModule->radio_state == SpeexRadioState::speex_tx) {
                 #ifdef USE_BUTTERWORTH_FILTER
-                for (int i = 0; i < speexModule->adc_buffer_size; i++)
+                for (int i = 0; i < ADC_BUF_SIZE_IN_BYTES; i++)
                     speexModule->speech[i] = (int16_t)hp_filter.Update((float)speexModule->speech[i]);
                 #endif
                 // Flush all the bits in the struct so we can encode a new frame
@@ -155,22 +160,36 @@ void run_speex(void *parameter)
                 nbBytes = speex_bits_nbytes(&bits);
                 if (nbBytes) {
                     // Copy the bits to an array of char that can be written
-                    nbBytes = speex_bits_write(&bits, (char *)speexModule->tx_encode_frame
-                     + speexModule->tx_encode_frame_index, meshtastic_Constants_DATA_PAYLOAD_LEN - speexModule->tx_encode_frame_index);
+                    nbBytes = speex_bits_write(&bits, (char *)speexModule->tx_encode_frame + speexModule->tx_encode_frame_index,
+                     meshtastic_Constants_DATA_PAYLOAD_LEN - speexModule->tx_encode_frame_index);
 
                     speexModule->tx_encode_frame_index += nbBytes; // speexModule->encode_codec_size;
 
-                    #ifndef SELF_LISTENING_I2S
-                    if (speexModule->tx_encode_frame_index == (speexModule->encode_frame_size + sizeof(speexModule->tx_header))) {
-                        LOG_INFO("Sending %d speex bytes\n", speexModule->encode_frame_size);
+                    if (speexModule->tx_encode_frame_index == (ENCODE_FRAME_SIZE + sizeof(tx_header_t))) {
+#ifdef SELF_LISTENING_I2S
+                        speexModule->rx_encode_frame_index = speexModule->tx_encode_frame_index;
+                        memcpy(speexModule->rx_encode_frame, speexModule->tx_encode_frame, speexModule->rx_encode_frame_index);
+
+                        // Notify run_speex task that the buffer is ready.
+                        speexModule->radio_state = SpeexRadioState::speex_rx;
+                        BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+                        vTaskNotifyGiveFromISR(speexHandlerTask, &xHigherPriorityTaskWoken);
+                        if (xHigherPriorityTaskWoken == pdTRUE)
+                            YIELD_FROM_ISR(xHigherPriorityTaskWoken);
+#else
+#endif
+                        LOG_INFO("Sending %d speex bytes\n", ENCODE_FRAME_SIZE);
                         speexModule->sendPayload();
-                        speexModule->tx_encode_frame_index = sizeof(speexModule->tx_header);
+                        speexModule->tx_encode_frame_index = sizeof(tx_header_t);
                     }
-                    #endif
                 }
             } else if (speexModule->radio_state == SpeexRadioState::speex_rx) {
                 size_t bytesOut = 0;
-                for (int i = sizeof(speexModule->tx_header); i < speexModule->rx_encode_frame_index; i += speexModule->encode_codec_size) {
+                for (int i = sizeof(tx_header_t); i < speexModule->rx_encode_frame_index; i += speexModule->encode_codec_size) {
+                    tx_header_t h;
+                    memcpy(&h, speexModule->rx_encode_frame, sizeof(h));
+                    speex_decoder_ctl(speexModule->speex_dec, SPEEX_SET_MODE, &h.mode);
+
                     // Copy data packet to Speex bitstream
                     speex_bits_read_from(&bits, (char*)speexModule->rx_encode_frame, FRAME_LENGTH_IN_SAMPLES);
 
@@ -178,12 +197,14 @@ void run_speex(void *parameter)
                     if (status) {
                         LOG_ERROR("speex_decode_int: status %d\n", status);
                     }
-                    // #else
-                    // memcpy(speexModule->output_buffer, speexModule->speech, 2 * speexModule->adc_buffer_size);
                     #ifndef SELF_LISTENING_I2S
-                    res = i2s_write(I2S_PORT, &speexModule->output_buffer, speexModule->adc_buffer_size, &bytesOut, pdMS_TO_TICKS(500));
-                    LOG_INFO("i2s_write: res=%d, bytesOut=%d, adc_buffer_index=%d, adc_buffer_size=%d\n", res, bytesOut, speexModule->adc_buffer_index, speexModule->adc_buffer_size);
-                    if (res != ESP_OK) {
+                    res = i2s_write(I2S_PORT, &speexModule->output_buffer, ADC_BUF_SIZE_IN_BYTES, &bytesOut, pdMS_TO_TICKS(500));
+                    if (res == ESP_OK) {
+                        LOG_INFO("i2s_write: res=%d, bytesOut=%d, ADC_BUF_SIZE_IN_BYTES=%d\n", res, bytesOut, ADC_BUF_SIZE_IN_BYTES);
+                        if (ADC_BUF_SIZE_IN_BYTES != bytesOut) {
+                            LOG_ERROR("i2s_write: ADC_BUF_SIZE_IN_BYTES != bytesOut %d , %d\n", ADC_BUF_SIZE_IN_BYTES, bytesOut);
+                        }
+                    } else {
                         LOG_ERROR("i2s_write: result %d\n", res);
                     }
                     #endif
@@ -231,11 +252,10 @@ SpeexModule::SpeexModule() : SinglePortModule("SpeexModule", meshtastic_PortNum_
     // myRegion->audioPermitted = true;
 #endif
     if ((moduleConfig.audio_config.codec == meshtastic_ModuleConfig_Audio_Config_Audio_Codec_CODEC_SPEEX) && (myRegion->audioPermitted)) {
-        memcpy(tx_header.magic, speex_magic, sizeof(speex_magic));
         tx_header.mode = (moduleConfig.audio_config.bitrate.speex_bitrate ? moduleConfig.audio_config.bitrate.speex_bitrate : SPEEX_MODE);
 
         // 4 bytes of header in each frame hex c0 de c2 plus the bitrate
-        memcpy(tx_encode_frame, &tx_header, sizeof(tx_header));
+        memcpy(tx_encode_frame, &tx_header, sizeof(tx_header_t));
 
         LOG_INFO("Setting up speex in mode %u\n", tx_header.mode);
         LOG_INFO("SAMPLE_RATE_HZ=%u\n", SAMPLE_RATE_HZ);
@@ -247,7 +267,7 @@ SpeexModule::SpeexModule() : SinglePortModule("SpeexModule", meshtastic_PortNum_
         LOG_INFO("FRAME_SIZE_IN_BYTES=%u\n", FRAME_SIZE_IN_BYTES);
         LOG_INFO("CHANNEL_FORMAT=%u\n", CHANNEL_FORMAT);
         LOG_INFO("ACTIVE_CHANELS=%u\n", ACTIVE_CHANELS);
-        LOG_INFO("ADC_BUFFER_SIZE_IN_BYTES=%u\n", ADC_BUFFER_SIZE_IN_BYTES);
+        LOG_INFO("ADC_BUF_SIZE_IN_BYTES=%u\n", ADC_BUF_SIZE_IN_BYTES);
         LOG_INFO("DMA_BUF_LEN_IN_FRAMES=%u\n", DMA_BUF_LEN_IN_FRAMES);
         LOG_INFO("DMA_BUF_COUNT=%u\n", DMA_BUF_COUNT);
         LOG_INFO("F_WS=%u\n", F_WS);
@@ -307,22 +327,13 @@ SPEEX_GET_HIGHPASS         Get the current high-pass filter status (spx_int32_t)
         spx_int32_t quality = 8;
         speex_encoder_ctl(speex_enc, SPEEX_SET_QUALITY, &quality);
 
-        spx_int32_t frame_size; // expressed in samples, notbytes
-        speex_encoder_ctl(speex_enc, SPEEX_GET_FRAME_SIZE, &frame_size);
-        LOG_INFO("frame_size=%u\n", frame_size);
-
-        // speex_set_lpc_post_filter(speex, 1, 0, 0.8, 0.2);
         encode_codec_size = FRAME_LENGTH_IN_SAMPLES; // (speex_bits_per_frame(speex) + 7) / 8;
-        encode_frame_num = (meshtastic_Constants_DATA_PAYLOAD_LEN - sizeof(tx_header)) / encode_codec_size;
-        encode_frame_size = frame_size; // encode_frame_num * encode_codec_size; // max 233 bytes + 4 header bytes
-        // adc_buffer_size = speex_samples_per_frame(speex);
-        speex_encoder_ctl(speex_enc, SPEEX_GET_FRAME_SIZE, &adc_buffer_size); // Get the number of samples per frame for the current mode (spx_int32_t)
-        LOG_INFO("using %d frames of %d bytes for a total payload length of %d bytes\n", encode_frame_num, encode_codec_size, encode_frame_size);
+        encode_frame_num = (meshtastic_Constants_DATA_PAYLOAD_LEN - sizeof(tx_header_t)) / encode_codec_size;
+        spx_int32_t speex_frame_size;
+        speex_encoder_ctl(speex_enc, SPEEX_GET_FRAME_SIZE, &speex_frame_size); // Get the number of samples per frame for the current mode (spx_int32_t)
+        LOG_INFO("using %d frames of %d bytes for a total payload length of %d bytes\n", encode_frame_num, encode_codec_size, ENCODE_FRAME_SIZE);
 
 #endif
-        //adc_buffer_size = ADC_BUFFER_SIZE_MAX;
-        //adc_buffer_size = 1 << 9; //1024 / 2;
-        //adc_buffer_size = ADC_BUFFER_SIZE_IN_BYTES;
         xTaskCreate(&run_speex, "speex_task", 32768, NULL, configMAX_PRIORITIES, &speexHandlerTask);
     } else {
         disable();
@@ -420,12 +431,12 @@ int32_t SpeexModule::runOnce()
             } else {
                 if (radio_state == SpeexRadioState::speex_tx) {
                     LOG_INFO("PTT released, switching to RX\n");
-                    if (tx_encode_frame_index > sizeof(tx_header)) {
+                    if (tx_encode_frame_index > sizeof(tx_header_t)) {
                         // Send the incomplete frame
                         LOG_INFO("Sending %d speex bytes (incomplete)\n", tx_encode_frame_index);
                         sendPayload();
                     }
-                    tx_encode_frame_index = sizeof(tx_header);
+                    tx_encode_frame_index = sizeof(tx_header_t);
                     radio_state = SpeexRadioState::speex_rx;
                     e.frameChanged = true;
                     this->notifyObservers(&e);
@@ -434,20 +445,21 @@ int32_t SpeexModule::runOnce()
             if (radio_state == SpeexRadioState::speex_tx) {
                 // Get I2S data from the microphone and place in data buffer
                 size_t bytesIn = 0;
-                res = i2s_read(I2S_PORT, adc_buffer + adc_buffer_index, adc_buffer_size - adc_buffer_index, &bytesIn,
+                res = i2s_read(I2S_PORT, adc_buffer + adc_buffer_index, ADC_BUF_SIZE_IN_BYTES - adc_buffer_index, &bytesIn,
                                pdMS_TO_TICKS(40)); // wait 40ms(2 of 20ms frame time) for audio to arrive.
-                millis_rd = esp_millis();
-                LOG_INFO("i2s_read:  res=%d, bytesIn=%d,  adc_buffer_index=%d, adc_buffer_size=%d, esp_millis()=%lu, dt_millis()=%lu\n", res, bytesIn, adc_buffer_index, adc_buffer_size, millis_rd, millis_rd-_millis_rd);
-                _millis_rd = millis_rd;
                 if (res == ESP_OK) {
+                    millis_rd = esp_millis();
+                    LOG_INFO("i2s_read:  res=%d, bytesIn=%d,  adc_buffer_index=%d, ADC_BUF_SIZE_IN_BYTES=%d, esp_millis()=%lu, dt_millis()=%lu\n", res, bytesIn, adc_buffer_index, ADC_BUF_SIZE_IN_BYTES, millis_rd, millis_rd-_millis_rd);
+                    _millis_rd = millis_rd;
+
                     adc_buffer_index += bytesIn;
-                    if (adc_buffer_index == adc_buffer_size) {
+                    if (adc_buffer_index == ADC_BUF_SIZE_IN_BYTES) {
 
                         #ifdef SELF_LISTENING_I2S
                         size_t bytesOut = 0;
-                        res = i2s_write(I2S_PORT, adc_buffer, adc_buffer_size, &bytesOut, pdMS_TO_TICKS(40));
+                        res = i2s_write(I2S_PORT, adc_buffer, ADC_BUF_SIZE_IN_BYTES, &bytesOut, pdMS_TO_TICKS(40));
                         millis_wr = esp_millis();
-                        LOG_INFO("i2s_write: res=%d, bytesOut=%d, adc_buffer_index=%d, adc_buffer_size=%d, esp_millis()=%lu dt_millis()=%lu\n", res, bytesOut, adc_buffer_index, adc_buffer_size, millis_wr, millis_wr - _millis_wr);
+                        LOG_INFO("i2s_write: res=%d, bytesOut=%d, ADC_BUF_SIZE_IN_BYTES=%d, esp_millis()=%lu dt_millis()=%lu\n", res, bytesOut, ADC_BUF_SIZE_IN_BYTES, millis_wr, millis_wr - _millis_wr);
                         _millis_wr = millis_wr;
                         if (res != ESP_OK) {
                             LOG_ERROR("i2s_write: result %d\n", res);
@@ -455,7 +467,6 @@ int32_t SpeexModule::runOnce()
                         #endif
 
                         adc_buffer_index = 0;
-//                        memcpy((void *)speech, (void *)adc_buffer, 2 * adc_buffer_size);
 
                         // Notify run_speex task that the buffer is ready.
                         radio_state = SpeexRadioState::speex_tx;
@@ -510,9 +521,10 @@ ProcessMessage SpeexModule::handleReceived(const meshtastic_MeshPacket &mp)
         auto &p = mp.decoded;
         if (getFrom(&mp) != nodeDB.getNodeNum()) {
             memcpy(rx_encode_frame, p.payload.bytes, p.payload.size);
-            radio_state = SpeexRadioState::speex_rx;
             rx_encode_frame_index = p.payload.size;
+
             // Notify run_speex task that the buffer is ready.
+            radio_state = SpeexRadioState::speex_rx;
             BaseType_t xHigherPriorityTaskWoken = pdFALSE;
             vTaskNotifyGiveFromISR(speexHandlerTask, &xHigherPriorityTaskWoken);
             if (xHigherPriorityTaskWoken == pdTRUE)
