@@ -11,12 +11,12 @@
  *                  lora->rx()         ->              speex.decode()              ->  i2s.write()  -> i2s.driver()
  */
 
-//#define DO_ENCODE_DECODE /// +
+// #define DO_ENCODE_DECODE /// +
 #ifdef DO_ENCODE_DECODE
   //#define SELF_LISTENING_ENCODE
   // #define RUN_TX_RX /// +
 #endif
-// #define SELF_LISTENING_I2S /// -
+//#define SELF_LISTENING_I2S /// -
 #define SELF_LISTENING_TX_RX /// -
 
 // #define USE_BUTTERWORTH_FILTER
@@ -149,7 +149,7 @@ class SpeexModule : public SinglePortModule, public Observable<const UIFrameEven
     unsigned int rx_encode_frame_index = 0; // actual incoming data length
     unsigned char tx_encode_frame[meshtastic_Constants_DATA_PAYLOAD_LEN] = {};
     unsigned int tx_encode_frame_index = sizeof(tx_header_t); // actual outgoing data length, leave room for header
-    unsigned char speech[ADC_BUF_SIZE_IN_BYTES] = {};
+    unsigned char speech[ADC_BUF_SIZE_IN_BYTES] = {}; // ???
     unsigned char output_buffer[ADC_BUF_SIZE_IN_BYTES] = {}; // i2s.write() from the output_buffer to the dma_buf
     unsigned char adc_buffer[ADC_BUF_SIZE_IN_BYTES] = {}; // i2s.read() to the adc_buffer from the dma_buf
     unsigned int adc_buffer_index = 0;

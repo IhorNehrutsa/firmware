@@ -142,7 +142,7 @@ void run_speex(void *parameter)
 
     esp_err_t res;
     int status;
-    int nbBytes;
+    int nBytes;
     while (true) {
         uint32_t tcount = ulTaskNotifyTake(pdFALSE, pdMS_TO_TICKS(10000));
         if (tcount != 0) {
@@ -155,40 +155,41 @@ void run_speex(void *parameter)
                 // Flush all the bits in the struct so we can encode a new frame
                 speex_bits_reset(&bits);
                 // Encode frame
-                status = speex_encode_int(speexModule->speex_enc, speexModule->speech, &bits);
+                status = speex_encode_int(speexModule->speex_enc, (spx_int16_t *)speexModule->speech, &bits);
                 // Get number of bytes that need to be written
-                nbBytes = speex_bits_nbytes(&bits);
-                if (nbBytes) {
+                nBytes = speex_bits_nbytes(&bits);
+                if (nBytes) {
                     // Copy the bits to an array of char that can be written
-                    nbBytes = speex_bits_write(&bits, (char *)speexModule->tx_encode_frame + speexModule->tx_encode_frame_index,
+                    nBytes = speex_bits_write(&bits, (char *)speexModule->tx_encode_frame + speexModule->tx_encode_frame_index,
                                                      meshtastic_Constants_DATA_PAYLOAD_LEN - speexModule->tx_encode_frame_index);
 
-                    speexModule->tx_encode_frame_index += nbBytes;
+                    speexModule->tx_encode_frame_index += nBytes;
 
-                    LOG_INFO("tx_encode_frame_index=%d, nbBytes=%d\n", speexModule->tx_encode_frame_index, nbBytes);
+                    LOG_INFO("tx_encode_frame_index=%d, nBytes=%d\n", speexModule->tx_encode_frame_index, nBytes);
 #else
                 if (true) {
-                    memcpy(speexModule->tx_encode_frame + speexModule->tx_encode_frame_index, speexModule->speech + speexModule->tx_encode_frame_index, FRAME_LENGTH_IN_SAMPLES);
-                    speexModule->tx_encode_frame_index += FRAME_LENGTH_IN_SAMPLES;
+                    nBytes = meshtastic_Constants_DATA_PAYLOAD_LEN - speexModule->tx_encode_frame_index; // FRAME_LENGTH_IN_SAMPLES // ENCODE_FRAME_SIZE
+                    memcpy(speexModule->tx_encode_frame + speexModule->tx_encode_frame_index, speexModule->speech + speexModule->tx_encode_frame_index, nBytes);
+                    speexModule->tx_encode_frame_index += nBytes;
 
-                    LOG_INFO("tx_encode_frame_index=%d, FRAME_LENGTH_IN_SAMPLES=%d\n", speexModule->tx_encode_frame_index, FRAME_LENGTH_IN_SAMPLES);
+                    LOG_INFO("tx_encode_frame_index=%d, nBytes=%d\n", speexModule->tx_encode_frame_index, nBytes);
 #endif
 
-                    if (speexModule->tx_encode_frame_index >= (ENCODE_FRAME_SIZE + sizeof(tx_header_t))) {
+                    //if (speexModule->tx_encode_frame_index == (ENCODE_FRAME_SIZE + sizeof(tx_header_t))) {
                     //if (speexModule->tx_encode_frame_index > sizeof(tx_header_t)) {
+                    if (speexModule->tx_encode_frame_index == meshtastic_Constants_DATA_PAYLOAD_LEN) {
 #ifdef SELF_LISTENING_ENCODE
                         speexModule->rx_encode_frame_index = speexModule->tx_encode_frame_index;
                         memcpy(speexModule->rx_encode_frame, speexModule->tx_encode_frame, speexModule->rx_encode_frame_index);
 #endif
-
-                        LOG_INFO("Sending %d speex bytes\n", speexModule->tx_encode_frame_index);
+                        LOG_INFO("Sending %u speex bytes\n", speexModule->tx_encode_frame_index);
                         speexModule->sendPayload();
                         speexModule->tx_encode_frame_index = sizeof(tx_header_t);
                     }
                 }
             } else if (speexModule->radio_state == SpeexRadioState::speex_rx) {
                 size_t bytesOut = 0;
-                for (int i = sizeof(tx_header_t); i < speexModule->rx_encode_frame_index; i += speexModule->encode_codec_size) {
+                for (int i = sizeof(tx_header_t); i < speexModule->rx_encode_frame_index; i += FRAME_LENGTH_IN_SAMPLES) {
                     tx_header_t h;
                     memcpy(&h, speexModule->rx_encode_frame, sizeof(h));
 
@@ -198,14 +199,14 @@ void run_speex(void *parameter)
                     // Copy data packet to Speex bitstream
                     speex_bits_read_from(&bits, (char*)speexModule->rx_encode_frame + i, FRAME_LENGTH_IN_SAMPLES);
 
-                    status =  speex_decode_int(speexModule->speex_dec, &bits, speexModule->output_buffer);
+                    status =  speex_decode_int(speexModule->speex_dec, &bits, (spx_int16_t *)speexModule->output_buffer);
                     if (status) {
                         LOG_ERROR("speex_decode_int: status %d\n", status);
                     }
                     #else
                     memcpy(speexModule->output_buffer, speexModule->rx_encode_frame + i, FRAME_LENGTH_IN_SAMPLES);
                     #endif
-                    // #ifndef SELF_LISTENING_I2S
+
                     res = i2s_write(I2S_PORT, &speexModule->output_buffer, ADC_BUF_SIZE_IN_BYTES, &bytesOut, pdMS_TO_TICKS(500));
                     if (res == ESP_OK) {
                         LOG_INFO("i2s_write: res=%d, bytesOut=%d, ADC_BUF_SIZE_IN_BYTES=%d\n", res, bytesOut, ADC_BUF_SIZE_IN_BYTES);
@@ -215,7 +216,6 @@ void run_speex(void *parameter)
                     } else {
                         LOG_ERROR("i2s_write: result %d\n", res);
                     }
-                    // #endif
                 }
             }
         }
