@@ -1,7 +1,5 @@
 #pragma once
 
-#define USE_SPEEX_MODULE
-
 #ifdef USE_SPEEX_MODULE
 /*
  * DMA_BUF_LEN_IN_FRAMES -> adc_buffer -> speech -> bits -> tx_encode_frame -> tx_encode_frame->payload ->
