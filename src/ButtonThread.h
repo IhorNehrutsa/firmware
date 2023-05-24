@@ -80,7 +80,7 @@ class ButtonThread : public concurrency::OSThread
 
         #define MS 300
 #ifdef BUTTON_UP
-        userButtonUp = new OneButton(BUTTON_UP, true, true);
+        userButtonUp = new OneButton(BUTTON_UP, false, false);
         userButtonUp->setClickMs(MS);
         userButtonUp->attachClick(userButtonUpClick, userButtonUp);
         userButtonUp->attachDoubleClick(userButtonUpDoubleClick, userButtonUp);
@@ -89,7 +89,7 @@ class ButtonThread : public concurrency::OSThread
         userButtonUp->attachLongPressStop(userButtonUpLongPressStop, userButtonUp);
 #endif
 #ifdef BUTTON_LEFT
-        userButtonLe = new OneButton(BUTTON_LEFT, true, true);
+        userButtonLe = new OneButton(BUTTON_LEFT, false, false);
         userButtonLe->setClickMs(MS);
         userButtonLe->attachClick(userButtonLeClick, userButtonLe);
         userButtonLe->attachDoubleClick(userButtonLeDoubleClick, userButtonLe);
@@ -98,7 +98,7 @@ class ButtonThread : public concurrency::OSThread
         userButtonLe->attachLongPressStop(userButtonLeLongPressStop, userButtonLe);
 #endif
 #ifdef BUTTON_CENTER
-        userButtonCe = new OneButton(BUTTON_CENTER, true, true);
+        userButtonCe = new OneButton(BUTTON_CENTER, false, false);
         userButtonCe->setClickMs(MS);
         userButtonCe->attachClick(userButtonCeClick, userButtonCe);
         userButtonCe->attachDoubleClick(userButtonCeDoubleClick, userButtonCe);
@@ -108,7 +108,7 @@ class ButtonThread : public concurrency::OSThread
         wakeOnIrq(BUTTON_CENTER, FALLING);
 #endif
 #ifdef BUTTON_RIGHT
-        userButtonRi = new OneButton(BUTTON_RIGHT, true, true);
+        userButtonRi = new OneButton(BUTTON_RIGHT, false, false);
         userButtonRi->setClickMs(MS);
         userButtonRi->attachClick(userButtonRiClick, userButtonRi);
         userButtonRi->attachDoubleClick(userButtonRiDoubleClick, userButtonRi);
@@ -117,7 +117,7 @@ class ButtonThread : public concurrency::OSThread
         userButtonRi->attachLongPressStop(userButtonRiLongPressStop, userButtonRi);
 #endif
 #ifdef BUTTON_DOWN
-        userButtonDo = new OneButton(BUTTON_DOWN, true, true);
+        userButtonDo = new OneButton(BUTTON_DOWN, false, false);
         userButtonDo->setClickMs(MS);
         userButtonDo->attachClick(userButtonDoClick, userButtonDo);
         userButtonDo->attachDoubleClick(userButtonDoDoubleClick, userButtonDo);

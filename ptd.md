@@ -186,11 +186,11 @@ d:\LoRa\MESHTASTIC\python\meshtastic
 
  * PTD Buttons Meshtastic_2388 & Meshtastic_a3e8
 ```
-#define BUTTON_UP     14 // 0x0004000
-#define BUTTON_LEFT   25 // 0x2000000
-#define BUTTON_CENTER  2 // 0x0000004
-#define BUTTON_RIGHT  13 // 0x0002000
-#define BUTTON_DOWN   15 // 0x0008000
+#define BUTTON_UP     25 // 0x2000000
+#define BUTTON_LEFT    2 // 0x0000004
+#define BUTTON_CENTER 14 // 0x0004000
+#define BUTTON_RIGHT  15 // 0x0008000
+#define BUTTON_DOWN   13 // 0x0002000
 //                          0x200E004
 ```
 
