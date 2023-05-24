@@ -45,7 +45,7 @@ typedef enum _meshtastic_ModuleConfig_Audio_Config_Codec2_Baud {
 
 /* Speex narrowband mode (Table 9.2)
  Bit-rate for Speex voice
- Use enum from 1 to 8 in user interface */
+ Use enum from 1 to 8 in user interface (8, 2, 3 for PTD) */
 typedef enum _meshtastic_ModuleConfig_Audio_Config_Speex_Bit_Rate {
     /* bps                       // Quality | Description */
     meshtastic_ModuleConfig_Audio_Config_Speex_Bit_Rate_SPEEX_DEFAULT_250 = 0, /* | No transmission (DTX) */
