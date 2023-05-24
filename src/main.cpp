@@ -165,8 +165,6 @@ OneButton *userButtonLe;
 #endif
 #ifdef BUTTON_CENTER
 OneButton *userButtonCe;
-#else
-#error BUTTON_CENTER
 #endif
 #ifdef BUTTON_RIGHT
 OneButton *userButtonRi;
