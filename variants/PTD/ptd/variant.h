@@ -10,7 +10,7 @@
  */
 //#define BUTTON_UP    -1 // 0x
 //#define BUTTON_LEFT  -1 // 0x
-#define BUTTON_CENTER  25 // 0x PTT
+//#define BUTTON_CENTER  25 // 0x PTT
 //#define BUTTON_RIGHT -1 // 0x
 //#define BUTTON_DOWN  -1 // 0x
 //                           0x
@@ -37,8 +37,8 @@
 #define I2S_SCK        GPIO_NUM_22
 //
 //     /* PTT Pin */
-// moduleConfig.audio.ptt_pin = 25;
-#define PTT_PIN        GPIO_NUM_25
+// moduleConfig.audio.ptt_pin = 33;
+#define PTT_PIN        GPIO_NUM_33
 
 //       3.5 jack
 // 1 R - microphone
@@ -69,14 +69,6 @@
 
 // supported modules list
 //#define USE_SX1262
-/*
- DO NOT USE USE_SX1268 !
- firmware\src\mesh\SX1268Interface.h
- ...
-    /// override frequency of the SX1268 module regardless of the region (use EU433 value)
-    virtual float getFreq() override { return 433.175f; }
- ...
-*/
 #define USE_SX1268
 
 // common pinouts for SX126X modules
