@@ -157,11 +157,11 @@ class ButtonThread : public concurrency::OSThread
         userButton.tick();
         canSleep &= userButton.isIdle();
 #endif
-#ifdef BUTTON_
+#ifdef BUTTON_UP
         userButtonUp->tick();
         canSleep &= userButtonUp->isIdle();
 #endif
-#ifdef BUTTON_
+#ifdef BUTTON_LEFT
         userButtonLe->tick();
         canSleep &= userButtonLe->isIdle();
 #endif
@@ -169,11 +169,11 @@ class ButtonThread : public concurrency::OSThread
         userButtonCe->tick();
         canSleep &= userButtonCe->isIdle();
 #endif
-#ifdef BUTTON_
+#ifdef BUTTON_RIGHT
         userButtonRi->tick();
         canSleep &= userButtonRi->isIdle();
 #endif
-#ifdef BUTTON_
+#ifdef BUTTON_DOWN
         userButtonDo->tick();
         canSleep &= userButtonDo->isIdle();
 #endif
