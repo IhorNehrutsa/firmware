@@ -6,7 +6,6 @@
 #include "main.h"
 #include "sleep.h"
 #include "utils.h"
-static const char *TAG = "ADCmod";
 
 #ifdef DEBUG_HEAP_MQTT
 #include "mqtt/MQTT.h"
@@ -31,8 +30,11 @@ RTC_NOINIT_ATTR uint64_t RTC_reg_b;
 #endif // BAT_MEASURE_ADC_UNIT
 
 esp_adc_cal_characteristics_t *adc_characs = (esp_adc_cal_characteristics_t *)calloc(1, sizeof(esp_adc_cal_characteristics_t));
-
+#ifndef ADC_ATTENUATION
 static const adc_atten_t atten = ADC_ATTEN_DB_11;
+#else
+static const adc_atten_t atten = ADC_ATTENUATION;
+#endif
 #endif // BATTERY_PIN && ARCH_ESP32
 
 #ifdef HAS_PMU
@@ -292,11 +294,11 @@ bool Power::analogInit()
     esp_adc_cal_value_t val_type = esp_adc_cal_characterize(unit, atten, width, DEFAULT_VREF, adc_characs);
     // show ADC characterization base
     if (val_type == ESP_ADC_CAL_VAL_EFUSE_TP) {
-        ESP_LOGI(TAG, "ADC characterization based on Two Point values stored in eFuse");
+        LOG_INFO("ADCmod: ADC characterization based on Two Point values stored in eFuse\n");
     } else if (val_type == ESP_ADC_CAL_VAL_EFUSE_VREF) {
-        ESP_LOGI(TAG, "ADC characterization based on reference voltage stored in eFuse");
+        LOG_INFO("ADCmod: ADC characterization based on reference voltage stored in eFuse\n");
     } else {
-        ESP_LOGI(TAG, "ADC characterization based on default reference voltage");
+        LOG_INFO("ADCmod: ADC characterization based on default reference voltage\n");
     }
 #endif // ARCH_ESP32
 
