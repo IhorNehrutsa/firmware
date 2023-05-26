@@ -338,11 +338,11 @@ class ButtonThread : public concurrency::OSThread
         p->decoded.want_response = false;
         p->decoded.payload.size = sizeof(meshtastic_PtdButtons);
         memcpy(p->decoded.payload.bytes, &b, p->decoded.payload.size);
-        // p->decoded.request_id = p->id;
         p->priority = meshtastic_MeshPacket_Priority_MIN;
         p->hop_limit = 0;
 
-        service.sendToPhone(p);
+        // service.sendToPhone(p);
+        service.sendToMesh(p, RX_SRC_LOCAL, true);
     }
 
     // Click
