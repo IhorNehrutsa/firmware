@@ -312,12 +312,12 @@ size_t PhoneAPI::getFromRadio(uint8_t *buf)
 
             // Encapsulate as a FromRadio packet
             fromRadioScratch.which_payload_variant = meshtastic_FromRadio_packet_tag;
+            fromRadioScratch.packet = *packetForPhone;
             if (packetForPhone->which_payload_variant == meshtastic_MeshPacket_decoded_tag) {
                 if (packetForPhone->decoded.portnum == meshtastic_PortNum_PTD_APP) {
                     fromRadioScratch.which_payload_variant = meshtastic_FromRadio_ptdButtons_tag;
                 }
             }
-            fromRadioScratch.packet = *packetForPhone;
             releasePhonePacket();
         }
         break;
