@@ -105,7 +105,7 @@ class ButtonThread : public concurrency::OSThread
         userButtonCe->attachMultiClick(userButtonCeMultiClick, userButtonCe);
         userButtonCe->attachLongPressStart(userButtonCeLongPressStart, userButtonCe);
         userButtonCe->attachLongPressStop(userButtonCeLongPressStop, userButtonCe);
-        wakeOnIrq(BUTTON_CENTER, FALLING);
+        wakeOnIrq(BUTTON_CENTER, RISING);
 #endif
 #ifdef BUTTON_RIGHT
         userButtonRi = new OneButton(BUTTON_RIGHT, false, false);
