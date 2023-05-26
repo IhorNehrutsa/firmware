@@ -292,26 +292,45 @@ class ButtonThread : public concurrency::OSThread
     {
         meshtastic_PtdButtons b;
         memset(&b, 0, sizeof(b));
-        b.button_pin = oneButton->pin();
+        switch (oneButton->pin()) {
+            case BUTTON_UP:
+                b.button = meshtastic_PtdButtons_PtdButtonId_BUTTON_UP;
+                break;
+            case BUTTON_LEFT:
+                b.button = meshtastic_PtdButtons_PtdButtonId_BUTTON_LEFT;
+                break;
+            case BUTTON_CENTER:
+                b.button = meshtastic_PtdButtons_PtdButtonId_BUTTON_CENTER;
+                break;
+            case BUTTON_RIGHT:
+                b.button = meshtastic_PtdButtons_PtdButtonId_BUTTON_RIGHT;
+                break;
+            case BUTTON_DOWN:
+                b.button = meshtastic_PtdButtons_PtdButtonId_BUTTON_DOWN;
+                break;
+        }
         b.event = event;
+
         b.buttons_states = 0;
         #ifdef BUTTON_UP
-        b.buttons_states |= ((uint64_t)userButtonUp->debouncedValue() << userButtonUp->pin());
+        b.buttons_states |= userButtonUp->debouncedValue() ? meshtastic_PtdButtons_PtdButtonId_BUTTON_UP : 0;
         #endif
         #ifdef BUTTON_LEFT
-        b.buttons_states |= ((uint64_t)userButtonLe->debouncedValue() << userButtonLe->pin());
+        b.buttons_states |= userButtonLe->debouncedValue() ? meshtastic_PtdButtons_PtdButtonId_BUTTON_LEFT : 0;
         #endif
         #ifdef BUTTON_CENTER
-        b.buttons_states |= ((uint64_t)userButtonCe->debouncedValue() << userButtonCe->pin());
+        b.buttons_states |= userButtonCe->debouncedValue() ? meshtastic_PtdButtons_PtdButtonId_BUTTON_CENTER : 0;
         #endif
         #ifdef BUTTON_RIGHT
-        b.buttons_states |= ((uint64_t)userButtonRi->debouncedValue() << userButtonRi->pin());
+        b.buttons_states |= userButtonRi->debouncedValue() ? meshtastic_PtdButtons_PtdButtonId_BUTTON_RIGHT : 0;
         #endif
         #ifdef BUTTON_DOWN
-        b.buttons_states |= ((uint64_t)userButtonDo->debouncedValue() << userButtonDo->pin());
+        b.buttons_states |= userButtonDo->debouncedValue() ? meshtastic_PtdButtons_PtdButtonId_BUTTON_DOWN : 0;
         #endif
 
-        LOG_DEBUG("sendToPhone button_pin=%u=0x%08X event=%d buttons_states=0x%08X\n", b.button_pin, 1 << b.button_pin, b.event, b.buttons_states);
+        LOG_DEBUG("sendToPhone button_pin=%u=0x%08X event=%d buttons_states=0x%08X\n", b.button, b.button, b.event, b.buttons_states);
+
+        // LOG_DEBUG("sendToPhone button_pin=%u=0x%08X event=%d\n", b.button, b.button, b.event);
 
         meshtastic_MeshPacket *p = router->allocForSending();
         p->to = p->from;
@@ -319,6 +338,7 @@ class ButtonThread : public concurrency::OSThread
         p->decoded.want_response = false;
         p->decoded.payload.size = sizeof(meshtastic_PtdButtons);
         memcpy(p->decoded.payload.bytes, &b, p->decoded.payload.size);
+        // p->decoded.request_id = p->id;
         p->priority = meshtastic_MeshPacket_Priority_MIN;
         p->hop_limit = 0;
 

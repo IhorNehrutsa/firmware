@@ -6,6 +6,9 @@
 #error Regenerate this file with the current version of nanopb generator.
 #endif
 
+PB_BIND(meshtastic_PtdButtons, meshtastic_PtdButtons, AUTO)
+
+
 PB_BIND(meshtastic_Position, meshtastic_Position, AUTO)
 
 
@@ -55,6 +58,8 @@ PB_BIND(meshtastic_Neighbor, meshtastic_Neighbor, AUTO)
 
 
 PB_BIND(meshtastic_DeviceMetadata, meshtastic_DeviceMetadata, AUTO)
+
+
 
 
 
