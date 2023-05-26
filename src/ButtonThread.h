@@ -6,7 +6,6 @@
 #include "graphics/Screen.h"
 #include "power.h"
 #include <OneButton.h>
-//#include "MeshService.h"
 #include "ProtobufModule.h"
 
 #ifdef BUTTON_UP
