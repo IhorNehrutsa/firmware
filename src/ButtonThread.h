@@ -79,7 +79,11 @@ class ButtonThread : public concurrency::OSThread
 
         #define MS 300
 #ifdef BUTTON_UP
+        #ifdef PTD_BUTTONS_LOW
+        userButtonUp = new OneButton(BUTTON_UP);
+        #else
         userButtonUp = new OneButton(BUTTON_UP, false, false);
+        #endif
         userButtonUp->setClickMs(MS);
         userButtonUp->attachClick(userButtonUpClick, userButtonUp);
         userButtonUp->attachDoubleClick(userButtonUpDoubleClick, userButtonUp);
@@ -88,7 +92,11 @@ class ButtonThread : public concurrency::OSThread
         userButtonUp->attachLongPressStop(userButtonUpLongPressStop, userButtonUp);
 #endif
 #ifdef BUTTON_LEFT
+        #ifdef PTD_BUTTONS_LOW
+        userButtonLe = new OneButton(BUTTON_LEFT);
+        #else
         userButtonLe = new OneButton(BUTTON_LEFT, false, false);
+        #endif
         userButtonLe->setClickMs(MS);
         userButtonLe->attachClick(userButtonLeClick, userButtonLe);
         userButtonLe->attachDoubleClick(userButtonLeDoubleClick, userButtonLe);
@@ -97,7 +105,11 @@ class ButtonThread : public concurrency::OSThread
         userButtonLe->attachLongPressStop(userButtonLeLongPressStop, userButtonLe);
 #endif
 #ifdef BUTTON_CENTER
+        #ifdef PTD_BUTTONS_LOW
+        userButtonCe = new OneButton(BUTTON_CENTER);
+        #else
         userButtonCe = new OneButton(BUTTON_CENTER, false, false);
+        #endif
         userButtonCe->setClickMs(MS);
         userButtonCe->attachClick(userButtonCeClick, userButtonCe);
         userButtonCe->attachDoubleClick(userButtonCeDoubleClick, userButtonCe);
@@ -107,7 +119,11 @@ class ButtonThread : public concurrency::OSThread
         wakeOnIrq(BUTTON_CENTER, RISING);
 #endif
 #ifdef BUTTON_RIGHT
+        #ifdef PTD_BUTTONS_LOW
+        userButtonRi = new OneButton(BUTTON_RIGHT);
+        #else
         userButtonRi = new OneButton(BUTTON_RIGHT, false, false);
+        #endif
         userButtonRi->setClickMs(MS);
         userButtonRi->attachClick(userButtonRiClick, userButtonRi);
         userButtonRi->attachDoubleClick(userButtonRiDoubleClick, userButtonRi);
@@ -116,7 +132,11 @@ class ButtonThread : public concurrency::OSThread
         userButtonRi->attachLongPressStop(userButtonRiLongPressStop, userButtonRi);
 #endif
 #ifdef BUTTON_DOWN
+        #ifdef PTD_BUTTONS_LOW
+        userButtonDo = new OneButton(BUTTON_DOWN);
+        #else
         userButtonDo = new OneButton(BUTTON_DOWN, false, false);
+        #endif
         userButtonDo->setClickMs(MS);
         userButtonDo->attachClick(userButtonDoClick, userButtonDo);
         userButtonDo->attachDoubleClick(userButtonDoDoubleClick, userButtonDo);
