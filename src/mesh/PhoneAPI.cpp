@@ -316,6 +316,7 @@ size_t PhoneAPI::getFromRadio(uint8_t *buf)
             if (packetForPhone->which_payload_variant == meshtastic_MeshPacket_decoded_tag) {
                 if (packetForPhone->decoded.portnum == meshtastic_PortNum_PTD_APP) {
                     fromRadioScratch.which_payload_variant = meshtastic_FromRadio_ptdButtons_tag;
+                    memcpy(&fromRadioScratch.ptdButtons, packetForPhone->decoded.payload.bytes, packetForPhone->decoded.payload.size);
                 }
             }
             releasePhonePacket();

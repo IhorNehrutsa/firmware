@@ -329,8 +329,6 @@ class ButtonThread : public concurrency::OSThread
 
         LOG_DEBUG("sendToPhone button_pin=%u=0x%08X event=%d buttons_states=0x%08X\n", b.button, b.button, b.event, b.buttons_states);
 
-        // LOG_DEBUG("sendToPhone button_pin=%u=0x%08X event=%d\n", b.button, b.button, b.event);
-
         meshtastic_MeshPacket *p = router->allocForSending();
         p->to = p->from;
         p->decoded.portnum = meshtastic_PortNum_PTD_APP;
@@ -340,8 +338,7 @@ class ButtonThread : public concurrency::OSThread
         p->priority = meshtastic_MeshPacket_Priority_MIN;
         p->hop_limit = 0;
 
-        // service.sendToPhone(p);
-        service.sendToMesh(p, RX_SRC_LOCAL, true);
+        service.sendToPhone(p);
     }
 
     // Click
