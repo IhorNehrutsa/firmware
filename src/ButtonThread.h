@@ -6,7 +6,6 @@
 #include "graphics/Screen.h"
 #include "power.h"
 #include <OneButton.h>
-//#include "MeshService.h"
 #include "ProtobufModule.h"
 
 #ifdef BUTTON_UP
@@ -105,7 +104,7 @@ class ButtonThread : public concurrency::OSThread
         userButtonCe->attachMultiClick(userButtonCeMultiClick, userButtonCe);
         userButtonCe->attachLongPressStart(userButtonCeLongPressStart, userButtonCe);
         userButtonCe->attachLongPressStop(userButtonCeLongPressStop, userButtonCe);
-        wakeOnIrq(BUTTON_CENTER, FALLING);
+        wakeOnIrq(BUTTON_CENTER, RISING);
 #endif
 #ifdef BUTTON_RIGHT
         userButtonRi = new OneButton(BUTTON_RIGHT, false, false);
@@ -288,30 +287,47 @@ class ButtonThread : public concurrency::OSThread
         }
     }
 
-    static void sendToPhone(OneButton *oneButton, meshtastic_PtdButtons_PtdButtonEvent event)
+    static void _sendToPhone(OneButton *oneButton, meshtastic_PtdButtons_PtdButtonEvent event)
     {
         meshtastic_PtdButtons b;
         memset(&b, 0, sizeof(b));
-        b.button_pin = oneButton->pin();
+        switch (oneButton->pin()) {
+            case BUTTON_UP:
+                b.button = meshtastic_PtdButtons_PtdButtonId_BUTTON_UP;
+                break;
+            case BUTTON_LEFT:
+                b.button = meshtastic_PtdButtons_PtdButtonId_BUTTON_LEFT;
+                break;
+            case BUTTON_CENTER:
+                b.button = meshtastic_PtdButtons_PtdButtonId_BUTTON_CENTER;
+                break;
+            case BUTTON_RIGHT:
+                b.button = meshtastic_PtdButtons_PtdButtonId_BUTTON_RIGHT;
+                break;
+            case BUTTON_DOWN:
+                b.button = meshtastic_PtdButtons_PtdButtonId_BUTTON_DOWN;
+                break;
+        }
         b.event = event;
+
         b.buttons_states = 0;
         #ifdef BUTTON_UP
-        b.buttons_states |= ((uint64_t)userButtonUp->debouncedValue() << userButtonUp->pin());
+        b.buttons_states |= userButtonUp->debouncedValue() ? meshtastic_PtdButtons_PtdButtonId_BUTTON_UP : 0;
         #endif
         #ifdef BUTTON_LEFT
-        b.buttons_states |= ((uint64_t)userButtonLe->debouncedValue() << userButtonLe->pin());
+        b.buttons_states |= userButtonLe->debouncedValue() ? meshtastic_PtdButtons_PtdButtonId_BUTTON_LEFT : 0;
         #endif
         #ifdef BUTTON_CENTER
-        b.buttons_states |= ((uint64_t)userButtonCe->debouncedValue() << userButtonCe->pin());
+        b.buttons_states |= userButtonCe->debouncedValue() ? meshtastic_PtdButtons_PtdButtonId_BUTTON_CENTER : 0;
         #endif
         #ifdef BUTTON_RIGHT
-        b.buttons_states |= ((uint64_t)userButtonRi->debouncedValue() << userButtonRi->pin());
+        b.buttons_states |= userButtonRi->debouncedValue() ? meshtastic_PtdButtons_PtdButtonId_BUTTON_RIGHT : 0;
         #endif
         #ifdef BUTTON_DOWN
-        b.buttons_states |= ((uint64_t)userButtonDo->debouncedValue() << userButtonDo->pin());
+        b.buttons_states |= userButtonDo->debouncedValue() ? meshtastic_PtdButtons_PtdButtonId_BUTTON_DOWN : 0;
         #endif
 
-        LOG_DEBUG("sendToPhone button_pin=%u=0x%08X event=%d buttons_states=0x%08X\n", b.button_pin, 1 << b.button_pin, b.event, b.buttons_states);
+        LOG_DEBUG("sendToPhone button_pin=%u=0x%08X event=%d buttons_states=0x%08X\n", b.button, b.button, b.event, b.buttons_states);
 
         meshtastic_MeshPacket *p = router->allocForSending();
         p->to = p->from;
@@ -329,155 +345,155 @@ class ButtonThread : public concurrency::OSThread
     static void userButtonUpClick(void *oneButton)
     {
         LOG_DEBUG("Up Click\n");
-        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_CLICK);
+        _sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_CLICK);
     }
 
     static void userButtonLeClick(void *oneButton)
     {
         LOG_DEBUG("Left Click\n");
-        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_CLICK);
+        _sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_CLICK);
     }
 
     static void userButtonCeClick(void *oneButton)
     {
         LOG_DEBUG("Center Click\n");
-        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_CLICK);
+        _sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_CLICK);
     }
 
     static void userButtonRiClick(void *oneButton)
     {
         LOG_DEBUG("Right Click\n");
-        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_CLICK);
+        _sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_CLICK);
     }
 
     static void userButtonDoClick(void *oneButton)
     {
         LOG_DEBUG("Down Click\n");
-        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_CLICK);
+        _sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_CLICK);
     }
 
     // DoubleClick
     static void userButtonUpDoubleClick(void *oneButton)
     {
         LOG_DEBUG("Up Double Click\n");
-        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_DOUBLE_CLICK);
+        _sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_DOUBLE_CLICK);
     }
 
     static void userButtonLeDoubleClick(void *oneButton)
     {
         LOG_DEBUG("Left Double Click\n");
-        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_DOUBLE_CLICK);
+        _sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_DOUBLE_CLICK);
     }
 
     static void userButtonCeDoubleClick(void *oneButton)
     {
         LOG_DEBUG("Center Double Click\n");
-        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_DOUBLE_CLICK);
+        _sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_DOUBLE_CLICK);
     }
 
     static void userButtonRiDoubleClick(void *oneButton)
     {
         LOG_DEBUG("Right Double Click\n");
-        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_DOUBLE_CLICK);
+        _sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_DOUBLE_CLICK);
     }
 
     static void userButtonDoDoubleClick(void *oneButton)
     {
         LOG_DEBUG("Down Double Click\n");
-        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_DOUBLE_CLICK);
+        _sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_DOUBLE_CLICK);
     }
 
     // MultiClick
     static void userButtonUpMultiClick(void *oneButton)
     {
         LOG_DEBUG("Up MultiClick\n");
-        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_MULTI_CLICK);
+        _sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_MULTI_CLICK);
     }
 
     static void userButtonLeMultiClick(void *oneButton)
     {
         LOG_DEBUG("Left MultiClick\n");
-        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_MULTI_CLICK);
+        _sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_MULTI_CLICK);
     }
 
     static void userButtonCeMultiClick(void *oneButton)
     {
         LOG_DEBUG("Center MultiClick\n");
-        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_MULTI_CLICK);
+        _sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_MULTI_CLICK);
     }
 
     static void userButtonRiMultiClick(void *oneButton)
     {
         LOG_DEBUG("Right MultiClick\n");
-        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_MULTI_CLICK);
+        _sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_MULTI_CLICK);
     }
 
     static void userButtonDoMultiClick(void *oneButton)
     {
         LOG_DEBUG("Down MultiClick\n");
-        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_MULTI_CLICK);
+        _sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_MULTI_CLICK);
     }
 
     // LongPressStart
     static void userButtonUpLongPressStart(void *oneButton)
     {
         LOG_DEBUG("Up LongPressStart\n");
-        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_LONG_PRESS_START);
+        _sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_LONG_PRESS_START);
     }
 
     static void userButtonLeLongPressStart(void *oneButton)
     {
         LOG_DEBUG("Left LongPressStart\n");
-        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_LONG_PRESS_START);
+        _sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_LONG_PRESS_START);
     }
 
     static void userButtonCeLongPressStart(void *oneButton)
     {
         LOG_DEBUG("Center LongPressStart\n");
-        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_LONG_PRESS_START);
+        _sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_LONG_PRESS_START);
     }
 
     static void userButtonRiLongPressStart(void *oneButton)
     {
         LOG_DEBUG("Right LongPressStart\n");
-        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_LONG_PRESS_START);
+        _sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_LONG_PRESS_START);
     }
 
     static void userButtonDoLongPressStart(void *oneButton)
     {
         LOG_DEBUG("Down LongPressStart\n");
-        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_LONG_PRESS_START);
+        _sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_LONG_PRESS_START);
     }
 
     // LongPressStop
     static void userButtonUpLongPressStop(void *oneButton)
     {
         LOG_DEBUG("Up LongPressStop\n");
-        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_LONG_PRESS_STOP);
+        _sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_LONG_PRESS_STOP);
     }
 
     static void userButtonLeLongPressStop(void *oneButton)
     {
         LOG_DEBUG("Left LongPressStop\n");
-        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_LONG_PRESS_STOP);
+        _sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_LONG_PRESS_STOP);
     }
 
     static void userButtonCeLongPressStop(void *oneButton)
     {
         LOG_DEBUG("Center LongPressStop\n");
-        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_LONG_PRESS_STOP);
+        _sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_LONG_PRESS_STOP);
     }
 
     static void userButtonRiLongPressStop(void *oneButton)
     {
         LOG_DEBUG("Right LongPressStop\n");
-        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_LONG_PRESS_STOP);
+        _sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_LONG_PRESS_STOP);
     }
 
     static void userButtonDoLongPressStop(void *oneButton)
     {
         LOG_DEBUG("Down LongPressStop\n");
-        sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_LONG_PRESS_STOP);
+        _sendToPhone((OneButton *)oneButton, meshtastic_PtdButtons_PtdButtonEvent_EVENT_LONG_PRESS_STOP);
     }
 
 };

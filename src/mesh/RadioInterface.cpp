@@ -249,6 +249,9 @@ void printPacket(const char *prefix, const meshtastic_MeshPacket *p)
 
         out += DEBUG_PORT.mt_sprintf(" Portnum=%d", s.portnum);
 
+        out += DEBUG_PORT.mt_sprintf(" payload.size=%d", s.payload.size);
+        out += DEBUG_PORT.mt_sprintf(" payload.bytes='%s'", s.payload.bytes);
+
         if (s.want_response)
             out += DEBUG_PORT.mt_sprintf(" WANTRESP");
 

@@ -314,6 +314,23 @@ esp_sleep_wakeup_cause_t doLightSleep(uint64_t sleepMsec) // FIXME, use a more r
 #if SOC_PM_SUPPORT_EXT_WAKEUP
     esp_sleep_enable_ext0_wakeup((gpio_num_t)(config.device.button_gpio ? config.device.button_gpio : BUTTON_PIN),
                                  LOW); // when user presses, this button goes low
+    uint64_t mask = 0;
+#ifdef BUTTON_UP
+    mask |= 1ULL << BUTTON_UP;
+#endif
+#ifdef BUTTON_LEFT
+    mask |= 1ULL << BUTTON_LEFT;
+#endif
+#ifdef BUTTON_CENTER
+    mask |= 1ULL << BUTTON_CENTER;
+#endif
+#ifdef BUTTON_RIGHT
+    mask |= 1ULL << BUTTON_RIGHT;
+#endif
+#ifdef BUTTON_DOWN
+    mask |= 1ULL << BUTTON_DOWN;
+#endif
+    esp_sleep_enable_ext1_wakeup(mask, ESP_EXT1_WAKEUP_ANY_HIGH);
 #else
     esp_sleep_enable_gpio_wakeup();
     gpio_wakeup_enable((gpio_num_t)BUTTON_PIN, GPIO_INTR_LOW_LEVEL);
