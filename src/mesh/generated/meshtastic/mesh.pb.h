@@ -61,6 +61,8 @@ typedef enum _meshtastic_HardwareModel {
     meshtastic_HardwareModel_NANO_G1_EXPLORER = 17,
     /* B&Q Consulting Station Edition G1: https://uniteng.com/wiki/doku.php?id=meshtastic:station */
     meshtastic_HardwareModel_STATION_G1 = 25,
+    /* RAK11310 (RP2040 + SX1262) */
+    meshtastic_HardwareModel_RAK11310 = 26,
     /* ---------------------------------------------------------------------------
  Less common/prototype boards listed here (needs one more byte over the air)
  --------------------------------------------------------------------------- */
@@ -93,6 +95,8 @@ typedef enum _meshtastic_HardwareModel {
     meshtastic_HardwareModel_BETAFPV_2400_TX = 45,
     /* BetaFPV ExpressLRS "Nano" TX Module 900MHz with ESP32 CPU */
     meshtastic_HardwareModel_BETAFPV_900_NANO_TX = 46,
+    /* Raspberry Pi Pico (W) with Waveshare SX1262 LoRa Node Module */
+    meshtastic_HardwareModel_RPI_PICO = 47,
     meshtastic_HardwareModel_PTD = 100,
     /* ------------------------------------------------------------------------------------------------------------------------------------------
  Reserved ID For developing private Ports. These will show up in live traffic sparsely, so we can use a high number. Keep it within 8 bits.
@@ -144,6 +148,24 @@ typedef enum _meshtastic_CriticalErrorCode {
  If this occurs on your board, please post in the forum so that we can ask you to collect some information to allow fixing this bug */
     meshtastic_CriticalErrorCode_RADIO_SPI_BUG = 11
 } meshtastic_CriticalErrorCode;
+
+typedef enum _meshtastic_PtdButtons_PtdButtonId {
+    meshtastic_PtdButtons_PtdButtonId_BUTTON_NO = 0,
+    meshtastic_PtdButtons_PtdButtonId_BUTTON_UP = 1,
+    meshtastic_PtdButtons_PtdButtonId_BUTTON_LEFT = 2,
+    meshtastic_PtdButtons_PtdButtonId_BUTTON_CENTER = 4,
+    meshtastic_PtdButtons_PtdButtonId_BUTTON_RIGHT = 8,
+    meshtastic_PtdButtons_PtdButtonId_BUTTON_DOWN = 16
+} meshtastic_PtdButtons_PtdButtonId;
+
+typedef enum _meshtastic_PtdButtons_PtdButtonEvent {
+    meshtastic_PtdButtons_PtdButtonEvent_EVENT_NO = 0,
+    meshtastic_PtdButtons_PtdButtonEvent_EVENT_CLICK = 1,
+    meshtastic_PtdButtons_PtdButtonEvent_EVENT_DOUBLE_CLICK = 2,
+    meshtastic_PtdButtons_PtdButtonEvent_EVENT_MULTI_CLICK = 3,
+    meshtastic_PtdButtons_PtdButtonEvent_EVENT_LONG_PRESS_START = 4,
+    meshtastic_PtdButtons_PtdButtonEvent_EVENT_LONG_PRESS_STOP = 5
+} meshtastic_PtdButtons_PtdButtonEvent;
 
 /* How the location was acquired: manual, onboard GPS, external (EUD) GPS */
 typedef enum _meshtastic_Position_LocSource {
@@ -270,6 +292,13 @@ typedef enum _meshtastic_LogRecord_Level {
 } meshtastic_LogRecord_Level;
 
 /* Struct definitions */
+/* Ptd Buttons */
+typedef struct _meshtastic_PtdButtons {
+    meshtastic_PtdButtons_PtdButtonId button;
+    meshtastic_PtdButtons_PtdButtonEvent event;
+    uint32_t buttons_states;
+} meshtastic_PtdButtons;
+
 /* a gps position */
 typedef struct _meshtastic_Position {
     /* The new preferred location encoding, multiply by 1e-7 to get degrees
@@ -720,6 +749,8 @@ typedef struct _meshtastic_DeviceMetadata {
     uint32_t position_flags;
     /* Device hardware model */
     meshtastic_HardwareModel hw_model;
+    /* Has Remote Hardware enabled */
+    bool hasRemoteHardware;
 } meshtastic_DeviceMetadata;
 
 /* Packets from the radio to the phone will appear on the fromRadio characteristic.
@@ -764,6 +795,8 @@ typedef struct _meshtastic_FromRadio {
         meshtastic_XModem xmodemPacket;
         /* Device metadata message */
         meshtastic_DeviceMetadata metadata;
+        /* Ptd Buttons */
+        meshtastic_PtdButtons ptdButtons;
     };
 } meshtastic_FromRadio;
 
@@ -784,6 +817,14 @@ extern "C" {
 #define _meshtastic_CriticalErrorCode_MIN meshtastic_CriticalErrorCode_NONE
 #define _meshtastic_CriticalErrorCode_MAX meshtastic_CriticalErrorCode_RADIO_SPI_BUG
 #define _meshtastic_CriticalErrorCode_ARRAYSIZE ((meshtastic_CriticalErrorCode)(meshtastic_CriticalErrorCode_RADIO_SPI_BUG+1))
+
+#define _meshtastic_PtdButtons_PtdButtonId_MIN meshtastic_PtdButtons_PtdButtonId_BUTTON_NO
+#define _meshtastic_PtdButtons_PtdButtonId_MAX meshtastic_PtdButtons_PtdButtonId_BUTTON_DOWN
+#define _meshtastic_PtdButtons_PtdButtonId_ARRAYSIZE ((meshtastic_PtdButtons_PtdButtonId)(meshtastic_PtdButtons_PtdButtonId_BUTTON_DOWN+1))
+
+#define _meshtastic_PtdButtons_PtdButtonEvent_MIN meshtastic_PtdButtons_PtdButtonEvent_EVENT_NO
+#define _meshtastic_PtdButtons_PtdButtonEvent_MAX meshtastic_PtdButtons_PtdButtonEvent_EVENT_LONG_PRESS_STOP
+#define _meshtastic_PtdButtons_PtdButtonEvent_ARRAYSIZE ((meshtastic_PtdButtons_PtdButtonEvent)(meshtastic_PtdButtons_PtdButtonEvent_EVENT_LONG_PRESS_STOP+1))
 
 #define _meshtastic_Position_LocSource_MIN meshtastic_Position_LocSource_LOC_UNSET
 #define _meshtastic_Position_LocSource_MAX meshtastic_Position_LocSource_LOC_EXTERNAL
@@ -808,6 +849,9 @@ extern "C" {
 #define _meshtastic_LogRecord_Level_MIN meshtastic_LogRecord_Level_UNSET
 #define _meshtastic_LogRecord_Level_MAX meshtastic_LogRecord_Level_CRITICAL
 #define _meshtastic_LogRecord_Level_ARRAYSIZE ((meshtastic_LogRecord_Level)(meshtastic_LogRecord_Level_CRITICAL+1))
+
+#define meshtastic_PtdButtons_button_ENUMTYPE meshtastic_PtdButtons_PtdButtonId
+#define meshtastic_PtdButtons_event_ENUMTYPE meshtastic_PtdButtons_PtdButtonEvent
 
 #define meshtastic_Position_location_source_ENUMTYPE meshtastic_Position_LocSource
 #define meshtastic_Position_altitude_source_ENUMTYPE meshtastic_Position_AltSource
@@ -840,6 +884,7 @@ extern "C" {
 
 
 /* Initializer values for message structs */
+#define meshtastic_PtdButtons_init_default       {_meshtastic_PtdButtons_PtdButtonId_MIN, _meshtastic_PtdButtons_PtdButtonEvent_MIN, 0}
 #define meshtastic_Position_init_default         {0, 0, 0, 0, _meshtastic_Position_LocSource_MIN, _meshtastic_Position_AltSource_MIN, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 #define meshtastic_User_init_default             {"", "", "", {0}, _meshtastic_HardwareModel_MIN, 0}
 #define meshtastic_RouteDiscovery_init_default   {0, {0, 0, 0, 0, 0, 0, 0, 0}}
@@ -856,7 +901,8 @@ extern "C" {
 #define meshtastic_Compressed_init_default       {_meshtastic_PortNum_MIN, {0, {0}}}
 #define meshtastic_NeighborInfo_init_default     {0, 0, 0, {meshtastic_Neighbor_init_default, meshtastic_Neighbor_init_default, meshtastic_Neighbor_init_default, meshtastic_Neighbor_init_default, meshtastic_Neighbor_init_default, meshtastic_Neighbor_init_default, meshtastic_Neighbor_init_default, meshtastic_Neighbor_init_default, meshtastic_Neighbor_init_default, meshtastic_Neighbor_init_default}}
 #define meshtastic_Neighbor_init_default         {0, 0}
-#define meshtastic_DeviceMetadata_init_default   {"", 0, 0, 0, 0, 0, _meshtastic_Config_DeviceConfig_Role_MIN, 0, _meshtastic_HardwareModel_MIN}
+#define meshtastic_DeviceMetadata_init_default   {"", 0, 0, 0, 0, 0, _meshtastic_Config_DeviceConfig_Role_MIN, 0, _meshtastic_HardwareModel_MIN, 0}
+#define meshtastic_PtdButtons_init_zero          {_meshtastic_PtdButtons_PtdButtonId_MIN, _meshtastic_PtdButtons_PtdButtonEvent_MIN, 0}
 #define meshtastic_Position_init_zero            {0, 0, 0, 0, _meshtastic_Position_LocSource_MIN, _meshtastic_Position_AltSource_MIN, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 #define meshtastic_User_init_zero                {"", "", "", {0}, _meshtastic_HardwareModel_MIN, 0}
 #define meshtastic_RouteDiscovery_init_zero      {0, {0, 0, 0, 0, 0, 0, 0, 0}}
@@ -873,9 +919,12 @@ extern "C" {
 #define meshtastic_Compressed_init_zero          {_meshtastic_PortNum_MIN, {0, {0}}}
 #define meshtastic_NeighborInfo_init_zero        {0, 0, 0, {meshtastic_Neighbor_init_zero, meshtastic_Neighbor_init_zero, meshtastic_Neighbor_init_zero, meshtastic_Neighbor_init_zero, meshtastic_Neighbor_init_zero, meshtastic_Neighbor_init_zero, meshtastic_Neighbor_init_zero, meshtastic_Neighbor_init_zero, meshtastic_Neighbor_init_zero, meshtastic_Neighbor_init_zero}}
 #define meshtastic_Neighbor_init_zero            {0, 0}
-#define meshtastic_DeviceMetadata_init_zero      {"", 0, 0, 0, 0, 0, _meshtastic_Config_DeviceConfig_Role_MIN, 0, _meshtastic_HardwareModel_MIN}
+#define meshtastic_DeviceMetadata_init_zero      {"", 0, 0, 0, 0, 0, _meshtastic_Config_DeviceConfig_Role_MIN, 0, _meshtastic_HardwareModel_MIN, 0}
 
 /* Field tags (for use in manual encoding/decoding) */
+#define meshtastic_PtdButtons_button_tag         1
+#define meshtastic_PtdButtons_event_tag          2
+#define meshtastic_PtdButtons_buttons_states_tag 3
 #define meshtastic_Position_latitude_i_tag       1
 #define meshtastic_Position_longitude_i_tag      2
 #define meshtastic_Position_altitude_tag         3
@@ -988,6 +1037,7 @@ extern "C" {
 #define meshtastic_DeviceMetadata_role_tag       7
 #define meshtastic_DeviceMetadata_position_flags_tag 8
 #define meshtastic_DeviceMetadata_hw_model_tag   9
+#define meshtastic_DeviceMetadata_hasRemoteHardware_tag 10
 #define meshtastic_FromRadio_id_tag              1
 #define meshtastic_FromRadio_packet_tag          2
 #define meshtastic_FromRadio_my_info_tag         3
@@ -1001,8 +1051,16 @@ extern "C" {
 #define meshtastic_FromRadio_queueStatus_tag     11
 #define meshtastic_FromRadio_xmodemPacket_tag    12
 #define meshtastic_FromRadio_metadata_tag        13
+#define meshtastic_FromRadio_ptdButtons_tag      14
 
 /* Struct field encoding specification for nanopb */
+#define meshtastic_PtdButtons_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UENUM,    button,            1) \
+X(a, STATIC,   SINGULAR, UENUM,    event,             2) \
+X(a, STATIC,   SINGULAR, UINT32,   buttons_states,    3)
+#define meshtastic_PtdButtons_CALLBACK NULL
+#define meshtastic_PtdButtons_DEFAULT NULL
+
 #define meshtastic_Position_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, SFIXED32, latitude_i,        1) \
 X(a, STATIC,   SINGULAR, SFIXED32, longitude_i,       2) \
@@ -1158,7 +1216,8 @@ X(a, STATIC,   ONEOF,    MESSAGE,  (payload_variant,moduleConfig,moduleConfig), 
 X(a, STATIC,   ONEOF,    MESSAGE,  (payload_variant,channel,channel),  10) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (payload_variant,queueStatus,queueStatus),  11) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (payload_variant,xmodemPacket,xmodemPacket),  12) \
-X(a, STATIC,   ONEOF,    MESSAGE,  (payload_variant,metadata,metadata),  13)
+X(a, STATIC,   ONEOF,    MESSAGE,  (payload_variant,metadata,metadata),  13) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (payload_variant,ptdButtons,ptdButtons),  14)
 #define meshtastic_FromRadio_CALLBACK NULL
 #define meshtastic_FromRadio_DEFAULT NULL
 #define meshtastic_FromRadio_payload_variant_packet_MSGTYPE meshtastic_MeshPacket
@@ -1171,6 +1230,7 @@ X(a, STATIC,   ONEOF,    MESSAGE,  (payload_variant,metadata,metadata),  13)
 #define meshtastic_FromRadio_payload_variant_queueStatus_MSGTYPE meshtastic_QueueStatus
 #define meshtastic_FromRadio_payload_variant_xmodemPacket_MSGTYPE meshtastic_XModem
 #define meshtastic_FromRadio_payload_variant_metadata_MSGTYPE meshtastic_DeviceMetadata
+#define meshtastic_FromRadio_payload_variant_ptdButtons_MSGTYPE meshtastic_PtdButtons
 
 #define meshtastic_ToRadio_FIELDLIST(X, a) \
 X(a, STATIC,   ONEOF,    MESSAGE,  (payload_variant,packet,packet),   1) \
@@ -1211,10 +1271,12 @@ X(a, STATIC,   SINGULAR, BOOL,     hasBluetooth,      5) \
 X(a, STATIC,   SINGULAR, BOOL,     hasEthernet,       6) \
 X(a, STATIC,   SINGULAR, UENUM,    role,              7) \
 X(a, STATIC,   SINGULAR, UINT32,   position_flags,    8) \
-X(a, STATIC,   SINGULAR, UENUM,    hw_model,          9)
+X(a, STATIC,   SINGULAR, UENUM,    hw_model,          9) \
+X(a, STATIC,   SINGULAR, BOOL,     hasRemoteHardware,  10)
 #define meshtastic_DeviceMetadata_CALLBACK NULL
 #define meshtastic_DeviceMetadata_DEFAULT NULL
 
+extern const pb_msgdesc_t meshtastic_PtdButtons_msg;
 extern const pb_msgdesc_t meshtastic_Position_msg;
 extern const pb_msgdesc_t meshtastic_User_msg;
 extern const pb_msgdesc_t meshtastic_RouteDiscovery_msg;
@@ -1234,6 +1296,7 @@ extern const pb_msgdesc_t meshtastic_Neighbor_msg;
 extern const pb_msgdesc_t meshtastic_DeviceMetadata_msg;
 
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
+#define meshtastic_PtdButtons_fields &meshtastic_PtdButtons_msg
 #define meshtastic_Position_fields &meshtastic_Position_msg
 #define meshtastic_User_fields &meshtastic_User_msg
 #define meshtastic_RouteDiscovery_fields &meshtastic_RouteDiscovery_msg
@@ -1255,7 +1318,7 @@ extern const pb_msgdesc_t meshtastic_DeviceMetadata_msg;
 /* Maximum encoded size of messages (where known) */
 #define meshtastic_Compressed_size               243
 #define meshtastic_Data_size                     270
-#define meshtastic_DeviceMetadata_size           44
+#define meshtastic_DeviceMetadata_size           46
 #define meshtastic_FromRadio_size                330
 #define meshtastic_LogRecord_size                81
 #define meshtastic_MeshPacket_size               321
@@ -1264,6 +1327,7 @@ extern const pb_msgdesc_t meshtastic_DeviceMetadata_msg;
 #define meshtastic_Neighbor_size                 11
 #define meshtastic_NodeInfo_size                 261
 #define meshtastic_Position_size                 137
+#define meshtastic_PtdButtons_size               10
 #define meshtastic_QueueStatus_size              23
 #define meshtastic_RouteDiscovery_size           40
 #define meshtastic_Routing_size                  42
