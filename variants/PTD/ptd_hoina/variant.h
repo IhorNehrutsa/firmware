@@ -8,11 +8,11 @@
 /*
  * PTD Buttons
  */
-#define BUTTON_UP     14 // 0x0004000
-#define BUTTON_LEFT   12 // 0x0001000
+//#define BUTTON_UP     14 // 0x0004000
+//#define BUTTON_LEFT   12 // 0x0001000
 #define BUTTON_CENTER 26 // 0x4000000
-#define BUTTON_RIGHT  13 // 0x0002000
-#define BUTTON_DOWN   15 // 0x0008000
+//#define BUTTON_RIGHT  13 // 0x0002000
+//#define BUTTON_DOWN   15 // 0x0008000
 //                       // 0x400f000
 
 /*

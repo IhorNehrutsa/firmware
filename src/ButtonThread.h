@@ -312,21 +312,31 @@ class ButtonThread : public concurrency::OSThread
         meshtastic_PtdButtons b;
         memset(&b, 0, sizeof(b));
         switch (oneButton->pin()) {
+            #ifdef BUTTON_UP
             case BUTTON_UP:
                 b.button = meshtastic_PtdButtons_PtdButtonId_BUTTON_UP;
                 break;
+            #endif
+            #ifdef BUTTON_LEFT
             case BUTTON_LEFT:
                 b.button = meshtastic_PtdButtons_PtdButtonId_BUTTON_LEFT;
                 break;
+            #endif
+            #ifdef BUTTON_CENTER
             case BUTTON_CENTER:
                 b.button = meshtastic_PtdButtons_PtdButtonId_BUTTON_CENTER;
                 break;
+            #endif
+            #ifdef BUTTON_RIGHT
             case BUTTON_RIGHT:
                 b.button = meshtastic_PtdButtons_PtdButtonId_BUTTON_RIGHT;
                 break;
+            #endif
+            #ifdef BUTTON_DOWN
             case BUTTON_DOWN:
                 b.button = meshtastic_PtdButtons_PtdButtonId_BUTTON_DOWN;
                 break;
+            #endif
         }
         b.event = event;
 
