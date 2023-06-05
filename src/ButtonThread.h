@@ -78,7 +78,7 @@ class ButtonThread : public concurrency::OSThread
 #endif
 
         #define MS_CLIKC 100
-        #define MS_PRESS 150
+        #define MS_PRESS 300
 #ifdef BUTTON_UP
         #ifdef PTD_BUTTONS_LOW
         userButtonUp = new OneButton(BUTTON_UP);
