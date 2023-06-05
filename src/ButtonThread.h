@@ -77,14 +77,16 @@ class ButtonThread : public concurrency::OSThread
         wakeOnIrq(config.device.button_gpio ? config.device.button_gpio : BUTTON_PIN, FALLING);
 #endif
 
-        #define MS 300
+        #define MS_CLIKC 100
+        #define MS_PRESS 150
 #ifdef BUTTON_UP
         #ifdef PTD_BUTTONS_LOW
         userButtonUp = new OneButton(BUTTON_UP);
         #else
         userButtonUp = new OneButton(BUTTON_UP, false, false);
         #endif
-        userButtonUp->setClickMs(MS);
+        userButtonUp->setClickMs(MS_CLIKC);
+        userButtonUp->setPressMs(MS_PRESS);
         userButtonUp->attachClick(userButtonUpClick, userButtonUp);
         userButtonUp->attachDoubleClick(userButtonUpDoubleClick, userButtonUp);
         userButtonUp->attachMultiClick(userButtonUpMultiClick, userButtonUp);
@@ -97,7 +99,8 @@ class ButtonThread : public concurrency::OSThread
         #else
         userButtonLe = new OneButton(BUTTON_LEFT, false, false);
         #endif
-        userButtonLe->setClickMs(MS);
+        userButtonLe->setClickMs(MS_CLIKC);
+        userButtonLe->setPressMs(MS_PRESS);
         userButtonLe->attachClick(userButtonLeClick, userButtonLe);
         userButtonLe->attachDoubleClick(userButtonLeDoubleClick, userButtonLe);
         userButtonLe->attachMultiClick(userButtonLeMultiClick, userButtonLe);
@@ -110,7 +113,8 @@ class ButtonThread : public concurrency::OSThread
         #else
         userButtonCe = new OneButton(BUTTON_CENTER, false, false);
         #endif
-        userButtonCe->setClickMs(MS);
+        userButtonCe->setClickMs(MS_CLIKC);
+        userButtonCe->setPressMs(MS_PRESS);
         userButtonCe->attachClick(userButtonCeClick, userButtonCe);
         userButtonCe->attachDoubleClick(userButtonCeDoubleClick, userButtonCe);
         userButtonCe->attachMultiClick(userButtonCeMultiClick, userButtonCe);
@@ -124,7 +128,8 @@ class ButtonThread : public concurrency::OSThread
         #else
         userButtonRi = new OneButton(BUTTON_RIGHT, false, false);
         #endif
-        userButtonRi->setClickMs(MS);
+        userButtonRi->setClickMs(MS_CLIKC);
+        userButtonRi->setPressMs(MS_PRESS);
         userButtonRi->attachClick(userButtonRiClick, userButtonRi);
         userButtonRi->attachDoubleClick(userButtonRiDoubleClick, userButtonRi);
         userButtonRi->attachMultiClick(userButtonRiMultiClick, userButtonRi);
@@ -137,7 +142,8 @@ class ButtonThread : public concurrency::OSThread
         #else
         userButtonDo = new OneButton(BUTTON_DOWN, false, false);
         #endif
-        userButtonDo->setClickMs(MS);
+        userButtonDo->setClickMs(MS_CLIKC);
+        userButtonDo->setPressMs(MS_PRESS);
         userButtonDo->attachClick(userButtonDoClick, userButtonDo);
         userButtonDo->attachDoubleClick(userButtonDoDoubleClick, userButtonDo);
         userButtonDo->attachMultiClick(userButtonDoMultiClick, userButtonDo);

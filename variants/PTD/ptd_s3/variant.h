@@ -10,7 +10,7 @@
  */
 //#define BUTTON_UP    -1 // 0x
 //#define BUTTON_LEFT  -1 // 0x
-  #define BUTTON_CENTER  14 // 0x PTT
+//#define BUTTON_CENTER  14 // 0x PTT
 //#define BUTTON_RIGHT -1 // 0x
 //#define BUTTON_DOWN  -1 // 0x
 //                           0x
